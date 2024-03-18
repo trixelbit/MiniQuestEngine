@@ -44,8 +44,6 @@ impl Renderer2D
 }
 impl Renderer2D
 {
-
-
     pub fn FragmentCode() -> &'static str
     {
         r#"
@@ -97,6 +95,10 @@ impl Component for Renderer2D
 
     fn render(&self, entity: &Entity, display: &Display<WindowSurface>)
     {
+        let dim = display.get_framebuffer_dimensions();
+
+        print!("x{} y{}", dim.0, dim.1);
+
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
 
@@ -111,8 +113,8 @@ impl Component for Renderer2D
         {
             matrix:
             [
-                [entity.scale.x() * self.Texture.dimensions().0 as f32 / 100f32 , 0.0, 0.0, 0.0],
-                [0.0, entity.scale.y() * self.Texture.dimensions().1 as f32 / 100f32, 0.0, 0.0],
+                [entity.scale.x() * self.Texture.dimensions().0 as f32 / (1f32 * dim.0 as f32) , 0.0, 0.0, 0.0],
+                [0.0, entity.scale.y() * self.Texture.dimensions().1 as f32 / (1f32 * dim.1 as f32), 0.0, 0.0],
                 [0.0, 0.0, 1.0, 0.0],
                 [entity.world_position.x(), entity.world_position.y(), 0.0, 1.0f32],
             ],

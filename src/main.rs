@@ -14,8 +14,6 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 use glium::{Display, glutin, Surface, Texture2d};
-use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
-use image::{ImageBuffer, Rgba};
 use crate::Frame::GameFrame;
 use crate::Frame::Input::Input;
 use crate::GameEntity::Entity;
@@ -33,8 +31,9 @@ fn main() {
 
 
 
-    let position = Vector3::new(0.0, 1.1, 1.0);
+    let position = Vector3::new(0.0, 1.0, 1.0);
     let mut player = Rc::new(RefCell::new(Entity::new(position)));
+    player.borrow_mut().scale = Vector3::scale_value(Vector3::one(), 5.0);
 
     let movementComponent = Rc::new(RefCell::new(
         PlayerController::PlayerController{
@@ -61,6 +60,7 @@ fn main() {
         {
             winit::event::Event::WindowEvent { event, .. } => match event
             {
+
                 winit::event::WindowEvent::KeyboardInput {event, ..} => match &event.physical_key
                 {
                     key =>

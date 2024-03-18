@@ -31,8 +31,10 @@ impl Component for PlayerController
         let rightVector = if frame.Input.IsKeyDown(KeyD) {1.0f32} else {0.0};
         let upVector = if frame.Input.IsKeyDown(KeyW) {1.0f32} else {0.0};
         let downVector = if frame.Input.IsKeyDown(KeyS) {-1.0f32} else {0.0};
+        let forwardVector = if frame.Input.IsKeyDown(KeyU) {1.0f32} else {0.0};
+        let backVector = if frame.Input.IsKeyDown(KeyJ) {-1.0f32} else {0.0};
 
-        let movementVector = Vector3::new(leftVector + rightVector, upVector + downVector, 0.0);
+        let movementVector = Vector3::new(leftVector + rightVector, upVector + downVector, forwardVector + backVector);
 
         entity.borrow_mut().world_position.add(
             Vector3::scale_value(movementVector, self._speed));
