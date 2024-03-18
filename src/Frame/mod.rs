@@ -1,6 +1,6 @@
-use crate::Frame::input::{Input, InputState};
+use crate::Frame::Input::*;
 
-pub mod input;
+pub mod Input;
 
 pub struct GameFrame
 {

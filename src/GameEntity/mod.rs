@@ -1,26 +1,28 @@
 use std::any::Any;
-use std::cell::{RefCell, RefMut};
+use std::cell::RefCell;
 use std::rc::Rc;
-use glium::Texture2d;
+use glium::Display;
+use glium::glutin::surface::WindowSurface;
 use winit::keyboard::KeyCode::*;
+use crate::Components;
 use crate::Frame::GameFrame;
 use crate::Math::Vector3;
 
+use crate::Components::{AToAny, Component};
+
 pub struct Entity
 {
-    pub texture: Texture2d,
     pub world_position: Vector3,
     pub scale: Vector3,
-    _components : Vec<Rc<RefCell<dyn Component>>>
+    _components : Vec<Rc<RefCell<dyn Components::Component>>>
 }
 impl Entity
 {
-    pub fn new(position: Vector3, sprite: Texture2d) -> Self
+    pub fn new(position: Vector3) -> Self
     {
         Entity
         {
             world_position: position,
-            texture: sprite,
             scale: Vector3::one(),
             _components: Vec::new()
         }
@@ -36,17 +38,24 @@ impl Entity
         self._components.push(component);
     }
 
-    pub fn get_component(&self, componentType : &str) -> Option<Rc<RefCell<dyn Component>>>
+    pub fn get_component<T>(&self) -> Option<&Rc<RefCell<T>>>
     {
+        panic!("");
+        /*
         for x in &self._components
         {
-            if x.borrow().name() == componentType
+            if x.borrow().name() == std::any::type_name::<T>() //componentType
             {
-                return Some(x.clone());
+                let anyType: &dyn Any = x.clone().as_any();
+                return match anyType.downcast_ref::<Rc<RefCell<T>>>()
+                {
+                    Some(i) => { Some(i) },
+                    None => { None }
+                }
             }
         }
 
-        return None;
+        return None;*/
     }
 
     pub fn update(&mut self, frame: Rc<GameFrame>)
@@ -58,56 +67,15 @@ impl Entity
             component.borrow_mut().update( Rc::new(RefCell::new(self)), frame.clone());
         }
     }
-}
 
-pub struct PlayerController
-{
-    pub _entity :Rc<RefCell<Entity>>,
-    pub _speed : f32
-}
-impl PlayerController
-{
-}
-
-impl Component for PlayerController
-{
-    fn start(&mut self)
+    pub fn render(&mut self, display: &Display<WindowSurface>)
     {
+        let components = &self._components.clone();
 
-    }
-
-    fn update(&mut self, entity: Rc<RefCell<&mut Entity>>,  frame: Rc<GameFrame>)
-    {
-        //let mut entity = self.entity().borrow_mut();
-
-        let leftVector = if frame.Input.IsKeyDown(KeyA) {-1.0f32} else {0.0};
-        let rightVector = if frame.Input.IsKeyDown(KeyD) {1.0f32} else {0.0};
-        let upVector = if frame.Input.IsKeyDown(KeyW) {1.0f32} else {0.0};
-        let downVector = if frame.Input.IsKeyDown(KeyS) {-1.0f32} else {0.0};
-
-        let movementVector = Vector3::new(leftVector + rightVector, upVector + downVector, 0.0);
-
-        entity.borrow_mut().world_position.add(
-            Vector3::scale_value(movementVector, self._speed));
-
+        for component in components
+        {
+            component.borrow_mut().render(self, &display);
+        }
     }
 }
-
-pub trait Component
-{
-    /// Returns the name of the components concrete type.
-    fn name() -> String
-    {
-        std::any::type_name::<Self>().to_string()
-    }
-
-    /// Called at the start of the object lifetime.
-    fn start(&mut self);
-
-    /// Called every frame while the object is alive.
-
-    fn update(&mut self, entity: Rc<RefCell<&mut Entity>>,  frame: Rc<GameFrame>);
-}
-
-
 
