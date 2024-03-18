@@ -22,6 +22,20 @@ impl Input
         self._inputState.clone()
     }
 
+    pub fn Pressed(&mut self, keyCode: PhysicalKey)
+    {
+        self._inputState._pressed.insert(keyCode, true);
+        self._inputState._is_down.insert(keyCode, true);
+        self._inputState._released.insert(keyCode, false);
+    }
+
+    pub fn Released(&mut self, keyCode: PhysicalKey)
+    {
+        self._inputState._pressed.insert(keyCode, false);
+        self._inputState._is_down.insert(keyCode, false);
+        self._inputState._released.insert(keyCode, true);
+    }
+
     /// # Description:
     /// Sets all maps to false.
     pub fn reset_maps(&mut self)
@@ -39,34 +53,6 @@ impl Input
         {
             *value = false;
         }
-    }
-
-    /// # Description:
-    /// The state for a given key press.
-    pub fn set_key_state(&mut self, keyCode: PhysicalKey, button_state: bool)
-    {
-        let mut map = &mut self._inputState._is_down;
-        if !map.contains_key(&keyCode)
-        {
-            map.insert(keyCode, button_state);
-            return;
-        }
-
-        let isKeyDown = self._inputState._is_down[&keyCode];
-
-        // transitioning from un-pressed to pressed
-        if !isKeyDown && button_state
-        {
-            self._inputState._pressed.insert(keyCode, true);
-        }
-
-        // transitioning from pressed to un-pressed
-        if isKeyDown && !button_state
-        {
-            self._inputState._released.insert(keyCode, true);
-        }
-
-        self._inputState._is_down.insert(keyCode, true);
     }
 }
 

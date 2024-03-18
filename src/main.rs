@@ -13,7 +13,8 @@ extern crate glium;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
-use glium::{Display, glutin, Surface, Texture2d};
+use glium::Surface;
+use winit::event::ElementState;
 use crate::Frame::GameFrame;
 use crate::Frame::Input::Input;
 use crate::GameEntity::Entity;
@@ -38,7 +39,8 @@ fn main() {
     let movementComponent = Rc::new(RefCell::new(
         PlayerController::PlayerController{
             _speed: 0.002f32,
-            _entity: Rc::clone(&player)
+            _entity: Rc::clone(&player),
+            _velocity: Vector3::zero(),
         }));
 
     let renderComponent = Rc::new(RefCell::new(
@@ -61,13 +63,20 @@ fn main() {
             winit::event::Event::WindowEvent { event, .. } => match event
             {
 
-                winit::event::WindowEvent::KeyboardInput {event, ..} => match &event.physical_key
+                winit::event::WindowEvent::KeyboardInput {event, ..} =>
                 {
-                    key =>
+                    match event.state
                     {
-                        &input.reset_maps();
-                        &input.set_key_state(key.clone(), true);
-                    }
+                        ElementState::Pressed =>
+                        {
+                            &input.Pressed(event.physical_key)
+                        },
+
+                        ElementState::Released =>
+                        {
+                            &input.Released(event.physical_key)
+                        }
+                    };
                 },
 
                 winit::event::WindowEvent::CloseRequested =>

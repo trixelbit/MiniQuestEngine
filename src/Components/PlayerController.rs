@@ -12,7 +12,8 @@ use crate::Math::Vector3;
 pub struct PlayerController
 {
     pub _entity :Rc<RefCell<Entity>>,
-    pub _speed : f32
+    pub _speed : f32,
+    pub _velocity: Vector3
 }
 impl PlayerController
 {
@@ -36,13 +37,28 @@ impl Component for PlayerController
 
         let movementVector = Vector3::new(leftVector + rightVector, upVector + downVector, forwardVector + backVector);
 
-        entity.borrow_mut().world_position.add(
-            Vector3::scale_value(movementVector, self._speed));
+        let targetVector = Vector3::scale_value(movementVector, self._speed);
+
+        let mut damping : f32 = 0.0;
+
+        if movementVector.magnitude() > 0.0001
+        {
+            damping = 1.0;
+        }
+        else
+        {
+            damping = 0.1;
+        }
+
+        self._velocity = Vector3::Lerp(self._velocity, targetVector, damping);
+
+        entity.borrow_mut().world_position.add(self._velocity);
 
     }
 
     fn render(&self, entity: &Entity, display: &Display<WindowSurface>)
     {
+
     }
 }
 
