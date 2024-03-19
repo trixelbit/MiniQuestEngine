@@ -37,26 +37,29 @@ fn main()
         .with_title("Mini Quest Engine Test")
         .build(&event_loop);
 
+
+
+    /// scene build
+
+
+
     let position = Vector3::new(0.0, -0.5, 1.0);
     let mut player = Rc::new(RefCell::new(Entity::new(position)));
     player.borrow_mut().scale = Vector3::scale_value(Vector3::one(), 5.0);
 
-    let movementComponent = Rc::new(RefCell::new(
-        PlayerController::PlayerController{
-            _speed: 0.002f32,
-            _entity: Rc::clone(&player),
-            _velocity: Vector3::zero(),
-        }));
 
     let renderComponent = Rc::new(RefCell::new(
         Renderer2D::New(&display,
             Sprite::new(
-              "Images/run_down-Sheet.png",
+              "Images/run_down.png",
               &display,
               4,
               (2,2),
               0.001))
     ));
+
+    let movementComponent = Rc::new(RefCell::new(
+        PlayerController::PlayerController::new(0.004f32, renderComponent.clone())));
 
     player.borrow_mut().add_component(movementComponent.clone());
     player.borrow_mut().add_component(renderComponent.clone());
@@ -65,6 +68,8 @@ fn main()
     let mut entities: Vec<Rc<RefCell<Entity>>> = Vec::new();
     entities.push(player.clone());
 
+
+    /// Enter frame looop
 
     let mut input = Input::New();
     let mut dateTimeLastFrame = Local::now();

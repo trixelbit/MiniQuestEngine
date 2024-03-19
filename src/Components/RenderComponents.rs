@@ -18,12 +18,12 @@ pub struct Renderer2D
 
     pub Display: Display<WindowSurface>,
 
-    pub Sprite: Sprite
+    pub Sprite: Rc<Sprite>
 }
 
 impl Renderer2D
 {
-    pub fn New(display : &Display<WindowSurface>, initialSprite: Sprite) -> Self
+    pub fn New(display : &Display<WindowSurface>, initialSprite: Rc<Sprite>) -> Self
     {
         let vertexBuffer = PlaneVertexBuffer(&display);
 
@@ -46,6 +46,11 @@ impl Renderer2D
             Program: program,
             Display: display.clone()
         }
+    }
+
+    pub fn set_new_sprite(&mut self, newSprite: Rc<Sprite>)
+    {
+        self.Sprite = newSprite;
     }
 }
 impl Renderer2D
@@ -166,7 +171,6 @@ impl Component for Renderer2D
 }
 
 
-
 pub struct Sprite
 {
     pub Texture: Texture2d,
@@ -184,37 +188,40 @@ pub struct Sprite
 
 impl Sprite
 {
-    pub fn new_simple(spritePath: &str, display: &Display<WindowSurface>) -> Self
+    pub fn new_simple(spritePath: &str, display: &Display<WindowSurface>) -> Rc<Self>
     {
         let imageBuffer = ImageBufferFromPath(spritePath);
         let image_dimensions = imageBuffer.dimensions();
         let image = RawImage2d::from_raw_rgba_reversed(&imageBuffer.into_raw(), image_dimensions);
         let texture = Texture2d::new(display, image).unwrap();
 
-        Self
-        {
-            Texture: texture,
-            FrameCount: 1,
-            CellCounts: (1,1),
-            AnimationSpeed: 1.0
-        }
+        Rc::new(
+            Sprite
+            {
+                Texture: texture,
+                FrameCount: 1,
+                CellCounts: (1,1),
+                AnimationSpeed: 1.0
+            }
+        )
 
     }
     pub fn new
     (spritePath: &str, display: &Display<WindowSurface>, frameCount: u16,
-     cellCounts: (u16, u16), animationSpeed: f32) -> Self
+     cellCounts: (u16, u16), animationSpeed: f32) -> Rc<Sprite>
     {
         let imageBuffer = ImageBufferFromPath(spritePath);
         let image_dimensions = imageBuffer.dimensions();
         let image = RawImage2d::from_raw_rgba_reversed(&imageBuffer.into_raw(), image_dimensions);
         let texture = Texture2d::new(display, image).unwrap();
 
-        Self
-        {
-            Texture: texture,
-            FrameCount: frameCount,
-            CellCounts: cellCounts,
-            AnimationSpeed: animationSpeed
-        }
+        Rc::new(
+            Sprite
+            {
+                Texture: texture,
+                FrameCount: frameCount,
+                CellCounts: cellCounts,
+                AnimationSpeed: animationSpeed
+            })
     }
 }
