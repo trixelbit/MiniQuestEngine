@@ -23,7 +23,7 @@ use crate::Frame::GameFrame;
 use crate::Frame::Input::Input;
 use crate::GameEntity::Entity;
 use crate::Components::*;
-use crate::Components::RenderComponents::Sprite;
+use crate::Components::RenderComponents::{Renderer2D, Sprite};
 
 
 fn main()
@@ -37,7 +37,7 @@ fn main()
         .with_title("Mini Quest Engine Test")
         .build(&event_loop);
 
-    let position = Vector3::new(0.0, 1.0, 1.0);
+    let position = Vector3::new(0.0, -0.5, 1.0);
     let mut player = Rc::new(RefCell::new(Entity::new(position)));
     player.borrow_mut().scale = Vector3::scale_value(Vector3::one(), 5.0);
 
@@ -49,13 +49,13 @@ fn main()
         }));
 
     let renderComponent = Rc::new(RefCell::new(
-        RenderComponents::Renderer2D::New(&display,
-                                          Sprite::new(
-                                              "Images/run_down-Sheet.png",
-                                              &display,
-                                              4,
-                                              (2,2),
-                                              0.01))
+        Renderer2D::New(&display,
+            Sprite::new(
+              "Images/run_down-Sheet.png",
+              &display,
+              4,
+              (2,2),
+              0.001))
     ));
 
     player.borrow_mut().add_component(movementComponent.clone());

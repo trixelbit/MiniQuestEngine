@@ -59,9 +59,9 @@ impl Renderer2D
         out vec4 color;
 
         uniform int time;
-        uniform int frame_count;
-        uniform int cell_x_count;
-        uniform int cell_y_count;
+        uniform float frame_count;
+        uniform float cell_x_count;
+        uniform float cell_y_count;
         uniform float speed;
 
         uniform sampler2D tex;
@@ -70,14 +70,21 @@ impl Renderer2D
         {
             int currentIndex = int(mod(time * speed, frame_count));
 
+            vec2 cellSize
+                = vec2(
+                    1.0 / cell_x_count,
+                    1.0 / cell_y_count
+                );
+
             vec2 offset = vec2(
-                 mod(currentIndex, cell_x_count),
-                 int(currentIndex / cell_x_count)
+                 mod(float(currentIndex), cell_x_count) / cell_x_count,
+                  1 - (0.5 * floor(2 * float(currentIndex) * cellSize.x * cellSize.y))
             );
 
+
             vec2 cellCoord = vec2(
-                v_tex_coords.x / cell_x_count,
-                v_tex_coords.y / cell_y_count
+                v_tex_coords.x * cellSize.x,
+                -(1 - v_tex_coords.y) * cellSize.y
             );
 
             vec2 samplePoint = offset + cellCoord;
@@ -138,17 +145,17 @@ impl Component for Renderer2D
         {
             matrix:
             [
-                [entity.scale.x() * self.Sprite.Texture.dimensions().0 as f32 / (1f32 * dim.0 as f32) , 0.0, 0.0, 0.0],
-                [0.0, entity.scale.y() * self.Sprite.Texture.dimensions().1 as f32 / (1f32 * dim.1 as f32), 0.0, 0.0],
+                [entity.scale.x() * self.Sprite.Texture.dimensions().0 as f32 / (1f32 * dim.0 as f32 * self.Sprite.CellCounts.0 as f32) , 0.0, 0.0, 0.0],
+                [0.0, entity.scale.y() * self.Sprite.Texture.dimensions().1 as f32 / (1f32 * dim.1 as f32 * self.Sprite.CellCounts.1 as f32), 0.0, 0.0],
                 [0.0, 0.0, 1.0, 0.0],
                 [entity.world_position.x(), entity.world_position.y(), entity.world_position.z(), 1.0f32],
             ],
 
             tex: glium::uniforms::Sampler(&self.Sprite.Texture, behavior),
             time: frame.TimeSinceGameStart.num_milliseconds() as i32,
-            cell_x_count: self.Sprite.CellCounts.0 as i32,
-            cell_y_count: self.Sprite.CellCounts.1 as i32,
-            frame_count: self.Sprite.FrameCount as i32,
+            cell_x_count: self.Sprite.CellCounts.0 as f32,
+            cell_y_count: self.Sprite.CellCounts.1 as f32,
+            frame_count: self.Sprite.FrameCount as f32,
             speed: self.Sprite.AnimationSpeed
         };
 
@@ -194,8 +201,8 @@ impl Sprite
 
     }
     pub fn new
-    (spritePath: &str, display: &Display<WindowSurface>, spriteCount: u16,
-               cellCounts: (u16, u16), animationSpeed: f32) -> Self
+    (spritePath: &str, display: &Display<WindowSurface>, frameCount: u16,
+     cellCounts: (u16, u16), animationSpeed: f32) -> Self
     {
         let imageBuffer = ImageBufferFromPath(spritePath);
         let image_dimensions = imageBuffer.dimensions();
@@ -205,7 +212,7 @@ impl Sprite
         Self
         {
             Texture: texture,
-            FrameCount: spriteCount,
+            FrameCount: frameCount,
             CellCounts: cellCounts,
             AnimationSpeed: animationSpeed
         }
