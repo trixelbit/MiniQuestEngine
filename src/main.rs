@@ -13,15 +13,22 @@ extern crate glium;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
-use glium::Surface;
+use std::sync::Mutex;
+use chrono::{DateTime, Local};
+use glium::{Display, Surface};
+use glium::glutin::surface::WindowSurface;
+use lazy_static::lazy_static;
 use winit::event::ElementState;
 use crate::Frame::GameFrame;
 use crate::Frame::Input::Input;
 use crate::GameEntity::Entity;
 use crate::Components::*;
+use crate::Components::RenderComponents::Sprite;
 
 
-fn main() {
+fn main()
+{
+    let timeStart = Local::now();
 
     let event_loop = winit::event_loop::EventLoopBuilder::new()
         .build()
@@ -29,8 +36,6 @@ fn main() {
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
         .with_title("Mini Quest Engine Test")
         .build(&event_loop);
-
-
 
     let position = Vector3::new(0.0, 1.0, 1.0);
     let mut player = Rc::new(RefCell::new(Entity::new(position)));
@@ -44,8 +49,15 @@ fn main() {
         }));
 
     let renderComponent = Rc::new(RefCell::new(
-        Renderer2D::Renderer2D::New(&display)
+        RenderComponents::Renderer2D::New(&display,
+                                          Sprite::new(
+                                              "Images/run_down-Sheet.png",
+                                              &display,
+                                              4,
+                                              (2,2),
+                                              0.01))
     ));
+
     player.borrow_mut().add_component(movementComponent.clone());
     player.borrow_mut().add_component(renderComponent.clone());
 
@@ -55,6 +67,7 @@ fn main() {
 
 
     let mut input = Input::New();
+    let mut dateTimeLastFrame = Local::now();
 
     event_loop.run(move |event, window_target|
     {
@@ -90,14 +103,21 @@ fn main() {
                     {
                         for entityMutex in &entities
                         {
-                            let mut entity = entityMutex.borrow_mut();
-                            entity.update(
+                            let frame =
                                 Rc::new(
-                                    GameFrame::new(input.GetStateCopy())
-                                ));
+                                    GameFrame::new(input.GetStateCopy(),
+                                                   Local::now() - timeStart,
+                                                   Local::now() - dateTimeLastFrame
+                                    )
+                                );
 
-                            entity.render(&display);
+                            let mut entity = entityMutex.borrow_mut();
+                            entity.update(&frame);
+
+                            entity.render(&frame);
                         }
+
+                        dateTimeLastFrame = Local::now();
                     },
 
                 // Because glium doesn't know about windows we need to resize the display

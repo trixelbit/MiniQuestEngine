@@ -26,7 +26,7 @@ impl Component for PlayerController
 
     }
 
-    fn update(&mut self, entity: Rc<RefCell<&mut Entity>>,  frame: Rc<GameFrame>)
+    fn update(&mut self, entity: Rc<RefCell<&mut Entity>>,  frame: &GameFrame)
     {
         let leftVector = if frame.Input.IsKeyDown(KeyA) {-1.0f32} else {0.0};
         let rightVector = if frame.Input.IsKeyDown(KeyD) {1.0f32} else {0.0};
@@ -56,7 +56,7 @@ impl Component for PlayerController
 
     }
 
-    fn render(&self, entity: &Entity, display: &Display<WindowSurface>)
+    fn render(&self, entity: &Entity, frame: &GameFrame)
     {
 
     }

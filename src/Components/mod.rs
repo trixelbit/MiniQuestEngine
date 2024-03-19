@@ -1,5 +1,5 @@
 pub mod PlayerController;
-pub mod Renderer2D;
+pub mod RenderComponents;
 mod RenderUtilities;
 
 use std::any::Any;
@@ -25,9 +25,9 @@ pub trait Component
     fn start(&mut self);
 
     /// Called every frame while the object is alive.
-    fn update(&mut self, entity: Rc<RefCell<&mut Entity>>,  frame: Rc<GameFrame>);
+    fn update(&mut self, entity: Rc<RefCell<&mut Entity>>,  frame: &GameFrame);
 
-    fn render(&self, entity: &Entity, display: &Display<WindowSurface>);
+    fn render(&self, entity: &Entity, frame: &GameFrame);
 }
 
 impl<T: 'static> AToAny for T {

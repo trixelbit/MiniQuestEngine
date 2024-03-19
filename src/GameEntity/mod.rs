@@ -58,23 +58,23 @@ impl Entity
         return None;*/
     }
 
-    pub fn update(&mut self, frame: Rc<GameFrame>)
+    pub fn update(&mut self, frame: &GameFrame)
     {
         let components = &self._components.clone();
 
         for component in components
         {
-            component.borrow_mut().update( Rc::new(RefCell::new(self)), frame.clone());
+            component.borrow_mut().update( Rc::new(RefCell::new(self)), &frame);
         }
     }
 
-    pub fn render(&mut self, display: &Display<WindowSurface>)
+    pub fn render(&mut self, frame: &GameFrame)
     {
         let components = &self._components.clone();
 
         for component in components
         {
-            component.borrow_mut().render(self, &display);
+            component.borrow_mut().render(self, frame);
         }
     }
 }

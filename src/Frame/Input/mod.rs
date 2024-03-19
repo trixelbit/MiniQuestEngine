@@ -84,15 +84,15 @@ impl InputState
     }
 
 
-    /// # Description:
-    /// Returns if the provided key was pressed this frame.
+    /// ## Description:
+    /// Returns if the provided key that was pressed this frame.
     pub fn IsKeyPressed(&self, key: KeyCode) -> bool
     {
         InputState::CheckMap(&self._pressed, key)
     }
 
-    /// # Description:
-    /// Return if the provided key was released this frame.
+    /// ## Description:
+    /// Return if the provided key that was released this frame.
     pub fn IsKeyReleased(&self, key: KeyCode) -> bool
     {
         InputState::CheckMap(&self._released, key)
