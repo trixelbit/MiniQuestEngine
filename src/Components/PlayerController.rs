@@ -93,7 +93,9 @@ impl Component for PlayerController
         let forwardVector = if frame.Input.IsKeyDown(KeyU) {1.0f32} else {0.0};
         let backVector = if frame.Input.IsKeyDown(KeyJ) {-1.0f32} else {0.0};
 
-        let movementVector = Vector3::new(leftVector + rightVector, upVector + downVector, forwardVector + backVector);
+        let movementVector =
+            Vector3::new(leftVector + rightVector, upVector + downVector, forwardVector + backVector)
+            .normalized();
 
         let targetVector = Vector3::scale_value(movementVector, self._speed);
 

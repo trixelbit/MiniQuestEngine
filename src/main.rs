@@ -59,7 +59,7 @@ fn main()
     ));
 
     let movementComponent = Rc::new(RefCell::new(
-        PlayerController::PlayerController::new(0.004f32, renderComponent.clone())));
+        PlayerController::PlayerController::new(4.0f32, renderComponent.clone())));
 
     player.borrow_mut().add_component(movementComponent.clone());
     player.borrow_mut().add_component(renderComponent.clone());

@@ -78,6 +78,26 @@ impl Vector3
             ).sqrt()
     }
 
+    /// Returns the normalized version of the current vector.
+    pub fn normalized(&self) -> Vector3
+    {
+        let magnitude = self.magnitude();
+
+        if magnitude <= 0.0
+        {
+            return Vector3::zero();
+        }
+
+        Vector3
+        {
+            position: [
+                self.x() / magnitude,
+                self.y() / magnitude,
+                self.z() / magnitude
+            ]
+        }
+    }
+
     pub fn scale_vector(a: Vector3, b: Vector3) -> Vector3
     {
         Vector3

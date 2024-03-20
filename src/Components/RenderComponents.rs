@@ -153,7 +153,7 @@ impl Component for Renderer2D
                 [entity.scale.x() * self.Sprite.Texture.dimensions().0 as f32 / (1f32 * dim.0 as f32 * self.Sprite.CellCounts.0 as f32) , 0.0, 0.0, 0.0],
                 [0.0, entity.scale.y() * self.Sprite.Texture.dimensions().1 as f32 / (1f32 * dim.1 as f32 * self.Sprite.CellCounts.1 as f32), 0.0, 0.0],
                 [0.0, 0.0, 1.0, 0.0],
-                [entity.world_position.x(), entity.world_position.y(), entity.world_position.z(), 1.0f32],
+                [entity.world_position.x() / dim.0 as f32, entity.world_position.y() / dim.1 as f32, entity.world_position.z(), 1.0f32],
             ],
 
             tex: glium::uniforms::Sampler(&self.Sprite.Texture, behavior),
