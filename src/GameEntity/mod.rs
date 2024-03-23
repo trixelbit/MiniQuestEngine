@@ -1,61 +1,77 @@
-use std::any::Any;
-use std::cell::RefCell;
 use std::rc::Rc;
-use glium::Display;
-use glium::glutin::surface::WindowSurface;
+use std::sync::{Arc, RwLock};
 use winit::keyboard::KeyCode::*;
-use crate::Components;
 use crate::Frame::GameFrame;
 use crate::Math::Vector3;
-
-use crate::Components::{AToAny, Component};
+use crate::Components::{Component};
 
 pub struct Entity
 {
     pub world_position: Vector3,
     pub scale: Vector3,
-    _components : Vec<Rc<RefCell<dyn Components::Component>>>
+    _components : Vec<Rc<RwLock<dyn Component>>>,
+    _componentNames : Vec<String>
 }
 impl Entity
 {
-    pub fn new(position: Vector3) -> Self
+    pub fn new(position: Vector3, ) -> Self
     {
         Entity
         {
             world_position: position,
             scale: Vector3::one(),
-            _components: Vec::new()
+
+            _components: Vec::new(),
+            _componentNames: Vec::new()
         }
     }
 
-    pub fn move_to(&mut self, position: Vector3)
+    pub fn add_component(&mut self, component : Rc<RwLock<dyn Component>>)
     {
-        self.world_position = position;
+        self._components.push(component.clone());
+        self._componentNames.push(component.read().unwrap().ComponentTypeName().clone());
     }
 
-    pub fn add_component(&mut self, component : Rc<RefCell<dyn Component>>)
+    pub fn get_component<TComponent: Component + 'static>(&self, caller: &dyn Component)
+        -> Option<Rc<RwLock<TComponent>>>
     {
-        self._components.push(component);
-    }
-
-    pub fn get_component<T>(&self) -> Option<&Rc<RefCell<T>>>
-    {
-        panic!("");
-        /*
-        for x in &self._components
+        for i in 0..self._components.len()
         {
-            if x.borrow().name() == std::any::type_name::<T>() //componentType
+            if self._componentNames[i] == caller.ComponentTypeName()
             {
-                let anyType: &dyn Any = x.clone().as_any();
-                return match anyType.downcast_ref::<Rc<RefCell<T>>>()
-                {
-                    Some(i) => { Some(i) },
-                    None => { None }
-                }
+                continue;
+            }
+
+            let component = self._components[i].clone();
+
+            let target = std::any::type_name::<TComponent>().to_string();
+            let readComp = component.read().unwrap();
+            let name = readComp.ComponentTypeName().clone();
+
+            if name == target
+            {
+                return component.try_read()
+                    .ok()?
+                    .downcast_ref::<TComponent>()
+                    .map(|_| Rc::clone(&component))
+                    .map(|rc| unsafe { Rc::from_raw(Rc::into_raw(rc) as *const RwLock<TComponent>) })
             }
         }
 
-        return None;*/
+        return None;
+    }
+
+    pub fn start(&mut self)
+
+    {
+        let components = &self._components.clone();
+
+        for component in components
+        {
+            println!("Start");
+            let mut writeGuard = component.write().unwrap();
+            writeGuard.start(self);
+        }
     }
 
     pub fn update(&mut self, frame: &GameFrame)
@@ -64,7 +80,7 @@ impl Entity
 
         for component in components
         {
-            component.borrow_mut().update( Rc::new(RefCell::new(self)), &frame);
+            component.write().unwrap().update(self, &frame);
         }
     }
 
@@ -74,8 +90,7 @@ impl Entity
 
         for component in components
         {
-            component.borrow_mut().render(self, frame);
+            component.write().unwrap().render(self, frame);
         }
     }
 }
-

@@ -1,9 +1,10 @@
-use std::cell::RefCell;
+use std::ops::Deref;
 use std::rc::Rc;
+use std::sync::{Arc, RwLock};
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 use winit::keyboard::KeyCode::*;
-use crate::Components::Component;
+use crate::Components::{Component};
 use crate::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
@@ -27,11 +28,10 @@ enum EDirection
 
 pub struct PlayerController
 {
-    pub SpriteRenderer: Rc<RefCell<Renderer2D>>,
     pub _speed : f32,
     pub _velocity: Vector3,
 
-    _spriteTable: [Rc<Sprite>; 8],
+    _spriteTable: [Arc<Sprite>; 8],
 
     _state : EPlayerState,
     _direction :  EDirection
@@ -41,12 +41,11 @@ const RUN_SPEED: f32 = 0.01;
 
 impl PlayerController
 {
-    pub fn new(movementSpeed: f32, renderer: Rc<RefCell<Renderer2D>>) -> Self
+
+    pub fn new(movementSpeed: f32, display: &Display<WindowSurface>) -> Self
     {
-        let display = &renderer.borrow().Display;
         Self
         {
-            SpriteRenderer: renderer.clone(),
             _speed: movementSpeed,
             _velocity: Vector3::zero(),
             _spriteTable:
@@ -66,25 +65,30 @@ impl PlayerController
         }
     }
 
-    fn animation_update(&self, state: EPlayerState, direction: EDirection)
+    fn animation_update(&self, entity: &mut Entity, state: EPlayerState, direction: EDirection)
     {
-        let mut renderer = self.SpriteRenderer.borrow_mut();
+        let componentOption = entity.get_component::<Renderer2D>(self);
 
+        if componentOption.is_none()
+        {
+            return;
+        }
+
+        let mut renderer = componentOption.unwrap();
 
         let index = (state as usize  * 4) + direction as usize;
 
-        renderer.set_new_sprite(self._spriteTable[index].clone());
+        renderer.write().unwrap().set_new_sprite(self._spriteTable[index].clone());
     }
 }
 
 impl Component for PlayerController
 {
-    fn start(&mut self)
+    fn start(&mut self, entity: &mut Entity)
     {
-
     }
 
-    fn update(&mut self, entity: Rc<RefCell<&mut Entity>>,  frame: &GameFrame)
+    fn update(&mut self, entity: &mut Entity,  frame: &GameFrame)
     {
         let leftVector = if frame.Input.IsKeyDown(KeyA) {-1.0f32} else {0.0};
         let rightVector = if frame.Input.IsKeyDown(KeyD) {1.0f32} else {0.0};
@@ -132,8 +136,8 @@ impl Component for PlayerController
             self._direction = EDirection::Down;
         }
 
-        entity.borrow_mut().world_position.add(self._velocity);
-        self.animation_update(self._state, self._direction);
+        entity.world_position.add(self._velocity);
+        self.animation_update(entity, self._state, self._direction);
     }
 
     fn render(&self, entity: &Entity, frame: &GameFrame)

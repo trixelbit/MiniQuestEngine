@@ -1,5 +1,5 @@
-use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::{Arc, RwLock};
 use glium::{Display, glutin, Program, ProgramCreationError, Surface, Texture2d, VertexBuffer};
 use glium::glutin::surface::WindowSurface;
 use glium::index::NoIndices;
@@ -15,15 +15,13 @@ pub struct Renderer2D
     pub VertexBuffer: VertexBuffer<Vertex>,
     pub Indicies: NoIndices,
     pub Program: Program,
-
     pub Display: Display<WindowSurface>,
-
-    pub Sprite: Rc<Sprite>
+    pub Sprite: Arc<Sprite>,
 }
 
 impl Renderer2D
 {
-    pub fn New(display : &Display<WindowSurface>, initialSprite: Rc<Sprite>) -> Self
+    pub fn New(display : &Display<WindowSurface>, initialSprite: Arc<Sprite>) -> Self
     {
         let vertexBuffer = PlaneVertexBuffer(&display);
 
@@ -48,13 +46,11 @@ impl Renderer2D
         }
     }
 
-    pub fn set_new_sprite(&mut self, newSprite: Rc<Sprite>)
+    pub fn set_new_sprite(&mut self, newSprite: Arc<Sprite>)
     {
         self.Sprite = newSprite;
     }
-}
-impl Renderer2D
-{
+
     pub fn FragmentCode() -> &'static str
     {
         r#"
@@ -124,11 +120,11 @@ impl Renderer2D
 
 impl Component for Renderer2D
 {
-    fn start(&mut self)
+    fn start(&mut self, entity: &mut Entity)
     {
     }
 
-    fn update(&mut self, entity: Rc<RefCell<&mut Entity>>, frame: &GameFrame)
+    fn update(&mut self, entity: &mut Entity, frame: &GameFrame)
     {
     }
 
@@ -188,14 +184,14 @@ pub struct Sprite
 
 impl Sprite
 {
-    pub fn new_simple(spritePath: &str, display: &Display<WindowSurface>) -> Rc<Self>
+    pub fn new_simple(spritePath: &str, display: &Display<WindowSurface>) -> Arc<Self>
     {
         let imageBuffer = ImageBufferFromPath(spritePath);
         let image_dimensions = imageBuffer.dimensions();
         let image = RawImage2d::from_raw_rgba_reversed(&imageBuffer.into_raw(), image_dimensions);
         let texture = Texture2d::new(display, image).unwrap();
 
-        Rc::new(
+        Arc::new(
             Sprite
             {
                 Texture: texture,
@@ -208,14 +204,14 @@ impl Sprite
     }
     pub fn new
     (spritePath: &str, display: &Display<WindowSurface>, frameCount: u16,
-     cellCounts: (u16, u16), animationSpeed: f32) -> Rc<Sprite>
+     cellCounts: (u16, u16), animationSpeed: f32) -> Arc<Sprite>
     {
         let imageBuffer = ImageBufferFromPath(spritePath);
         let image_dimensions = imageBuffer.dimensions();
         let image = RawImage2d::from_raw_rgba_reversed(&imageBuffer.into_raw(), image_dimensions);
         let texture = Texture2d::new(display, image).unwrap();
 
-        Rc::new(
+        Arc::new(
             Sprite
             {
                 Texture: texture,

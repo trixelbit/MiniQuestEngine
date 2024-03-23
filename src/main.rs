@@ -13,11 +13,9 @@ extern crate glium;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::Mutex;
-use chrono::{DateTime, Local};
-use glium::{Display, Surface};
-use glium::glutin::surface::WindowSurface;
-use lazy_static::lazy_static;
+use std::sync::{Arc, RwLock};
+use chrono::{Local};
+use glium::{Surface};
 use winit::event::ElementState;
 use crate::Frame::GameFrame;
 use crate::Frame::Input::Input;
@@ -41,38 +39,48 @@ fn main()
 
     /// scene build
 
-
-
     let position = Vector3::new(0.0, -0.5, 1.0);
     let mut player = Rc::new(RefCell::new(Entity::new(position)));
     player.borrow_mut().scale = Vector3::scale_value(Vector3::one(), 5.0);
 
 
-    let renderComponent = Rc::new(RefCell::new(
-        Renderer2D::New(&display,
-            Sprite::new(
-              "Images/run_down.png",
-              &display,
-              4,
-              (2,2),
-              0.001))
+    let renderComponent =
+        Rc::new(
+            RwLock::new(
+                Renderer2D::New(&display,
+                    Sprite::new(
+                        "Images/run_down.png",
+                        &display,
+                        4,
+                        (2,2),
+                        0.001))
     ));
 
-    let movementComponent = Rc::new(RefCell::new(
-        PlayerController::PlayerController::new(4.0f32, renderComponent.clone())));
+    let movementComponent =
+        Rc::new(
+            RwLock::new(
+                PlayerController::PlayerController::new(4.0f32, &display)));
 
-    player.borrow_mut().add_component(movementComponent.clone());
-    player.borrow_mut().add_component(renderComponent.clone());
+    let mut playerMut = player.borrow_mut();
+    playerMut.add_component(movementComponent);
+    playerMut.add_component(renderComponent);
+    drop(playerMut);
 
 
     let mut entities: Vec<Rc<RefCell<Entity>>> = Vec::new();
     entities.push(player.clone());
 
 
-    /// Enter frame looop
+    /// Enter frame loop
 
     let mut input = Input::New();
     let mut dateTimeLastFrame = Local::now();
+
+    for entityMutRef in &entities
+    {
+        let mut entity = entityMutRef.borrow_mut();
+        entity.start();
+    }
 
     event_loop.run(move |event, window_target|
     {
@@ -80,7 +88,6 @@ fn main()
         {
             winit::event::Event::WindowEvent { event, .. } => match event
             {
-
                 winit::event::WindowEvent::KeyboardInput {event, ..} =>
                 {
                     match event.state
