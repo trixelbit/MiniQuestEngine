@@ -1,10 +1,13 @@
+use std::ops::{Add, Mul, Sub};
+use cgmath::{Point3, Vector3};
+
 #[derive(Copy, Clone)]
-pub struct Vector3
+pub struct Float3
 {
     position: [f32; 3],
 }
 
-impl Vector3
+impl Float3
 {
     pub fn x(& self) -> f32
     {
@@ -23,49 +26,66 @@ impl Vector3
 
     pub fn new(x: f32, y: f32, z:f32) -> Self
     {
-        Vector3
+        Float3
         {
             position: [x, y, z]
         }
     }
 
-    pub fn left() -> Vector3
+    pub fn left() -> Float3
     {
-        crate::Math::Vector3::new(-1.0, 0.0, 0.0)
+        crate::Math::Float3::new(-1.0, 0.0, 0.0)
     }
 
-    pub fn right() -> Vector3
+    pub fn right() -> Float3
     {
-        crate::Math::Vector3::new(1.0, 0.0, 0.0)
-    }
-    pub fn up() -> Vector3
-    {
-
-        Vector3::new(0.0, 1.0, 0.0)
+        crate::Math::Float3::new(1.0, 0.0, 0.0)
     }
 
-    pub fn down() -> Vector3
+    pub fn ToCGPoint(&self) -> Point3<f32>
     {
-        Vector3::new(0.0, -1.0, 0.0)
+        Point3::new(self.x(), self.y(), self.z())
     }
 
-    pub fn one() -> Vector3
+    pub fn ToCGVector(&self) -> Vector3<f32>
     {
-        Vector3::new(1.0, 1.0, 1.0)
+        Vector3::new(self.x(), self.y(), self.z())
     }
 
-    pub fn zero() -> Vector3
+    pub fn up() -> Float3
     {
-        Vector3::new(0.0, 0.0, 0.0)
+        Float3::new(0.0, 1.0, 0.0)
     }
 
-    pub fn add(&mut self, value: Vector3)
+    pub fn down() -> Float3
+    {
+        Float3::new(0.0, -1.0, 0.0)
+    }
+
+    pub fn one() -> Float3
+    {
+        Float3::new(1.0, 1.0, 1.0)
+    }
+
+
+    pub fn forward() -> Float3
+    {
+        Float3::new(0.0, 0.0, 1.0)
+    }
+
+    pub fn zero() -> Float3
+    {
+        Float3::new(0.0, 0.0, 0.0)
+    }
+
+    pub fn add(&mut self, value: Float3) -> Self
     {
         self.position = [
             self.position[0] + value.position[0],
             self.position[1] + value.position[1],
             self.position[2] + value.position[2]
         ];
+        self.clone()
     }
 
     pub fn magnitude(&self) -> f32
@@ -79,16 +99,16 @@ impl Vector3
     }
 
     /// Returns the normalized version of the current vector.
-    pub fn normalized(&self) -> Vector3
+    pub fn normalized(&self) -> Float3
     {
         let magnitude = self.magnitude();
 
         if magnitude <= 0.0
         {
-            return Vector3::zero();
+            return Float3::zero();
         }
 
-        Vector3
+        Float3
         {
             position: [
                 self.x() / magnitude,
@@ -98,9 +118,9 @@ impl Vector3
         }
     }
 
-    pub fn scale_vector(a: Vector3, b: Vector3) -> Vector3
+    pub fn scale_vector(a: Float3, b: Float3) -> Float3
     {
-        Vector3
+        Float3
         {
             position:
             [
@@ -111,9 +131,9 @@ impl Vector3
         }
     }
 
-    pub fn scale_value(vector: Vector3, value: f32) -> Vector3
+    pub fn scale_value(vector: Float3, value: f32) -> Float3
     {
-        Vector3
+        Float3
         {
             position:
             [
@@ -124,9 +144,9 @@ impl Vector3
         }
     }
 
-    pub fn add_vectors(a: Vector3, b: Vector3) -> Vector3
+    pub fn add_vectors(a: Float3, b: Float3) -> Float3
     {
-        Vector3
+        Float3
         {
             position:
             [
@@ -137,9 +157,10 @@ impl Vector3
         }
     }
 
-    pub fn Lerp(start: Vector3, end: Vector3, t: f32) -> Vector3
+
+    pub fn Lerp(start: Float3, end: Float3, t: f32) -> Float3
     {
-        Vector3::new(
+        Float3::new(
             Math::Lerp(start.x(), end.x(), t),
             Math::Lerp(start.y(), end.y(), t),
             Math::Lerp(start.z(), end.z(), t)
@@ -152,6 +173,59 @@ impl Vector3
     }
 }
 
+impl Sub for Float3
+{
+    type Output = Self;
+
+    fn sub(self, other : Self) -> Self
+    {
+        Self
+        {
+            position:
+            [
+                self.position[0] - other.position[0],
+                self.position[1] - other.position[1],
+                self.position[2] - other.position[2]
+            ]
+        }
+    }
+}
+
+impl Add for Float3
+{
+    type Output = Self;
+
+    fn add(self, other : Self) -> Self
+    {
+        Self
+        {
+            position:
+            [
+                self.position[0] + other.position[0],
+                self.position[1] + other.position[1],
+                self.position[2] + other.position[2]
+            ]
+        }
+    }
+}
+impl Mul for Float3{
+    // The multiplication of rational numbers is a closed operation.
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self
+    {
+        Self
+        {
+
+            position:
+            [
+                self.position[0] * other.position[0],
+                self.position[1] * other.position[1],
+                self.position[2] * other.position[2]
+            ]
+        }
+    }
+}
 
 pub mod Math
 {

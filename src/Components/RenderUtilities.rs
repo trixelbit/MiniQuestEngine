@@ -7,7 +7,7 @@ use image::{ImageBuffer, Rgba};
 #[derive(Copy, Clone)]
 pub struct Vertex
 {
-    position: [f32; 2],
+    position: [f32; 3],
     tex_coords: [f32; 2],
 }
 
@@ -16,13 +16,13 @@ pub fn PlaneVertexBuffer(display: &Display<WindowSurface>) -> VertexBuffer<Verte
     implement_vertex!(Vertex, position, tex_coords);
 
     let shape = vec![
-        Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] },
-        Vertex { position: [ 0.5, -0.5], tex_coords: [1.0, 0.0] },
-        Vertex { position: [ 0.5,  0.5], tex_coords: [1.0, 1.0] },
+        Vertex { position: [-0.5, -0.5, 0.0], tex_coords: [0.0, 0.0] },
+        Vertex { position: [ 0.5, -0.5, 0.0], tex_coords: [1.0, 0.0] },
+        Vertex { position: [ 0.5,  0.5, 0.0], tex_coords: [1.0, 1.0] },
 
-        Vertex { position: [ 0.5,  0.5], tex_coords: [1.0, 1.0] },
-        Vertex { position: [-0.5,  0.5], tex_coords: [0.0, 1.0] },
-        Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] },
+        Vertex { position: [ 0.5,  0.5, 0.0], tex_coords: [1.0, 1.0] },
+        Vertex { position: [-0.5,  0.5, 0.0], tex_coords: [0.0, 1.0] },
+        Vertex { position: [-0.5, -0.5, 0.0], tex_coords: [0.0, 0.0] },
     ];
 
 

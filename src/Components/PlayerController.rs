@@ -1,6 +1,4 @@
-use std::ops::Deref;
-use std::rc::Rc;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc};
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 use winit::keyboard::KeyCode::*;
@@ -8,7 +6,7 @@ use crate::Components::{Component};
 use crate::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
-use crate::Math::Vector3;
+use crate::Math::Float3;
 
 #[derive(Copy, Clone)]
 enum EPlayerState
@@ -29,7 +27,7 @@ enum EDirection
 pub struct PlayerController
 {
     pub _speed : f32,
-    pub _velocity: Vector3,
+    pub _velocity: Float3,
 
     _spriteTable: [Arc<Sprite>; 8],
 
@@ -41,13 +39,12 @@ const RUN_SPEED: f32 = 0.01;
 
 impl PlayerController
 {
-
     pub fn new(movementSpeed: f32, display: &Display<WindowSurface>) -> Self
     {
         Self
         {
             _speed: movementSpeed,
-            _velocity: Vector3::zero(),
+            _velocity: Float3::zero(),
             _spriteTable:
                 [
                     Sprite::new_simple("Images/idle_down.png", display),
@@ -67,7 +64,7 @@ impl PlayerController
 
     fn animation_update(&self, entity: &mut Entity, state: EPlayerState, direction: EDirection)
     {
-        let componentOption = entity.get_component::<Renderer2D>(self);
+        let componentOption = entity.get_component::<Renderer2D>(Some(self));
 
         if componentOption.is_none()
         {
@@ -98,10 +95,10 @@ impl Component for PlayerController
         let backVector = if frame.Input.IsKeyDown(KeyJ) {-1.0f32} else {0.0};
 
         let movementVector =
-            Vector3::new(leftVector + rightVector, upVector + downVector, forwardVector + backVector)
+            Float3::new(leftVector + rightVector, upVector + downVector, forwardVector + backVector)
             .normalized();
 
-        let targetVector = Vector3::scale_value(movementVector, self._speed);
+        let targetVector = Float3::scale_value(movementVector, self._speed);
 
         let mut damping : f32 = 0.0;
 
@@ -116,7 +113,7 @@ impl Component for PlayerController
             self._state = EPlayerState::idle;
         }
 
-        self._velocity = Vector3::Lerp(self._velocity, targetVector, damping);
+        self._velocity = Float3::Lerp(self._velocity, targetVector, damping);
 
         if self._velocity.x() < 0.0
         {
@@ -139,12 +136,4 @@ impl Component for PlayerController
         entity.world_position.add(self._velocity);
         self.animation_update(entity, self._state, self._direction);
     }
-
-    fn render(&self, entity: &Entity, frame: &GameFrame)
-    {
-
-    }
 }
-
-
-

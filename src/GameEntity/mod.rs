@@ -1,43 +1,42 @@
 use std::rc::Rc;
-use std::sync::{Arc, RwLock};
+use std::sync::{RwLock};
 use winit::keyboard::KeyCode::*;
 use crate::Frame::GameFrame;
-use crate::Math::Vector3;
+use crate::Math::Float3;
 use crate::Components::{Component};
 
 pub struct Entity
 {
-    pub world_position: Vector3,
-    pub scale: Vector3,
+    pub world_position: Float3,
+    pub scale: Float3,
     _components : Vec<Rc<RwLock<dyn Component>>>,
     _componentNames : Vec<String>
 }
 impl Entity
 {
-    pub fn new(position: Vector3, ) -> Self
+    pub fn new(position: Float3, ) -> Self
     {
         Entity
         {
             world_position: position,
-            scale: Vector3::one(),
-
+            scale: Float3::one(),
             _components: Vec::new(),
             _componentNames: Vec::new()
         }
     }
 
-    pub fn add_component(&mut self, component : Rc<RwLock<dyn Component>>)
+    pub fn add_component(&mut self, component: Rc<RwLock<dyn Component>>)
     {
         self._components.push(component.clone());
         self._componentNames.push(component.read().unwrap().ComponentTypeName().clone());
     }
 
-    pub fn get_component<TComponent: Component + 'static>(&self, caller: &dyn Component)
-        -> Option<Rc<RwLock<TComponent>>>
+    pub fn get_component<TComponent: Component + 'static>(&self, caller: Option<&dyn Component>)
+                                                          -> Option<Rc<RwLock<TComponent>>>
     {
         for i in 0..self._components.len()
         {
-            if self._componentNames[i] == caller.ComponentTypeName()
+            if caller.is_some() && self._componentNames[i] == caller?.ComponentTypeName()
             {
                 continue;
             }
@@ -62,13 +61,11 @@ impl Entity
     }
 
     pub fn start(&mut self)
-
     {
         let components = &self._components.clone();
 
         for component in components
         {
-            println!("Start");
             let mut writeGuard = component.write().unwrap();
             writeGuard.start(self);
         }
@@ -81,16 +78,6 @@ impl Entity
         for component in components
         {
             component.write().unwrap().update(self, &frame);
-        }
-    }
-
-    pub fn render(&mut self, frame: &GameFrame)
-    {
-        let components = &self._components.clone();
-
-        for component in components
-        {
-            component.write().unwrap().render(self, frame);
         }
     }
 }

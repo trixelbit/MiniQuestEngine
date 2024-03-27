@@ -1,6 +1,7 @@
 pub mod PlayerController;
 pub mod RenderComponents;
 mod RenderUtilities;
+pub(crate) mod Camera;
 
 use std::any::Any;
 use std::sync::{Arc, RwLock};
@@ -23,6 +24,5 @@ pub trait Component: Downcast
     /// Called every frame while the object is alive.
     fn update(&mut self, entity: &mut Entity,  frame: &GameFrame);
 
-    fn render(&self, entity: &Entity, frame: &GameFrame);
 }
 impl_downcast!(Component);

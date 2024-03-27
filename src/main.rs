@@ -13,15 +13,16 @@ extern crate glium;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, RwLock, RwLockWriteGuard};
 use chrono::{Local};
 use glium::{Surface};
-use winit::event::ElementState;
+use winit::event::{ElementState, MouseButton, MouseScrollDelta, TouchPhase};
+use winit::keyboard::NamedKey::Camera;
 use crate::Frame::GameFrame;
 use crate::Frame::Input::Input;
 use crate::GameEntity::Entity;
 use crate::Components::*;
-use crate::Components::RenderComponents::{Renderer2D, Sprite};
+use crate::Components::RenderComponents::{Renderer, Renderer2D, Sprite};
 
 
 fn main()
@@ -31,17 +32,19 @@ fn main()
     let event_loop = winit::event_loop::EventLoopBuilder::new()
         .build()
         .expect("event loop building");
-    let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
-        .with_title("Mini Quest Engine Test")
-        .build(&event_loop);
+    let (window, display) =
+        glium::backend::glutin::SimpleWindowBuilder::new()
+            .with_title("Mini Quest Engine Test")
+            .with_inner_size(800, 600)
+            .build(&event_loop);
 
 
 
     /// scene build
 
-    let position = Vector3::new(0.0, -0.5, 1.0);
+    let position = Float3::new(0.0, -0.5, 0.0);
     let mut player = Rc::new(RefCell::new(Entity::new(position)));
-    player.borrow_mut().scale = Vector3::scale_value(Vector3::one(), 5.0);
+    player.borrow_mut().scale = Float3::scale_value(Float3::one(), 5.0);
 
 
     let renderComponent =
@@ -67,8 +70,33 @@ fn main()
     drop(playerMut);
 
 
+    let camera = Rc::new(
+        RwLock::new(
+            Components::Camera::Camera::New(30.0),
+        )
+    );
+
+    let cameraController =
+        Rc::new(
+            RwLock::new(
+                Components::Camera::CameraMouseController::New()));
+
+    let mut cameraEnt =
+        Rc::new(
+            RefCell::new(
+                Entity::new(
+                    Float3::new(0.0, 0.0, 5.0)
+                )
+            )
+        );
+    cameraEnt.borrow_mut().add_component(camera.clone());
+    cameraEnt.borrow_mut().add_component(cameraController);
+
+
+    /// object registry
     let mut entities: Vec<Rc<RefCell<Entity>>> = Vec::new();
     entities.push(player.clone());
+    entities.push(cameraEnt.clone());
 
 
     /// Enter frame loop
@@ -94,42 +122,118 @@ fn main()
                     {
                         ElementState::Pressed =>
                         {
-                            &input.Pressed(event.physical_key)
+                            &input.Key_Pressed(event.physical_key)
                         },
 
                         ElementState::Released =>
                         {
-                            &input.Released(event.physical_key)
+                            &input.Key_Released(event.physical_key)
                         }
                     };
                 },
 
-                winit::event::WindowEvent::CloseRequested =>
+                winit::event::WindowEvent::MouseInput {state, device_id, button, ..} =>
+                {
+                    match state
                     {
-                        window_target.exit();
-                    },
+                        ElementState::Pressed =>
+                            {
+                                &input.Mouse_Pressed(button);
+                            }
+                        ElementState::Released =>
+                            {
+                                &input.Mouse_Release(button);
+                            }
+                    }
+                },
+
+                winit::event::WindowEvent::MouseWheel {phase, delta, ..} =>
+                {
+
+                    match delta
+                    {
+                        MouseScrollDelta::LineDelta(x, y) =>
+                        {
+                            input.SetMouseWheelLineOffset((x,y));
+                        },
+
+                        MouseScrollDelta::PixelDelta(value) =>
+                        {
+                            input.SetMouseWheelPixelDelta( (value.x, value.y));
+                        }
+                    };
+
+                    match phase
+                    {
+                        TouchPhase::Started => {}
+                        TouchPhase::Moved => {}
+                        TouchPhase::Ended =>
+                            {
+                                input.SetMouseWheelPixelDelta((0.0, 0.0));
+                                input.SetMouseWheelLineOffset((0.0, 0.0));
+                            },
+                        TouchPhase::Cancelled =>
+                            {
+                                input.SetMouseWheelPixelDelta((0.0, 0.0));
+                                input.SetMouseWheelLineOffset((0.0, 0.0));
+                            },
+                    };
+                }
+
+                winit::event::WindowEvent::CursorMoved {position,..} =>
+                {
+                    &input.SetMousePosition((position.x, position.y));
+                }
+
+                winit::event::WindowEvent::CloseRequested =>
+                {
+                    window_target.exit();
+                },
 
 
                 // We now need to render everything in response to a RedrawRequested event due to the animation
                 winit::event::WindowEvent::RedrawRequested =>
                     {
+                        let mut target = display.draw();
+
+                        target.clear_color(0.5, 0.0, 0.5, 1.0);
+
                         for entityMutex in &entities
                         {
                             let frame =
                                 Rc::new(
-                                    GameFrame::new(input.GetStateCopy(),
+                                    GameFrame::new(
+                                            input.GetStateCopy(),
                                                    Local::now() - timeStart,
-                                                   Local::now() - dateTimeLastFrame
+                                                   Local::now() - dateTimeLastFrame,
+                                                   camera.read().unwrap().ViewMatrix(),
+                                            camera.read().unwrap().PerspectiveMatrix()
                                     )
                                 );
 
                             let mut entity = entityMutex.borrow_mut();
                             entity.update(&frame);
 
-                            entity.render(&frame);
+                            let renderOption =
+                                entity.get_component::<Renderer2D>(None);
+
+                            match renderOption
+                            {
+                                None => {}
+                                Some(_) =>
+                                {
+                                    renderOption.unwrap().write().unwrap().render(&entity, &frame, &mut target);
+                                }
+                            }
                         }
 
+                        input.ResetPressedAndReleased();
+                        input.SetMouseWheelPixelDelta((0.0, 0.0));
+                        input.SetMouseWheelLineOffset((0.0, 0.0));
                         dateTimeLastFrame = Local::now();
+
+                        target.finish();
+                        display.finish();
                     },
 
                 // Because glium doesn't know about windows we need to resize the display
