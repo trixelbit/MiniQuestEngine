@@ -26,7 +26,7 @@ enum EDirection
 
 pub struct PlayerController
 {
-    pub _speed : f32,
+    pub _movementSpeed: f32,
     pub _velocity: Float3,
 
     _spriteTable: [Arc<Sprite>; 8],
@@ -43,7 +43,7 @@ impl PlayerController
     {
         Self
         {
-            _speed: movementSpeed,
+            _movementSpeed: movementSpeed,
             _velocity: Float3::zero(),
             _spriteTable:
                 [
@@ -98,7 +98,7 @@ impl Component for PlayerController
             Float3::new(leftVector + rightVector, upVector + downVector, forwardVector + backVector)
             .normalized();
 
-        let targetVector = Float3::scale_value(movementVector, self._speed);
+        let targetVector = Float3::scale_value(movementVector, self._movementSpeed);
 
         let mut damping : f32 = 0.0;
 

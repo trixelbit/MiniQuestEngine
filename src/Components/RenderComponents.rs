@@ -1,6 +1,4 @@
-use std::rc::Rc;
 use std::sync::{Arc, RwLock};
-use cgmath::Matrix4;
 use glium::{Display, Frame, Program, Surface, Texture2d, VertexBuffer};
 use glium::glutin::surface::WindowSurface;
 use glium::index::NoIndices;
@@ -10,7 +8,6 @@ use crate::Components::{Component};
 use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
 use crate::Components::RenderUtilities::{ImageBufferFromPath, Indicies, PlaneVertexBuffer, Vertex};
-use glium::uniforms::{AsUniformValue, UniformValue};
 
 pub trait Renderer
 {
@@ -48,18 +45,9 @@ impl Renderer for Renderer2D
             [entity.world_position.x() / dim.0 as f32, entity.world_position.y() / dim.1 as f32, entity.world_position.z(), 1.0f32],
         ];
 
-        let view_mat : [[f32;4];4] = frame.CameraPosition.into();
-        let perspective_mat : [[f32;4];4] = frame.CameraScale.into();
+        let view_mat : [[f32;4];4] = frame.CameraView.into();
+        let perspective_mat : [[f32;4];4] = frame.CameraPerspective.into();
 
-
-
-
-
-        //let finalMatrix = (transformMatrix * frame.CameraScale) + frame.CameraPosition;
-        //let uniform : [[f32; 4]; 4] = finalMatrix.into();
-
-
-        //let uni = AsUniformValue::as_uniform_value(&uniform);
 
         let uniforms = uniform!
         {

@@ -9,8 +9,8 @@ pub struct GameFrame
     pub Input : InputState,
     pub TimeSinceGameStart: TimeDelta,
     pub DeltaTime: TimeDelta,
-    pub CameraPosition: Matrix4<f32>,
-    pub CameraScale: Matrix4<f32>
+    pub CameraView: Matrix4<f32>,
+    pub CameraPerspective: Matrix4<f32>
 }
 
 impl GameFrame
@@ -22,8 +22,8 @@ impl GameFrame
             Input: input,
             TimeSinceGameStart: timeSinceGameStart,
             DeltaTime: deltaTime,
-            CameraPosition: matrix,
-            CameraScale: scale
+            CameraView: matrix,
+            CameraPerspective: scale
         }
     }
 }

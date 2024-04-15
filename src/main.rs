@@ -62,8 +62,7 @@ fn main()
     let movementComponent =
         Rc::new(
             RwLock::new(
-                PlayerController::PlayerController::new(4.0f32, &display)));
-
+                PlayerController::PlayerController::new(8.0f32, &display)));
     let mut playerMut = player.borrow_mut();
     playerMut.add_component(movementComponent);
     playerMut.add_component(renderComponent);
