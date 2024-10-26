@@ -41,7 +41,7 @@ pub fn ImageBufferFromPath(path: &str) -> ImageBuffer<Rgba<u16>, Vec<u16>>
     {
         Ok(content) => content,
         Err(err) => {
-            panic!("Error reading file: {}", err);
+            panic!("Error reading file from path: {} \n {}", path,  err);
         }
     };
 

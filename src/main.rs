@@ -32,6 +32,7 @@ fn main()
     let event_loop = winit::event_loop::EventLoopBuilder::new()
         .build()
         .expect("event loop building");
+
     let (window, display) =
         glium::backend::glutin::SimpleWindowBuilder::new()
             .with_title("Mini Quest Engine Test")
