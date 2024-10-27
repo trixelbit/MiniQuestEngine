@@ -2,17 +2,15 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::vec::Vec;
 
-use std::any::Any;
 use crate::GameEntity::Entity;
 use crate::Components::*;
-use crate::Components::RenderComponents::{Renderer, Renderer2D, Sprite};
+use crate::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Math::*;
 
-use::std::fs;    
-use std::{fs::*, path::Path, io::Write};
-use std::sync::{Arc, RwLock, RwLockWriteGuard};
+use std::fs;    
+use std::sync::RwLock;
 
-use glium::{Display, Frame, Program, Surface, Texture2d, VertexBuffer};
+use glium::Display;
 use glium::glutin::surface::WindowSurface;
 
 
@@ -81,7 +79,7 @@ impl Scene
                 RwLock::new(
                     Renderer2D::New(&display,
                         Sprite::new(
-                            "Images/run_down.png",
+                            "../Images/run_down.png",
                             &display,
                             4,
                             (2,2),

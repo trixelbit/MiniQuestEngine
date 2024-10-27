@@ -1,8 +1,8 @@
-use std::sync::{Arc};
+use std::sync::Arc;
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 use winit::keyboard::KeyCode::*;
-use crate::Components::{Component};
+use crate::Components::Component;
 use crate::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
@@ -47,14 +47,14 @@ impl PlayerController
             _velocity: Float3::zero(),
             _spriteTable:
                 [
-                    Sprite::new_simple("Images/idle_down.png", display),
-                    Sprite::new_simple("Images/idle_up.png", display),
-                    Sprite::new_simple("Images/idle_left.png", display),
-                    Sprite::new_simple("Images/idle_right.png", display),
-                    Sprite::new("Images/run_down.png", display, 4,(2,2), RUN_SPEED),
-                    Sprite::new("Images/run_up.png", display, 4, (2,2), RUN_SPEED),
-                    Sprite::new("Images/run_left.png", display, 4, (2,2), RUN_SPEED),
-                    Sprite::new("Images/run_right.png", display, 4, (2,2), RUN_SPEED)
+                    Sprite::new_simple("../Images/idle_down.png", display),
+                    Sprite::new_simple("../Images/idle_up.png", display),
+                    Sprite::new_simple("../Images/idle_left.png", display),
+                    Sprite::new_simple("../Images/idle_right.png", display),
+                    Sprite::new("../Images/run_down.png", display, 4,(2,2), RUN_SPEED),
+                    Sprite::new("../Images/run_up.png", display, 4, (2,2), RUN_SPEED),
+                    Sprite::new("../Images/run_left.png", display, 4, (2,2), RUN_SPEED),
+                    Sprite::new("../Images/run_right.png", display, 4, (2,2), RUN_SPEED)
                 ],
 
             _state: EPlayerState::idle,

@@ -1,6 +1,37 @@
-* environments
-Tile| 0, 0, 0 |Images/grass.png
-Tile| 32, 0, 0 |Images/grass.png
-Tile| 64, 0, 0, 0 |Images/grass.png
+// Definition: 
+// Tile | [position] | [Asset Path] | [Collides (0/1)]
+// Player | [position] 
+// AudioSource | [position] | [Asset Path]
+ 
+// environment
 
-Player| 0, -0.5,0 
+// I
+Tile| 0, 0, 0 |../Images/grass.png
+Tile| 32, 0, 0 |../Images/grass.png
+Tile| 64, 0, 0, 0 |../Images/grass.png
+
+Tile| 0, 0, 0 |../Images/grass.png
+Tile| 32, 32, 0 |../Images/grass.png
+Tile| 64, 64, 0, 0 |../Images/grass.png
+
+Tile| 0, 0, 0 |../Images/grass.png
+Tile| 0, 32, 0 |../Images/grass.png
+Tile| 0, 64, 0, 0 |../Images/grass.png
+
+// III
+Tile| 0, 0, 0 |../Images/grass.png
+Tile| -32, 0, 0 |../Images/grass.png
+Tile| -64, 0, 0, 0 |../Images/grass.png
+
+Tile| 0, 0, 0 |../Images/grass.png
+Tile| -32, -32, 0 |../Images/grass.png
+Tile| -64, -64, 0, 0 |../Images/grass.png
+
+Tile| 0, 0, 0 |../Images/grass.png
+Tile| 0, -32, 0 |../Images/grass.png
+Tile| 0, -64, 0, 0 |../Images/grass.png
+
+// Entities
+Tile| 0, 0, 0 |../Images/Water.png
+
+Player| 0, -0.5, 0 
