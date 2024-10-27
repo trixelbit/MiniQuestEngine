@@ -138,8 +138,9 @@ impl Component for CameraMouseController
         let scroll = frame.Input.MouseWheelLineDelta();
         let zAdd = -scroll.1 / 10.0;
         entity.world_position = entity.world_position + Float3::new(0.0, 0.0, zAdd as f32);
+        
         //println!("Scroll Value: x:{} y:{}", scroll.0, scroll.1);
-        println!("Current EntityPosition: x{} y{} z{}", entity.world_position.x(), entity.world_position.y(), entity.world_position.z())
+        //println!("Current EntityPosition: x{} y{} z{}", entity.world_position.x(), entity.world_position.y(), entity.world_position.z())
     }
 }
 

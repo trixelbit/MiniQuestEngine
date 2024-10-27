@@ -224,6 +224,14 @@ impl Sprite
         )
 
     }
+
+    /// #Description: Creates a new Sprite
+    ///
+    /// spritePath - Path to Sprite Image (png).
+    /// display - Display reference.
+    /// frameCount - total number of frames.
+    /// cellCounts - number of cell rows and columns.
+    /// animationSpeed - speed animation should play at.
     pub fn new
     (spritePath: &str, display: &Display<WindowSurface>, frameCount: u16,
      cellCounts: (u16, u16), animationSpeed: f32) -> Arc<Sprite>

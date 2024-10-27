@@ -3,6 +3,7 @@ mod Math;
 mod GameEntity;
 mod Frame;
 mod Components;
+mod SceneBuilder;
 
 
 use Math::*;
@@ -18,12 +19,13 @@ use chrono::{Local};
 use glium::{Surface};
 use winit::event::{ElementState, MouseButton, MouseScrollDelta, TouchPhase};
 use winit::keyboard::NamedKey::Camera;
+
 use crate::Frame::GameFrame;
 use crate::Frame::Input::Input;
 use crate::GameEntity::Entity;
 use crate::Components::*;
 use crate::Components::RenderComponents::{Renderer, Renderer2D, Sprite};
-
+use crate::SceneBuilder::Scene;
 
 fn main()
 {
@@ -43,32 +45,9 @@ fn main()
 
     /// scene build
 
-    let position = Float3::new(0.0, -0.5, 0.0);
-    let mut player = Rc::new(RefCell::new(Entity::new(position)));
-    player.borrow_mut().scale = Float3::scale_value(Float3::one(), 5.0);
+    let scene = Scene::new("Scenes/test.lvl");
 
-
-    let renderComponent =
-        Rc::new(
-            RwLock::new(
-                Renderer2D::New(&display,
-                    Sprite::new(
-                        "Images/run_down.png",
-                        &display,
-                        4,
-                        (2,2),
-                        0.001))
-    ));
-
-    let movementComponent =
-        Rc::new(
-            RwLock::new(
-                PlayerController::PlayerController::new(8.0f32, &display)));
-    let mut playerMut = player.borrow_mut();
-    playerMut.add_component(movementComponent);
-    playerMut.add_component(renderComponent);
-    drop(playerMut);
-
+    let mut loadedEntities = scene.LoadScene(&display);
 
     let camera = Rc::new(
         RwLock::new(
@@ -95,8 +74,9 @@ fn main()
 
     /// object registry
     let mut entities: Vec<Rc<RefCell<Entity>>> = Vec::new();
-    entities.push(player.clone());
+    //entities.push(player.clone());
     entities.push(cameraEnt.clone());
+    entities.append(&mut loadedEntities);
 
 
     /// Enter frame loop

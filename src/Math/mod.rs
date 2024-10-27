@@ -32,6 +32,20 @@ impl Float3
         }
     }
 
+    pub fn FromString(string : &str) -> Float3
+    {
+        let a = string.replace(" ", "");
+        let mut tokens = a
+            .split(",")
+            .into_iter();
+
+        let x: f32 = tokens.next().unwrap().parse().unwrap();
+        let y: f32 = tokens.next().unwrap().parse().unwrap();
+        let z: f32 = tokens.next().unwrap().parse().unwrap();
+
+        Float3::new(x,y,z)
+    }
+
     pub fn left() -> Float3
     {
         crate::Math::Float3::new(-1.0, 0.0, 0.0)
