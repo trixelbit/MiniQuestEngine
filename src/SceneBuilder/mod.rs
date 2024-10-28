@@ -36,7 +36,7 @@ impl Scene
 
         if fileReadOption.is_err()
         {
-            panic!("Failed to read file in path: {}", scenePath);
+            panic!("\nFailed to read file in path: {}\n", scenePath);
         }
 
         let contents = fileReadOption.unwrap();

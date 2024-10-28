@@ -10,7 +10,6 @@ impl GameState
 {
     pub fn Create() -> Self
     {
-
         Self
         {
         }

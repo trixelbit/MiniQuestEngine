@@ -1,9 +1,10 @@
 use std::rc::Rc;
-use std::sync::{RwLock};
+use std::sync::RwLock;
+use uuid::Uuid;
 use winit::keyboard::KeyCode::*;
 use crate::Frame::GameFrame;
 use crate::Math::Float3;
-use crate::Components::{Component};
+use crate::Components::Component;
 use crate::GameAPI::GameAPI;
 
 pub struct Entity
@@ -11,11 +12,17 @@ pub struct Entity
     pub world_position: Float3,
     pub scale: Float3,
     pub Name: String,
+    _id : Uuid,
     _components : Vec<Rc<RwLock<dyn Component>>>,
     _componentNames : Vec<String>
 }
 impl Entity
 {
+    pub fn ID(&self) -> Uuid
+    {
+        self._id.clone()
+    }
+
     pub fn new(name: &str, position: Float3) -> Self
     {
         Entity
@@ -24,7 +31,8 @@ impl Entity
             world_position: position,
             scale: Float3::one(),
             _components: Vec::new(),
-            _componentNames: Vec::new()
+            _componentNames: Vec::new(),
+            _id: Uuid::new_v4()
         }
     }
 
