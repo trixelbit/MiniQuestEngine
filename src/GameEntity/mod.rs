@@ -9,15 +9,17 @@ pub struct Entity
 {
     pub world_position: Float3,
     pub scale: Float3,
+    pub Name: String,
     _components : Vec<Rc<RwLock<dyn Component>>>,
     _componentNames : Vec<String>
 }
 impl Entity
 {
-    pub fn new(position: Float3, ) -> Self
+    pub fn new(name: &str, position: Float3) -> Self
     {
         Entity
         {
+            Name: String::from(name),
             world_position: position,
             scale: Float3::one(),
             _components: Vec::new(),

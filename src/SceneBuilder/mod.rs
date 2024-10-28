@@ -13,6 +13,7 @@ use std::sync::RwLock;
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 
+const PROPERTY_SEPARATOR: &str = "|";
 
 pub struct Scene
 {
@@ -20,19 +21,30 @@ pub struct Scene
     _rawSceneContents : String
 }
 
-// Do we load this directly to game state? 
-// 
+/// Do we load this directly to game state? 
 impl Scene
 {
-    pub fn new(scenePath : &str) -> Self
+    pub fn Name(&self) -> String
+    {
+        self._name.clone()
+    }
+
+    pub fn new(alias: &str, scenePath : &str) -> Self
     {
         // TODO: Add better error messages.
-        let contents = fs::read_to_string(scenePath).unwrap();
+        let fileReadOption = fs::read_to_string(scenePath);
+
+        if fileReadOption.is_err()
+        {
+            panic!("Failed to read file in path: {}", scenePath);
+        }
+
+        let contents = fileReadOption.unwrap();
 
         Scene
         {
             _rawSceneContents: contents,
-            _name: String::from(scenePath)
+            _name: String::from(alias)
         }
     }
 
@@ -54,7 +66,7 @@ impl Scene
     {
         let mut tokens : Vec<String> = Vec::new();
         entry
-            .split("|")
+            .split(PROPERTY_SEPARATOR)
             .for_each(|x| tokens.push(String::from(x)));
        
         let objectType = &tokens.first().unwrap();
@@ -69,9 +81,10 @@ impl Scene
 
     fn BuildPlayer(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
-        let position = Float3::FromString(data[1].as_str());
+        let name = data[1].as_str();
+        let position = Float3::FromString(data[2].as_str());
 
-        let player = Rc::new(RefCell::new(Entity::new(position)));
+        let player = Rc::new(RefCell::new(Entity::new(name, position)));
         player.borrow_mut().scale = Float3::scale_value(Float3::one(), 5.0);
 
         let renderComponent =
@@ -90,6 +103,7 @@ impl Scene
             Rc::new(
                 RwLock::new(
                     PlayerController::PlayerController::new(8.0f32, &display)));
+        
         let mut playerMut = player.borrow_mut();
         playerMut.add_component(movementComponent);
         playerMut.add_component(renderComponent);
@@ -100,14 +114,15 @@ impl Scene
 
     fn BuildTile(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
+        let name = data[1].as_str();
         let position = 
-        Float3::scale_value(
-            Float3::FromString(data[1].as_str()), 
-            5f32);
+            Float3::scale_value(
+                Float3::FromString(data[2].as_str()), 
+                5f32);
 
-        let assetPath = data[2].as_str();
+        let assetPath = data[3].as_str();
 
-        let tile = Rc::new(RefCell::new(Entity::new(position)));
+        let tile = Rc::new(RefCell::new(Entity::new(name, position)));
         tile.borrow_mut().scale = Float3::scale_value(Float3::one(), 5.0);
 
         let renderComponent =

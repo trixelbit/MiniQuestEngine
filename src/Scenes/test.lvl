@@ -1,37 +1,38 @@
 // Definition: 
-// Tile | [position] | [Asset Path] | [Collides (0/1)]
-// Player | [position] 
-// AudioSource | [position] | [Asset Path]
+// Tile | [name] | [position] | [Asset Path] | [Collides (0/1)]
+// Player | [name] | [position] 
+// AudioSource | [name]| [position] | [Asset Path]
  
 // environment
 
 // I
-Tile| 0, 0, 0 |../Images/grass.png
-Tile| 32, 0, 0 |../Images/grass.png
-Tile| 64, 0, 0, 0 |../Images/grass.png
+Tile|1| 0, 0, 0 |../Images/grass.png
+Tile|2| 32, 0, 0 |../Images/grass.png
+Tile|3| 64, 0, 0 |../Images/grass.png
 
-Tile| 0, 0, 0 |../Images/grass.png
-Tile| 32, 32, 0 |../Images/grass.png
-Tile| 64, 64, 0, 0 |../Images/grass.png
+Tile|4| 0, 0, 0 |../Images/grass.png
+Tile|5| 32, 32, 0 |../Images/grass.png
+Tile|6| 64, 64, 0 |../Images/grass.png
 
-Tile| 0, 0, 0 |../Images/grass.png
-Tile| 0, 32, 0 |../Images/grass.png
-Tile| 0, 64, 0, 0 |../Images/grass.png
+Tile|7| 0, 0, 0 |../Images/grass.png
+Tile|8| 0, 32, 0 |../Images/grass.png
+Tile|9| 0, 64, 0 |../Images/grass.png
 
 // III
-Tile| 0, 0, 0 |../Images/grass.png
-Tile| -32, 0, 0 |../Images/grass.png
-Tile| -64, 0, 0, 0 |../Images/grass.png
+Tile|10| 0, 0, 0 |../Images/grass.png
+Tile|11| -32, 0, 0 |../Images/grass.png
+Tile|12| -64, 0, 0 |../Images/grass.png
 
-Tile| 0, 0, 0 |../Images/grass.png
-Tile| -32, -32, 0 |../Images/grass.png
-Tile| -64, -64, 0, 0 |../Images/grass.png
+Tile|13| 0, 0, 0 |../Images/grass.png
+Tile|14| -32, -32, 0 |../Images/grass.png
+Tile|15| -64, -64, 0 |../Images/grass.png
 
-Tile| 0, 0, 0 |../Images/grass.png
-Tile| 0, -32, 0 |../Images/grass.png
-Tile| 0, -64, 0, 0 |../Images/grass.png
+Tile|16| 0, 0, 0 |../Images/grass.png
+Tile|17| 0, -32, 0 |../Images/grass.png
+Tile|18| 0, -64, 0 |../Images/grass.png
 
 // Entities
-Tile| 0, 0, 0 |../Images/Water.png
+Tile|Flask| 0, 0, 0 |../Images/Water.png
 
-Player| 0, -0.5, 0 
+Player|Lola| 0, -0.5, 0 
+

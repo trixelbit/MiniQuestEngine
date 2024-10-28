@@ -55,10 +55,11 @@ impl Game
                 .with_inner_size(800, 600)
                 .build(&event_loop);
 
-        // scene build
-        let scene = Scene::new("../Scenes/test.lvl");
-
-        let mut loadedEntities = scene.LoadScene(&display);
+        // Adds all levels that should be available for loading.
+        self.SceneManager.AddScene("Level1", "Scenes/test.lvl");
+        
+        // Build starting scene.
+        self.SceneManager.LoadScene("Level1", &display);
 
         let camera = Rc::new(
             RwLock::new(
@@ -71,10 +72,11 @@ impl Game
                 RwLock::new(
                     Components::Camera::CameraMouseController::New()));
 
-        let mut cameraEnt =
+        let cameraEnt =
             Rc::new(
                 RefCell::new(
                     Entity::new(
+                        "",
                         Float3::new(0.0, 0.0, 5.0)
                     )
                 )
@@ -82,20 +84,14 @@ impl Game
         cameraEnt.borrow_mut().add_component(camera.clone());
         cameraEnt.borrow_mut().add_component(cameraController);
 
-
-        /// object registry
-        let mut entities: Vec<Rc<RefCell<Entity>>> = Vec::new();
-        //entities.push(player.clone());
-        entities.push(cameraEnt.clone());
-        entities.append(&mut loadedEntities);
+        self.SceneManager.AddEntity(cameraEnt.clone());
 
 
-        /// Enter frame loop
-
+        // Enter frame loop
         let mut input = Input::New();
         let mut dateTimeLastFrame = Local::now();
 
-        for entityMutRef in &entities
+        for entityMutRef in &self.SceneManager.Entities
         {
             let mut entity = entityMutRef.borrow_mut();
             entity.start();
@@ -187,9 +183,9 @@ impl Game
                         {
                             let mut target = display.draw();
 
-                            target.clear_color(0.5, 0.0, 0.3, 1.0);
+                            target.clear_color(0.4, 0.0, 0.2, 1.0);
 
-                            for entityMutex in &entities
+                            for entityMutex in &self.SceneManager.Entities
                             {
                                 let frame =
                                     Rc::new(
