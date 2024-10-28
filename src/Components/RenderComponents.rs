@@ -8,6 +8,7 @@ use crate::Components::{Component};
 use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
 use crate::Components::RenderUtilities::{ImageBufferFromPath, Indicies, PlaneVertexBuffer, Vertex};
+use crate::GameAPI::GameAPI;
 
 pub trait Renderer
 {
@@ -178,11 +179,11 @@ impl Renderer2D
 
 impl Component for Renderer2D
 {
-    fn start(&mut self, entity: &mut Entity)
+    fn start(&mut self, entity: &mut Entity, api: &mut GameAPI)
     {
     }
 
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame)
+    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: &mut GameAPI)
     {
     }
 
@@ -224,6 +225,14 @@ impl Sprite
         )
 
     }
+
+    /// #Description: Creates a new Sprite
+    ///
+    /// spritePath - Path to Sprite Image (png).
+    /// display - Display reference.
+    /// frameCount - total number of frames.
+    /// cellCounts - number of cell rows and columns.
+    /// animationSpeed - speed animation should play at.
     pub fn new
     (spritePath: &str, display: &Display<WindowSurface>, frameCount: u16,
      cellCounts: (u16, u16), animationSpeed: f32) -> Arc<Sprite>

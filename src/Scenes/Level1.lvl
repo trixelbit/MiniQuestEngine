@@ -1,0 +1,5 @@
+* [Type] [Name] [Position] [Option: Assets Reference] 
+Player 1.11,2.22,3.33 Images/TileTexture.png
+Tile 0,0,0 Image/TileTexture.png
+AudioSource 0,0,0 Audio/Ambience
+

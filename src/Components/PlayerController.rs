@@ -1,12 +1,13 @@
-use std::sync::{Arc};
+use std::sync::Arc;
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 use winit::keyboard::KeyCode::*;
-use crate::Components::{Component};
+use crate::Components::Component;
 use crate::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
 use crate::Math::Float3;
+use crate::GameAPI::GameAPI;
 
 #[derive(Copy, Clone)]
 enum EPlayerState
@@ -37,6 +38,17 @@ pub struct PlayerController
 
 const RUN_SPEED: f32 = 0.01;
 
+// Sprite Asset References
+const IDLE_DOWN: &str  = "../Images/idle_down.png";
+const IDLE_UP: &str    = "../Images/idle_up.png";
+const IDLE_LEFT: &str  = "../Images/idle_left.png";
+const IDLE_RIGHT: &str = "../Images/idle_right.png";
+    
+const RUN_DOWN: &str   = "../Images/run_down.png";
+const RUN_UP: &str     = "../Images/run_up.png";
+const RUN_LEFT: &str   = "../Images/run_left.png";
+const RUN_RIGHT: &str  = "../Images/run_right.png";
+
 impl PlayerController
 {
     pub fn new(movementSpeed: f32, display: &Display<WindowSurface>) -> Self
@@ -47,14 +59,14 @@ impl PlayerController
             _velocity: Float3::zero(),
             _spriteTable:
                 [
-                    Sprite::new_simple("Images/idle_down.png", display),
-                    Sprite::new_simple("Images/idle_up.png", display),
-                    Sprite::new_simple("Images/idle_left.png", display),
-                    Sprite::new_simple("Images/idle_right.png", display),
-                    Sprite::new("Images/run_down.png", display, 4,(2,2), RUN_SPEED),
-                    Sprite::new("Images/run_up.png", display, 4, (2,2), RUN_SPEED),
-                    Sprite::new("Images/run_left.png", display, 4, (2,2), RUN_SPEED),
-                    Sprite::new("Images/run_right.png", display, 4, (2,2), RUN_SPEED)
+                    Sprite::new_simple(IDLE_DOWN, display),
+                    Sprite::new_simple(IDLE_UP, display),
+                    Sprite::new_simple(IDLE_LEFT, display),
+                    Sprite::new_simple(IDLE_RIGHT, display),
+                    Sprite::new(RUN_DOWN, display, 4,(2,2), RUN_SPEED),
+                    Sprite::new(RUN_UP, display, 4, (2,2), RUN_SPEED),
+                    Sprite::new(RUN_LEFT, display, 4, (2,2), RUN_SPEED),
+                    Sprite::new(RUN_RIGHT, display, 4, (2,2), RUN_SPEED)
                 ],
 
             _state: EPlayerState::idle,
@@ -81,11 +93,11 @@ impl PlayerController
 
 impl Component for PlayerController
 {
-    fn start(&mut self, entity: &mut Entity)
+    fn start(&mut self, entity: &mut Entity, api: &mut GameAPI)
     {
     }
 
-    fn update(&mut self, entity: &mut Entity,  frame: &GameFrame)
+    fn update(&mut self, entity: &mut Entity,  frame: &GameFrame, api: &mut GameAPI)
     {
         let leftVector = if frame.Input.IsKeyDown(KeyA) {-1.0f32} else {0.0};
         let rightVector = if frame.Input.IsKeyDown(KeyD) {1.0f32} else {0.0};

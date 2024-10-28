@@ -4,14 +4,16 @@ use crate::Frame::Input::*;
 
 pub mod Input;
 
+/// Frame information that should be passed to game entities.
 pub struct GameFrame
 {
     pub Input : InputState,
     pub TimeSinceGameStart: TimeDelta,
     pub DeltaTime: TimeDelta,
     pub CameraView: Matrix4<f32>,
-    pub CameraPerspective: Matrix4<f32>
+    pub CameraPerspective: Matrix4<f32>,
 }
+
 
 impl GameFrame
 {

@@ -4,20 +4,23 @@ use winit::keyboard::KeyCode::*;
 use crate::Frame::GameFrame;
 use crate::Math::Float3;
 use crate::Components::{Component};
+use crate::GameAPI::GameAPI;
 
 pub struct Entity
 {
     pub world_position: Float3,
     pub scale: Float3,
+    pub Name: String,
     _components : Vec<Rc<RwLock<dyn Component>>>,
     _componentNames : Vec<String>
 }
 impl Entity
 {
-    pub fn new(position: Float3, ) -> Self
+    pub fn new(name: &str, position: Float3) -> Self
     {
         Entity
         {
+            Name: String::from(name),
             world_position: position,
             scale: Float3::one(),
             _components: Vec::new(),
@@ -60,24 +63,29 @@ impl Entity
         return None;
     }
 
-    pub fn start(&mut self)
+    pub fn start(
+        &mut self, 
+        api: &mut GameAPI)
     {
         let components = &self._components.clone();
 
         for component in components
         {
             let mut writeGuard = component.write().unwrap();
-            writeGuard.start(self);
+            writeGuard.start(self, api);
         }
     }
 
-    pub fn update(&mut self, frame: &GameFrame)
+    pub fn update(
+        &mut self, 
+        frame: &GameFrame, 
+        api: &mut GameAPI)
     {
         let components = &self._components.clone();
 
         for component in components
         {
-            component.write().unwrap().update(self, &frame);
+            component.write().unwrap().update(self, &frame, api);
         }
     }
 }
