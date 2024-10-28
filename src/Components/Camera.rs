@@ -6,6 +6,8 @@ use crate::Components::Component;
 use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
 use crate::Math::Float3;
+use crate::GameAPI::GameAPI;
+
 
 pub struct Camera
 {
@@ -77,12 +79,12 @@ impl Camera
 
 impl Component for Camera
 {
-    fn start(&mut self, entity: &mut Entity)
+    fn start(&mut self, entity: &mut Entity, api: &mut GameAPI)
     {
 
     }
 
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame)
+    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: &mut GameAPI)
     {
         self.EyePosition = entity.world_position;
     }
@@ -111,12 +113,12 @@ impl CameraMouseController
 
 impl Component for CameraMouseController
 {
-    fn start(&mut self, entity: &mut Entity)
+    fn start(&mut self, entity: &mut Entity, api: &mut GameAPI)
     {
 
     }
 
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame)
+    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: &mut GameAPI)
     {
         let mousePosition = frame.Input.MousePosition();
         let vectorPosition = Float3::new(-mousePosition.0 as f32 / 300.0, mousePosition.1 as f32 / 300.0, 0.0);

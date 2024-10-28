@@ -13,18 +13,14 @@ use crate::Frame::Input::Input;
 use crate::GameEntity::Entity;
 use crate::Components::{self, *};
 use crate::Components::RenderComponents::{Renderer, Renderer2D};
-use crate::SceneBuilder::Scene;
 use crate::Math::*;
-use crate::GameState::GameState;
-use crate::SceneManager::SceneManager;
+use crate::GameAPI::GameAPI;
 
 /// The Game Application that is running currently.
 ///
 pub struct Game    
 {
-    pub State : GameState,
-    pub SceneManager: SceneManager,
-    _scenes : Vec<Scene>
+    pub API: GameAPI,
 }
 
 impl Game
@@ -34,9 +30,7 @@ impl Game
     {
         Self
         {
-            State: GameState::Create(),
-            SceneManager: SceneManager::Create(),
-            _scenes: Vec::new()
+            API: GameAPI::Create()
         }
     }
 
@@ -56,10 +50,10 @@ impl Game
                 .build(&event_loop);
 
         // Adds all levels that should be available for loading.
-        self.SceneManager.AddScene("Level1", "Scenes/test.lvl");
+        self.API.SceneManager.AddScene("Level1", "Scenes/test.lvl");
         
         // Build starting scene.
-        self.SceneManager.LoadScene("Level1", &display);
+        self.API.SceneManager.LoadScene("Level1", &display);
 
         let camera = Rc::new(
             RwLock::new(
@@ -84,17 +78,19 @@ impl Game
         cameraEnt.borrow_mut().add_component(camera.clone());
         cameraEnt.borrow_mut().add_component(cameraController);
 
-        self.SceneManager.AddEntity(cameraEnt.clone());
+        self.API.SceneManager.AddEntity(cameraEnt.clone());
 
 
         // Enter frame loop
         let mut input = Input::New();
         let mut dateTimeLastFrame = Local::now();
 
-        for entityMutRef in &self.SceneManager.Entities
+        let entityList =  &self.API.SceneManager.Entities.clone();
+
+        for entityMutRef in entityList
         {
             let mut entity = entityMutRef.borrow_mut();
-            entity.start();
+            entity.start(&mut self.API);
         }
 
         event_loop.run(move |event, window_target|
@@ -185,7 +181,7 @@ impl Game
 
                             target.clear_color(0.4, 0.0, 0.2, 1.0);
 
-                            for entityMutex in &self.SceneManager.Entities
+                            for entityMutex in entityList
                             {
                                 let frame =
                                     Rc::new(
@@ -199,7 +195,7 @@ impl Game
                                     );
 
                                 let mut entity = entityMutex.borrow_mut();
-                                entity.update(&frame);
+                                entity.update(&frame, &mut self.API);
 
                                 let renderOption =
                                     entity.get_component::<Renderer2D>(None);

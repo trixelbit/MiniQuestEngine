@@ -4,6 +4,7 @@ use winit::keyboard::KeyCode::*;
 use crate::Frame::GameFrame;
 use crate::Math::Float3;
 use crate::Components::{Component};
+use crate::GameAPI::GameAPI;
 
 pub struct Entity
 {
@@ -62,24 +63,29 @@ impl Entity
         return None;
     }
 
-    pub fn start(&mut self)
+    pub fn start(
+        &mut self, 
+        api: &mut GameAPI)
     {
         let components = &self._components.clone();
 
         for component in components
         {
             let mut writeGuard = component.write().unwrap();
-            writeGuard.start(self);
+            writeGuard.start(self, api);
         }
     }
 
-    pub fn update(&mut self, frame: &GameFrame)
+    pub fn update(
+        &mut self, 
+        frame: &GameFrame, 
+        api: &mut GameAPI)
     {
         let components = &self._components.clone();
 
         for component in components
         {
-            component.write().unwrap().update(self, &frame);
+            component.write().unwrap().update(self, &frame, api);
         }
     }
 }

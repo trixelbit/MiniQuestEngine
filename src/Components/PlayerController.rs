@@ -7,6 +7,7 @@ use crate::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
 use crate::Math::Float3;
+use crate::GameAPI::GameAPI;
 
 #[derive(Copy, Clone)]
 enum EPlayerState
@@ -92,11 +93,11 @@ impl PlayerController
 
 impl Component for PlayerController
 {
-    fn start(&mut self, entity: &mut Entity)
+    fn start(&mut self, entity: &mut Entity, api: &mut GameAPI)
     {
     }
 
-    fn update(&mut self, entity: &mut Entity,  frame: &GameFrame)
+    fn update(&mut self, entity: &mut Entity,  frame: &GameFrame, api: &mut GameAPI)
     {
         let leftVector = if frame.Input.IsKeyDown(KeyA) {-1.0f32} else {0.0};
         let rightVector = if frame.Input.IsKeyDown(KeyD) {1.0f32} else {0.0};

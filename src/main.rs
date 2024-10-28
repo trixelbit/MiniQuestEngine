@@ -6,6 +6,8 @@ mod Components;
 mod SceneManager;
 mod SceneBuilder;
 mod Game;
+mod GameAPI;
+mod MetaInfo;
 mod GameState;
 
 #[macro_use]
