@@ -96,7 +96,7 @@ impl Scene
                 RwLock::new(
                     Renderer2D::New(&display,
                         Sprite::new(
-                            "Images/run_down.png",
+                            "Assets/run_down.png",
                             &display,
                             4,
                             (2,2),

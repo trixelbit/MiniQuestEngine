@@ -40,15 +40,15 @@ pub struct PlayerController
 const RUN_SPEED: f32 = 0.01;
 
 // Sprite Asset References
-pub const IDLE_DOWN: &str  = "Images/idle_down.png";
-const IDLE_UP: &str    = "Images/idle_up.png";
-const IDLE_LEFT: &str  = "Images/idle_left.png";
-const IDLE_RIGHT: &str = "Images/idle_right.png";
+pub const IDLE_DOWN: &str  = "Assets/idle_down.png";
+const IDLE_UP: &str    = "Assets/idle_up.png";
+const IDLE_LEFT: &str  = "Assets/idle_left.png";
+const IDLE_RIGHT: &str = "Assets/idle_right.png";
     
-const RUN_DOWN: &str   = "Images/run_down.png";
-const RUN_UP: &str     = "Images/run_up.png";
-const RUN_LEFT: &str   = "Images/run_left.png";
-const RUN_RIGHT: &str  = "Images/run_right.png";
+const RUN_DOWN: &str   = "Assets/run_down.png";
+const RUN_UP: &str     = "Assets/run_up.png";
+const RUN_LEFT: &str   = "Assets/run_left.png";
+const RUN_RIGHT: &str  = "Assets/run_right.png";
 
 impl PlayerController
 {
