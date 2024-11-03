@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use cgmath::num_traits::ToPrimitive;
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 use winit::keyboard::KeyCode::*;
@@ -39,15 +40,15 @@ pub struct PlayerController
 const RUN_SPEED: f32 = 0.01;
 
 // Sprite Asset References
-const IDLE_DOWN: &str  = "../Images/idle_down.png";
-const IDLE_UP: &str    = "../Images/idle_up.png";
-const IDLE_LEFT: &str  = "../Images/idle_left.png";
-const IDLE_RIGHT: &str = "../Images/idle_right.png";
+pub const IDLE_DOWN: &str  = "Images/idle_down.png";
+const IDLE_UP: &str    = "Images/idle_up.png";
+const IDLE_LEFT: &str  = "Images/idle_left.png";
+const IDLE_RIGHT: &str = "Images/idle_right.png";
     
-const RUN_DOWN: &str   = "../Images/run_down.png";
-const RUN_UP: &str     = "../Images/run_up.png";
-const RUN_LEFT: &str   = "../Images/run_left.png";
-const RUN_RIGHT: &str  = "../Images/run_right.png";
+const RUN_DOWN: &str   = "Images/run_down.png";
+const RUN_UP: &str     = "Images/run_up.png";
+const RUN_LEFT: &str   = "Images/run_left.png";
+const RUN_RIGHT: &str  = "Images/run_right.png";
 
 impl PlayerController
 {
@@ -125,7 +126,12 @@ impl Component for PlayerController
             self._state = EPlayerState::idle;
         }
 
-        self._velocity = Float3::Lerp(self._velocity, targetVector, damping);
+        self._velocity =
+            Float3::scale_value(
+                Float3::Lerp(self._velocity, targetVector, damping),
+                (frame.DeltaTime.num_milliseconds().to_f32().unwrap() / 100.0)
+
+            );
 
         if self._velocity.x() < 0.0
         {

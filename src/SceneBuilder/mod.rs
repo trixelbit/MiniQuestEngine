@@ -96,7 +96,7 @@ impl Scene
                 RwLock::new(
                     Renderer2D::New(&display,
                         Sprite::new(
-                            "../Images/run_down.png",
+                            "Images/run_down.png",
                             &display,
                             4,
                             (2,2),
@@ -106,7 +106,7 @@ impl Scene
         let movementComponent =
             Rc::new(
                 RwLock::new(
-                    PlayerController::PlayerController::new(8.0f32, &display)));
+                    PlayerController::PlayerController::new(64.0f32, &display)));
         
         let mut playerMut = player.borrow_mut();
         playerMut.add_component(movementComponent);
