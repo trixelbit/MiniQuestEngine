@@ -1,0 +1,39 @@
+use crate::Components::Component;
+use crate::GameAPI::GameAPI;
+use crate::Frame::GameFrame;
+use crate::GameEntity::Entity;
+use crate::Audio::{AudioSample, ETargetTrack,EAudioSpace};
+
+pub struct AudioPlayer
+{
+    _sample: AudioSample
+}
+
+impl AudioPlayer
+{
+    pub fn Create(
+        path: String, 
+        volume: f32, 
+        loops: bool, 
+        space: EAudioSpace, 
+        soundType: ETargetTrack) -> Self
+    {
+        Self
+        {
+            _sample: AudioSample::Create(path, volume, loops, space, soundType)
+        }
+    }
+}
+
+impl Component for AudioPlayer
+{
+    fn start(&mut self, entity: &mut Entity, api: &mut GameAPI)
+    {
+        api.Audio.PlayAudio(&mut self._sample);
+    }
+
+    fn update(&mut self, entity: &mut Entity,  frame: &GameFrame, api: &mut GameAPI)
+    {
+
+    }
+}

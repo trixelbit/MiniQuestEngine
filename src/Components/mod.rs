@@ -1,5 +1,6 @@
 pub mod PlayerController;
 pub mod RenderComponents;
+pub mod AudioSource;
 mod RenderUtilities;
 pub(crate) mod Camera;
 

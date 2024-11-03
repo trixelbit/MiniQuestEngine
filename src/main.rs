@@ -9,6 +9,7 @@ mod Game;
 mod GameAPI;
 mod MetaInfo;
 mod GameState;
+mod Audio;
 
 #[macro_use]
 extern crate glium;

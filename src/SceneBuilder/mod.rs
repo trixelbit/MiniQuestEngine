@@ -2,10 +2,12 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::vec::Vec;
 
+use crate::Audio::EAudioSpace;
 use crate::GameEntity::Entity;
 use crate::Components::*;
 use crate::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Math::*;
+use crate::Components::AudioSource::AudioPlayer;
 
 use std::fs;    
 use std::sync::RwLock;
@@ -75,10 +77,12 @@ impl Scene
         {
             "Player" => Some(Scene::BuildPlayer(tokens, display)),
             "Tile" => Some(Scene::BuildTile(tokens, display)),
+            "Audio" => Some(Scene::BuildAudioSource(tokens, display)),
             _ => None
         }
     }
 
+    /// constructs a player object
     fn BuildPlayer(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
         let name = data[1].as_str();
@@ -122,6 +126,7 @@ impl Scene
 
         let assetPath = data[3].as_str();
 
+
         let tile = Rc::new(RefCell::new(Entity::new(name, position)));
         tile.borrow_mut().scale = Float3::scale_value(Float3::one(), 5.0);
 
@@ -142,6 +147,50 @@ impl Scene
         drop(tileMut);
 
         tile
+    }
+
+    /// Constructs a audio source object.
+    ///
+    /// Entry Structure:
+    ///     1 - name
+    ///     2 - position
+    ///     3 - path
+    ///     4 - volume 
+    ///     5 - space(2D/ 3D)
+    ///     6 - track(music/ sfx)
+    fn BuildAudioSource(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
+    {
+        let name = data[1].as_str();
+        let position = 
+            Float3::scale_value(
+                Float3::FromString(data[2].as_str()), 
+                5f32);
+
+        let assetPath = String::from(data[3].as_str());
+
+        // TODO: implement remaining properties
+        
+        let audioSource = Rc::new(RefCell::new(Entity::new(name, position)));
+        
+        let mut mutEnt = audioSource.borrow_mut();
+        mutEnt.scale = Float3::scale_value(Float3::one(), 5.0);
+
+        let audioSourceComp =
+            Rc::new(
+                RwLock::new(
+                    AudioPlayer::Create(
+                        assetPath, 
+                        1.0,
+                        true,
+                        EAudioSpace::Is2D,
+                        crate::Audio::ETargetTrack::Music
+                    )));
+        
+        mutEnt.add_component(audioSourceComp);
+        drop(mutEnt);
+
+
+        return audioSource;
     }
 }
 
