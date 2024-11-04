@@ -17,7 +17,6 @@ use crate::Math::*;
 use crate::GameAPI::GameAPI;
 
 /// The Game Application that is running currently.
-///
 pub struct Game    
 {
     pub API: GameAPI,
@@ -95,6 +94,7 @@ impl Game
             entity.start(&mut self.API);
         }
 
+        // TODO: Break this closure up into static functions
         event_loop.run( |event, window_target|
         {
             match event
@@ -198,6 +198,12 @@ impl Game
                                     );
 
                                 let mut entity = entityMutex.borrow_mut();
+
+                                if !entity.HasStartBeenCalled()
+                                {
+                                    entity.start(&mut self.API);
+                                }
+
                                 entity.update(&frame, &mut self.API);
 
                                 let renderOption =

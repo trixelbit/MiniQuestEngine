@@ -8,7 +8,6 @@ use cgmath::num_traits::ToPrimitive;
 use rxrust::prelude::*;
 use rxrust::prelude::timer::TimerObservable;
 
-///
 pub struct Bullet
 {
     pub Direction: Float3,
@@ -30,16 +29,28 @@ impl Bullet
     }
 }
 
-//type a = FnMut(&mut Entity, &mut GameAPI);
-
 impl Component for Bullet
 {
-
     fn start(&mut self, 
         entity: &mut Entity, 
         api: &mut GameAPI)
     {
+        // sync runner
+        // let mut scheduler = FuturesLocalSchedulerPool::new();
+    
+        // asynch threaded scheduling
+        let scheduler = FuturesThreadPoolScheduler::new();
         
+        rxrust::observable::timer(
+            false, 
+            Duration::new(1, 0), 
+            scheduler.unwrap())
+            .subscribe
+            (
+                // figure out how to pass mutable death function to thread
+                |_| println!("Died") 
+            );
+
     }
 
     fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: &mut GameAPI)
@@ -50,8 +61,6 @@ impl Component for Bullet
                 self.Speed * 
                 (frame.DeltaTime.num_milliseconds().to_f32().unwrap() / 100.0)
             ));
-
-        println!("New Position: {}", entity.world_position);
     }
 }
 

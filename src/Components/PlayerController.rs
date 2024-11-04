@@ -40,7 +40,9 @@ pub struct PlayerController
 
     _state : EPlayerState,
     _direction :  EDirection,
-    _display: Display<WindowSurface>
+    _display: Display<WindowSurface>,
+
+    _waterSprite: Arc<Sprite>
 }
 
 const RUN_SPEED: f32 = 0.01;
@@ -80,7 +82,8 @@ impl PlayerController
 
             _state: EPlayerState::idle,
             _direction: EDirection::Up,
-            _display: display.clone()
+            _display: display.clone(),
+            _waterSprite: Sprite::new_simple(WATER_BALL_SPRITE, display),
         }
     }
 
@@ -111,12 +114,16 @@ impl PlayerController
 
         waterEntity
             .borrow_mut()
+            .scale = Float3::new(5.0, 5.0, 5.0);
+
+        waterEntity
+            .borrow_mut()
             .add_component(
                 Rc::new(
                     RwLock::new(
                         Bullet::Create(
                             direction,
-                            64.0,
+                            128.0,
                             2.0
                         ))));
         
@@ -125,9 +132,8 @@ impl PlayerController
             .add_component(
                 Rc::new(
                     RwLock::new(
-                        Renderer2D::New(&self._display, 
-                            Sprite::new_simple(WATER_BALL_SPRITE, &self._display 
-                        )))));
+                        Renderer2D::New(&self._display, self._waterSprite.clone()
+                        ))));
 
 
         api.SceneManager.AddEntity(waterEntity);

@@ -12,12 +12,18 @@ pub struct Entity
     pub world_position: Float3,
     pub scale: Float3,
     pub Name: String,
+    _hasStartBeenCalled: bool,
     _id : Uuid,
     _components : Vec<Rc<RwLock<dyn Component>>>,
     _componentNames : Vec<String>
 }
 impl Entity
 {
+    pub fn HasStartBeenCalled(&self) -> bool
+    {
+        self._hasStartBeenCalled
+    }
+
     pub fn ID(&self) -> Uuid
     {
         self._id.clone()
@@ -32,7 +38,8 @@ impl Entity
             scale: Float3::one(),
             _components: Vec::new(),
             _componentNames: Vec::new(),
-            _id: Uuid::new_v4()
+            _id: Uuid::new_v4(),
+            _hasStartBeenCalled: false
         }
     }
 
@@ -75,6 +82,11 @@ impl Entity
         &mut self, 
         api: &mut GameAPI)
     {
+        if self._hasStartBeenCalled
+        {
+            panic!("Trying to call Start() after it has been already called in lifetime.");
+        }
+
         let components = &self._components.clone();
 
         for component in components
@@ -82,6 +94,8 @@ impl Entity
             let mut writeGuard = component.write().unwrap();
             writeGuard.start(self, api);
         }
+
+        self._hasStartBeenCalled = true;
     }
 
     pub fn update(
