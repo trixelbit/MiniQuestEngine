@@ -85,6 +85,8 @@ impl Game
         let mut input = Input::New();
         let mut dateTimeLastFrame = Local::now();
 
+        // TODO: This is bad because it does not respond to the creation and deletion of entities
+        // on runtime.
         let entityList =  &self.API.SceneManager.Entities.clone();
 
         for entityMutRef in entityList
@@ -93,7 +95,7 @@ impl Game
             entity.start(&mut self.API);
         }
 
-        event_loop.run(move |event, window_target|
+        event_loop.run( |event, window_target|
         {
             match event
             {
@@ -181,7 +183,8 @@ impl Game
 
                             target.clear_color(0.4, 0.0, 0.2, 1.0);
 
-                            for entityMutex in entityList
+                            let list = &self.API.SceneManager.Entities.clone();
+                            for entityMutex in list
                             {
                                 let frame =
                                     Rc::new(

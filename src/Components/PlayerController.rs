@@ -1,13 +1,18 @@
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::Arc;
+use std::sync::RwLock;
+
 use cgmath::num_traits::ToPrimitive;
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 use winit::keyboard::KeyCode::*;
 use crate::Components::Component;
+use crate::Components::Bullet::Bullet;
 use crate::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
-use crate::Math::Float3;
+use crate::Math::{Float3, Ray};
 use crate::GameAPI::GameAPI;
 
 #[derive(Copy, Clone)]
@@ -34,7 +39,8 @@ pub struct PlayerController
     _spriteTable: [Arc<Sprite>; 8],
 
     _state : EPlayerState,
-    _direction :  EDirection
+    _direction :  EDirection,
+    _display: Display<WindowSurface>
 }
 
 const RUN_SPEED: f32 = 0.01;
@@ -49,6 +55,8 @@ const RUN_DOWN: &str   = "Assets/run_down.png";
 const RUN_UP: &str     = "Assets/run_up.png";
 const RUN_LEFT: &str   = "Assets/run_left.png";
 const RUN_RIGHT: &str  = "Assets/run_right.png";
+
+const WATER_BALL_SPRITE: &str = "Assets/waterball.png";
 
 impl PlayerController
 {
@@ -71,7 +79,8 @@ impl PlayerController
                 ],
 
             _state: EPlayerState::idle,
-            _direction: EDirection::Up
+            _direction: EDirection::Up,
+            _display: display.clone()
         }
     }
 
@@ -89,6 +98,40 @@ impl PlayerController
         let index = (state as usize  * 4) + direction as usize;
 
         renderer.write().unwrap().set_new_sprite(self._spriteTable[index].clone());
+    }
+
+    /// Creates a water ball and fires it in the direction the player is facing.
+    pub fn CreateWaterBall(&mut self, entity: &Entity, api: &mut GameAPI, direction: Float3)
+    {
+        let waterEntity =
+        Rc::new(
+            RefCell::new(
+                Entity::new("Water", entity.world_position)
+            ));
+
+        waterEntity
+            .borrow_mut()
+            .add_component(
+                Rc::new(
+                    RwLock::new(
+                        Bullet::Create(
+                            direction,
+                            64.0,
+                            2.0
+                        ))));
+        
+        waterEntity
+            .borrow_mut()
+            .add_component(
+                Rc::new(
+                    RwLock::new(
+                        Renderer2D::New(&self._display, 
+                            Sprite::new_simple(WATER_BALL_SPRITE, &self._display 
+                        )))));
+
+
+        api.SceneManager.AddEntity(waterEntity);
+        println!("FIRE WATER BALL");
     }
 }
 
@@ -153,5 +196,11 @@ impl Component for PlayerController
 
         entity.world_position.add(self._velocity);
         self.animation_update(entity, self._state, self._direction);
+
+        // Shoot water ball
+        if frame.Input.IsKeyPressed(Space)
+        {
+            self.CreateWaterBall(entity, api, movementVector);
+        }
     }
 }

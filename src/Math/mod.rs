@@ -1,5 +1,8 @@
 use std::ops::{Add, Mul, Sub};
 use cgmath::{Point3, Vector3};
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Error;
 
 #[derive(Copy, Clone)]
 pub struct Float3
@@ -187,6 +190,14 @@ impl Float3
     }
 }
 
+impl Display for Float3
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error>
+    {
+        write!(f, "({}, {}, {})", self.position[0], self.position[1], self.position[2])
+    }
+}
+
 impl Sub for Float3
 {
     type Output = Self;
@@ -246,5 +257,24 @@ pub mod Math
     pub fn Lerp(start: f32, end: f32, t: f32) -> f32
     {
         return ((end - start) * t) + start
+    }
+}
+
+#[derive(Copy, Clone)]
+pub struct Ray
+{
+    pub Origin: Float3,
+    pub Direction: Float3
+}
+
+impl Ray
+{
+    pub fn Create(origin: Float3, direction: Float3) -> Self
+    {
+        Self
+        {
+            Origin: origin,
+            Direction: direction
+        }
     }
 }
