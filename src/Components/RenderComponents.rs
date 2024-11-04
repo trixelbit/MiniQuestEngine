@@ -5,7 +5,7 @@ use glium::glutin::surface::WindowSurface;
 use glium::index::NoIndices;
 use glium::texture::RawImage2d;
 use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
-use crate::Components::{Component};
+use crate::Components::Component;
 use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
 use crate::Components::RenderUtilities::{ImageBufferFromPath, Indicies, PlaneVertexBuffer, Vertex};
@@ -16,6 +16,7 @@ pub trait Renderer
     fn render(&self, entity: &Entity, frame: &GameFrame, target: &mut Frame);
 }
 
+/// Draws a 2D sprite to screen.
 pub struct Renderer2D
 {
     pub VertexBuffer: VertexBuffer<Vertex>,
@@ -67,8 +68,6 @@ impl Renderer for Renderer2D
 
         target.draw(&self.VertexBuffer, &self.Indicies, &self.Program, &uniforms,
                     &Default::default()).unwrap();
-
-        //target.finish().unwrap();
     }
 }
 
@@ -191,12 +190,11 @@ impl Component for Renderer2D
     fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: &mut GameAPI)
     {
     }
-
 }
-
 
 pub struct Sprite
 {
+    /// Based texture contains sprite sheet
     pub Texture: Texture2d,
 
     /// Total Number of sprites in sheet
@@ -205,13 +203,14 @@ pub struct Sprite
     /// numbers cells horizontally and vertically in sprite sheet
     pub CellCounts: (u16, u16),
 
-    /// Speed the animation plays at.
+    /// Speed the animation plays at
     pub AnimationSpeed: f32
 
 }
 
 impl Sprite
 {
+    /// Creates a simple, un animated sprite
     pub fn new_simple(spritePath: &str, display: &Display<WindowSurface>) -> Arc<Self>
     {
         let imageBuffer = ImageBufferFromPath(spritePath);
@@ -228,10 +227,9 @@ impl Sprite
                 AnimationSpeed: 1.0
             }
         )
-
     }
 
-    /// #Description: Creates a new Sprite
+    /// Creates a new Sprite
     ///
     /// spritePath - Path to Sprite Image (png).
     /// display - Display reference.

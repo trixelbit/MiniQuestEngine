@@ -66,8 +66,7 @@ impl Component for Bullet
         entity.world_position.add(
             Float3::scale_value(
                 self.Direction, 
-                self.Speed * 
-                (frame.DeltaTime.num_milliseconds().to_f32().unwrap() / 100.0)
+                self.Speed * frame.DeltaTime_Seconds
             ));
     }
 }

@@ -52,6 +52,7 @@ pub struct PlayerController
 {
     pub _movementSpeed: f32,
     pub _velocity: Float3,
+    pub _lastMovementVector: Float3,
 
     _spriteTable: [Arc<Sprite>; 8],
 
@@ -72,6 +73,8 @@ impl PlayerController
                 {
                     _movementSpeed: movementSpeed,
                     _velocity: Float3::zero(),
+                    _lastMovementVector: Float3::zero(),
+
                     _spriteTable:
                         [
                             Sprite::new_simple(IDLE_DOWN, display),
@@ -102,7 +105,7 @@ impl PlayerController
             return;
         }
 
-        let mut renderer = componentOption.unwrap();
+        let renderer = componentOption.unwrap();
 
         let index = (state as usize  * 4) + direction as usize;
 
@@ -113,10 +116,10 @@ impl PlayerController
     pub fn CreateWaterBall(&mut self, entity: &Entity, api: &mut GameAPI, direction: Float3)
     {
         let waterEntity =
-        Rc::new(
-            RefCell::new(
-                Entity::new("Water", entity.world_position)
-            ));
+            Rc::new(
+                RefCell::new(
+                    Entity::new("Water", entity.world_position)
+                ));
 
         waterEntity
             .borrow_mut()
@@ -161,14 +164,13 @@ impl Component for PlayerController
             Float3::new(leftVector + rightVector, upVector + downVector, forwardVector + backVector)
             .normalized();
 
-        let targetVector = Float3::scale_value(movementVector, self._movementSpeed);
+        let damping;
 
-        let mut damping : f32 = 0.0;
-
-        if movementVector.magnitude() > 0.0001
+        if movementVector.magnitude() > 0.001
         {
             damping = 1.0;
             self._state = EPlayerState::run;
+            self._lastMovementVector = movementVector;
         }
         else
         {
@@ -176,12 +178,12 @@ impl Component for PlayerController
             self._state = EPlayerState::idle;
         }
 
-        self._velocity =
-            Float3::scale_value(
-                Float3::Lerp(self._velocity, targetVector, damping),
-                (frame.DeltaTime.num_milliseconds().to_f32().unwrap() / 100.0)
+        let targetVector = Float3::scale_value(movementVector, self._movementSpeed);
 
-            );
+
+        // move this logic into frame
+        self._velocity =
+                Float3::Lerp(self._velocity, targetVector, damping);
 
         if self._velocity.x() < 0.0
         {
@@ -201,13 +203,13 @@ impl Component for PlayerController
             self._direction = EDirection::Down;
         }
 
-        entity.world_position.add(self._velocity);
+        entity.world_position.add(Float3::scale_value(self._velocity, frame.DeltaTime_Seconds));
         self.animation_update(entity, self._state, self._direction);
 
         // Shoot water ball
         if frame.Input.IsKeyPressed(Space)
         {
-            self.CreateWaterBall(entity, api, movementVector);
+            self.CreateWaterBall(entity, api, self._lastMovementVector.normalized());
         }
     }
 }

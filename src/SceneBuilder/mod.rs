@@ -123,7 +123,6 @@ impl Scene
     ///     3 - asset path
     ///     4 - is a collider
     ///
-    /// 
     fn BuildTile(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
         // 1 - name
@@ -169,6 +168,7 @@ impl Scene
     ///     4 - volume 
     ///     5 - space(2D/ 3D)
     ///     6 - track(music/ sfx)
+    ///
     fn BuildAudioSource(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
         let name = data[1].as_str();
@@ -187,13 +187,13 @@ impl Scene
         mutEnt.scale = Float3::scale_value(Float3::one(), 5.0);
 
         let audioSourceComp =
-                    AudioPlayer::Create(
-                        assetPath, 
-                        1.0,
-                        true,
-                        EAudioSpace::Is2D,
-                        crate::Audio::ETargetTrack::Music
-                    );
+            AudioPlayer::Create(
+                assetPath, 
+                1.0,
+                true,
+                EAudioSpace::Is2D,
+                crate::Audio::ETargetTrack::Music
+            );
         
         mutEnt.add_component(audioSourceComp);
         drop(mutEnt);
