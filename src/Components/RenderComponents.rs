@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use std::sync::{Arc, RwLock};
 use glium::{Display, Frame, Program, Surface, Texture2d, VertexBuffer};
 use glium::glutin::surface::WindowSurface;
@@ -73,7 +74,7 @@ impl Renderer for Renderer2D
 
 impl Renderer2D
 {
-    pub fn New(display : &Display<WindowSurface>, initialSprite: Arc<Sprite>) -> Self
+    pub fn New(display : &Display<WindowSurface>, initialSprite: Arc<Sprite>) -> Rc<RwLock<Self>>
     {
         let vertexBuffer = PlaneVertexBuffer(&display);
 
@@ -88,14 +89,18 @@ impl Renderer2D
 
         let program = result.unwrap();
 
-        Self
-        {
-            Sprite: initialSprite,
-            VertexBuffer: vertexBuffer,
-            Indicies: Indicies(),
-            Program: program,
-            Display: display.clone()
-        }
+        Rc::new(
+            RwLock::new(
+                Self
+                {
+                    Sprite: initialSprite,
+                    VertexBuffer: vertexBuffer,
+                    Indicies: Indicies(),
+                    Program: program,
+                    Display: display.clone()
+                }
+            )
+        )
     }
 
     pub fn set_new_sprite(&mut self, newSprite: Arc<Sprite>)

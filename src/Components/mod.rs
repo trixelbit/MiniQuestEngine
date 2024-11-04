@@ -4,6 +4,7 @@ pub mod AudioSource;
 pub(crate) mod Camera;
 pub mod Bullet;
 mod RenderUtilities;
+mod ComponentTemplate;
 
 use std::any::Any;
 use std::sync::{Arc, RwLock};

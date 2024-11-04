@@ -1,5 +1,5 @@
-use std::cell::RefCell;
 use std::rc::Rc;
+use std::cell::RefCell;
 use std::sync::Arc;
 use std::sync::RwLock;
 
@@ -31,19 +31,6 @@ enum EDirection
     Right = 3
 }
 
-pub struct PlayerController
-{
-    pub _movementSpeed: f32,
-    pub _velocity: Float3,
-
-    _spriteTable: [Arc<Sprite>; 8],
-
-    _state : EPlayerState,
-    _direction :  EDirection,
-    _display: Display<WindowSurface>,
-
-    _waterSprite: Arc<Sprite>
-}
 
 const RUN_SPEED: f32 = 0.01;
 
@@ -60,31 +47,50 @@ const RUN_RIGHT: &str  = "Assets/run_right.png";
 
 const WATER_BALL_SPRITE: &str = "Assets/waterball.png";
 
+
+pub struct PlayerController
+{
+    pub _movementSpeed: f32,
+    pub _velocity: Float3,
+
+    _spriteTable: [Arc<Sprite>; 8],
+
+    _state : EPlayerState,
+    _direction :  EDirection,
+    _display: Display<WindowSurface>,
+
+    _waterSprite: Arc<Sprite>
+}
+
 impl PlayerController
 {
-    pub fn new(movementSpeed: f32, display: &Display<WindowSurface>) -> Self
+    pub fn new(movementSpeed: f32, display: &Display<WindowSurface>) -> Rc<RwLock<Self>>
     {
-        Self
-        {
-            _movementSpeed: movementSpeed,
-            _velocity: Float3::zero(),
-            _spriteTable:
-                [
-                    Sprite::new_simple(IDLE_DOWN, display),
-                    Sprite::new_simple(IDLE_UP, display),
-                    Sprite::new_simple(IDLE_LEFT, display),
-                    Sprite::new_simple(IDLE_RIGHT, display),
-                    Sprite::new(RUN_DOWN, display, 4,(2,2), RUN_SPEED),
-                    Sprite::new(RUN_UP, display, 4, (2,2), RUN_SPEED),
-                    Sprite::new(RUN_LEFT, display, 4, (2,2), RUN_SPEED),
-                    Sprite::new(RUN_RIGHT, display, 4, (2,2), RUN_SPEED)
-                ],
+        Rc::new(
+            RwLock::new(
+                Self
+                {
+                    _movementSpeed: movementSpeed,
+                    _velocity: Float3::zero(),
+                    _spriteTable:
+                        [
+                            Sprite::new_simple(IDLE_DOWN, display),
+                            Sprite::new_simple(IDLE_UP, display),
+                            Sprite::new_simple(IDLE_LEFT, display),
+                            Sprite::new_simple(IDLE_RIGHT, display),
+                            Sprite::new(RUN_DOWN, display, 4,(2,2), RUN_SPEED),
+                            Sprite::new(RUN_UP, display, 4, (2,2), RUN_SPEED),
+                            Sprite::new(RUN_LEFT, display, 4, (2,2), RUN_SPEED),
+                            Sprite::new(RUN_RIGHT, display, 4, (2,2), RUN_SPEED)
+                        ],
 
-            _state: EPlayerState::idle,
-            _direction: EDirection::Up,
-            _display: display.clone(),
-            _waterSprite: Sprite::new_simple(WATER_BALL_SPRITE, display),
-        }
+                    _state: EPlayerState::idle,
+                    _direction: EDirection::Up,
+                    _display: display.clone(),
+                    _waterSprite: Sprite::new_simple(WATER_BALL_SPRITE, display),
+                }
+            )
+        )
     }
 
     fn animation_update(&self, entity: &mut Entity, state: EPlayerState, direction: EDirection)
@@ -116,28 +122,23 @@ impl PlayerController
             .borrow_mut()
             .scale = Float3::new(5.0, 5.0, 5.0);
 
+        // update constructors to return Rc RwLock wrapped Components
         waterEntity
             .borrow_mut()
             .add_component(
-                Rc::new(
-                    RwLock::new(
-                        Bullet::Create(
-                            direction,
-                            128.0,
-                            2.0
-                        ))));
+                Bullet::Create(
+                    direction,
+                    128.0,
+                    2.0
+                ));
         
         waterEntity
             .borrow_mut()
             .add_component(
-                Rc::new(
-                    RwLock::new(
                         Renderer2D::New(&self._display, self._waterSprite.clone()
-                        ))));
-
+                        ));
 
         api.SceneManager.AddEntity(waterEntity);
-        println!("FIRE WATER BALL");
     }
 }
 

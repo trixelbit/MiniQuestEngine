@@ -4,9 +4,12 @@ use crate::Frame::GameFrame;
 use crate::Math::Float3;
 use crate::GameAPI::GameAPI;
 
+
 use cgmath::num_traits::ToPrimitive;
 use rxrust::prelude::*;
 use rxrust::prelude::timer::TimerObservable;
+use std::sync::RwLock;
+use std::rc::Rc;
 
 pub struct Bullet
 {
@@ -18,14 +21,18 @@ pub struct Bullet
 
 impl Bullet
 {
-    pub fn Create(direction: Float3, speed: f32, lifeTime_Seconds: f32) -> Self
+    pub fn Create(direction: Float3, speed: f32, lifeTime_Seconds: f32) -> Rc<RwLock<Self>>
     {
-        Self
-        {
-            Direction: direction,
-            Speed: speed,
-            LifeTime_Seconds: lifeTime_Seconds
-        }
+        Rc::new(
+            RwLock::new(
+                Self
+                {
+                    Direction: direction,
+                    Speed: speed,
+                    LifeTime_Seconds: lifeTime_Seconds
+                }
+            )
+        )
     }
 }
 
@@ -43,7 +50,8 @@ impl Component for Bullet
         
         rxrust::observable::timer(
             false, 
-            Duration::new(1, 0), 
+            // TODO: Decompose this  f32 seconds value to u64 seconds values and u34 nano seconds
+            Duration::new(self.LifeTime_Seconds.to_u64().unwrap(), 0),  
             scheduler.unwrap())
             .subscribe
             (

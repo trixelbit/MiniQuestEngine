@@ -1,3 +1,6 @@
+use std::rc::Rc;
+use std::sync::RwLock;
+
 use crate::Components::Component;
 use crate::GameAPI::GameAPI;
 use crate::Frame::GameFrame;
@@ -16,12 +19,16 @@ impl AudioPlayer
         volume: f32, 
         loops: bool, 
         space: EAudioSpace, 
-        soundType: ETargetTrack) -> Self
+        soundType: ETargetTrack) -> Rc<RwLock<Self>>
     {
-        Self
-        {
-            _sample: AudioSample::Create(path, volume, loops, space, soundType)
-        }
+        Rc::new(
+            RwLock::new(
+                Self
+                {
+                    _sample: AudioSample::Create(path, volume, loops, space, soundType)
+                }
+            )
+        )
     }
 }
 

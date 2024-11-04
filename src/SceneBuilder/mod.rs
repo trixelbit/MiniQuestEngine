@@ -83,6 +83,10 @@ impl Scene
     }
 
     /// constructs a player object
+    ///
+    /// Entry Structure:
+    ///     1 - name
+    ///     2 - position
     fn BuildPlayer(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
         let name = data[1].as_str();
@@ -92,21 +96,16 @@ impl Scene
         player.borrow_mut().scale = Float3::scale_value(Float3::one(), 5.0);
 
         let renderComponent =
-            Rc::new(
-                RwLock::new(
                     Renderer2D::New(&display,
                         Sprite::new(
                             "Assets/run_down.png",
                             &display,
                             4,
                             (2,2),
-                            0.001))
-        ));
+                            0.001)
+        );
 
-        let movementComponent =
-            Rc::new(
-                RwLock::new(
-                    PlayerController::PlayerController::new(64.0f32, &display)));
+        let movementComponent = PlayerController::PlayerController::new(64.0f32, &display);
         
         let mut playerMut = player.borrow_mut();
         playerMut.add_component(movementComponent);
@@ -116,31 +115,43 @@ impl Scene
         player
     }
 
+    /// Builds a static tile object
+    ///
+    /// Entry Structure:
+    ///     1 - name
+    ///     2 - position
+    ///     3 - asset path
+    ///     4 - is a collider
+    ///
+    /// 
     fn BuildTile(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
+        // 1 - name
         let name = data[1].as_str();
+
+        // 2 - position
         let position = 
             Float3::scale_value(
                 Float3::FromString(data[2].as_str()), 
                 5f32);
 
+        // 3 - asset path
         let assetPath = data[3].as_str();
 
+        // 4 - is a collider - TODO
 
         let tile = Rc::new(RefCell::new(Entity::new(name, position)));
         tile.borrow_mut().scale = Float3::scale_value(Float3::one(), 5.0);
 
         let renderComponent =
-            Rc::new(
-                RwLock::new(
                     Renderer2D::New(&display,
                         Sprite::new(
                             assetPath,
                             &display,
                             1,
                             (1,1),
-                            0.001))
-        ));
+                            0.001)
+        );
 
         let mut tileMut = tile.borrow_mut();
         tileMut.add_component(renderComponent);
@@ -149,7 +160,7 @@ impl Scene
         tile
     }
 
-    /// Constructs a audio source object.
+    /// Constructs an audio source object.
     ///
     /// Entry Structure:
     ///     1 - name
@@ -176,15 +187,13 @@ impl Scene
         mutEnt.scale = Float3::scale_value(Float3::one(), 5.0);
 
         let audioSourceComp =
-            Rc::new(
-                RwLock::new(
                     AudioPlayer::Create(
                         assetPath, 
                         1.0,
                         true,
                         EAudioSpace::Is2D,
                         crate::Audio::ETargetTrack::Music
-                    )));
+                    );
         
         mutEnt.add_component(audioSourceComp);
         drop(mutEnt);
