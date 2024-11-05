@@ -30,11 +30,15 @@ pub trait Component: Downcast
     /// Called every frame while the object is alive.
     fn update(&mut self, entity: &mut Entity,  frame: &GameFrame, api: Arc<Mutex<GameAPI>>);
 
+    // Called when this entity is marked for deletion but hasn't been deleted yet.
+    fn OnDestroy(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>){}
+
     /// Destroy the GameEntity that this is attachd too.
     fn DestroyEntity(&mut self, entity: &mut Entity, api: &mut GameAPI)
     {
         api.SceneManager.DestroyEntity(entity.ID());
     }
+
 
 }
 impl_downcast!(Component);

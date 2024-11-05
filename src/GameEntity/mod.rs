@@ -111,4 +111,21 @@ impl Entity
             component.write().unwrap().update(self, &frame, api.clone());
         }
     }
+    pub fn OnDestroy(
+        &mut self, 
+        frame: &GameFrame, 
+        api: Arc<Mutex<GameAPI>>)
+    {
+        let components = &self._components.clone();
+
+        for component in components
+        {
+            component.write().unwrap().update(self, &frame, api.clone());
+        }
+    }
 }
+
+
+
+
+

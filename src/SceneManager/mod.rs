@@ -78,7 +78,7 @@ impl SceneManager
         self.Entities.push(newEntity.clone());
         self._deletionTable.push(false);
 
-        // this may be unsafe for use in separate threads and could cause panics.
+        // this may be unsafe for use in separate threads
         self._idTable.push(newEntity.borrow_mut().ID())
     }
 
@@ -120,6 +120,7 @@ impl SceneManager
             .into_iter()
             .for_each( |x| 
                 {
+                    self.Entities[x].borrow_mut().OnDestroy();
                     self.Entities.remove(x);
                     self._deletionTable.remove(x);
                     self._idTable.remove(x);
