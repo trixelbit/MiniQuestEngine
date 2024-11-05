@@ -8,6 +8,9 @@ use cgmath::num_traits::ToPrimitive;
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 use winit::keyboard::KeyCode::*;
+use crate::Audio::AudioSample;
+use crate::Audio::EAudioSpace;
+use crate::Audio::ETargetTrack;
 use crate::Components::Component;
 use crate::Components::Bullet::Bullet;
 use crate::Components::RenderComponents::{Renderer2D, Sprite};
@@ -47,7 +50,7 @@ const RUN_LEFT: &str   = "Assets/run_left.png";
 const RUN_RIGHT: &str  = "Assets/run_right.png";
 
 const WATER_BALL_SPRITE: &str = "Assets/waterball.png";
-
+const WATER_SHOOT_SFX: &str = "Assets/Shoot.ogg";
 
 pub struct PlayerController
 {
@@ -141,6 +144,16 @@ impl PlayerController
             .add_component(
                         Renderer2D::New(&self._display, self._waterSprite.clone()
                         ));
+
+        api.lock().unwrap().Audio.PlayAudio(
+            &AudioSample::Create(
+                String::from(WATER_SHOOT_SFX), 
+                1.0,
+                false,
+                EAudioSpace::Is2D,
+                ETargetTrack::Effect
+            )
+        );
 
         api.lock().unwrap().SceneManager.AddEntity(waterEntity);
     }

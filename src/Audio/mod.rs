@@ -58,17 +58,22 @@ impl Audio
         let file = BufReader::new(fileOption.unwrap());
         let source: Decoder<BufReader<File>>  = Decoder::new(file).unwrap();
 
+        let volume = sample._volume;
+
         match &sample._audioType
         {
-            ETargetTrack::Music => Audio::PutAudioInSink(source, &mut self._musicSink),
-            ETargetTrack::Effect => Audio::PutAudioInSink(source, &mut self._effectSink),
+            ETargetTrack::Music => Audio::PutAudioInSink(source, volume, &mut self._musicSink),
+            ETargetTrack::Effect => Audio::PutAudioInSink(source, volume, &mut self._effectSink),
         } 
     }
 
     fn PutAudioInSink(
         decoder: Decoder<BufReader<File>>, 
+        volume: f32,
         sink: &mut Sink)
     {
+        sink.stop();
+        sink.set_volume(volume);
         sink.append(decoder);
         //sink.sleep_until_end();
     }
@@ -110,7 +115,6 @@ pub enum EAudioSpace
     Is2D
 }
 
-// bettername?
 pub enum ETargetTrack
 {
     Effect,
