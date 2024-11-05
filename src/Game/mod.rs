@@ -76,7 +76,7 @@ impl Game
                 RefCell::new(
                     Entity::new(
                         "",
-                        Float3::new(0.0, 0.0, 5.0)
+                        Float3::new(0.0, 0.0, 1.0)
                     )
                 )
             );
@@ -187,7 +187,9 @@ impl Game
                         {
                             let mut target = display.draw();
 
-                            target.clear_color(0.1, 0.0, 0.4, 1.0);
+                            target.clear_color(0.1, 0.0, 0.2, 1.0);
+
+                            self.API.lock().unwrap().Audio.Update();
 
                             let list = &self.API.lock().unwrap().SceneManager.Entities.clone();
                             for entityMutex in list

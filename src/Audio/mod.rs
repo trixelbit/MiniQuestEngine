@@ -1,24 +1,29 @@
+pub mod channel;
+pub mod sample;
+
 use rodio::*;
 use std::fs::File;
 use std::io::BufReader;
 
 use crate::Math::Float3;
+use crate::Audio::sample::*;
+use crate::Audio::channel::Channel;
 
-
-pub struct Audio
+/// General Audio Module used for the playing and listening of audio.
+///
+/// The Audio Module contains AudioTracks which AudioSamples can be pushed to.
+pub struct AudioModule
 {
     _listenerPosition: Option<Float3>,
 
     _stream: OutputStream,
     _handle: OutputStreamHandle,
-    _effectSink: Sink,
-    _musicSink: Sink,
+
+    _effectChannel: Channel,
+    _musicChannel: Channel,
 }
 
-/// General Audio Module used for the playing and listening of audio.
-///
-/// The Audio Module contains AudioTracks which ca 
-impl Audio
+impl AudioModule
 {
     pub fn Create() -> Self
     {
@@ -39,87 +44,29 @@ impl Audio
         {
             _stream: stream,
             _handle: stream_handle,
-            _musicSink: musicSink,
-            _effectSink: effectSink,
+            _musicChannel: Channel::Create("Music", musicSink),
+            _effectChannel: Channel::Create("SFX", effectSink),
             _listenerPosition: None
         }
     }
 
     pub fn PlayAudio(&mut self, sample: &AudioSample)
     {
-        let fileOption = File::open(&sample._path);
-
-        if fileOption.is_err()
+        match &sample.Track()
         {
-            panic!("Failed to find file at path {}",&sample._path);
-        }
-
-        // todo:  maybe possible better to cache either file load and/or decoded file in audio sample.
-        let file = BufReader::new(fileOption.unwrap());
-        let source: Decoder<BufReader<File>>  = Decoder::new(file).unwrap();
-
-        let volume = sample._volume;
-
-        match &sample._audioType
-        {
-            ETargetTrack::Music => Audio::PutAudioInSink(source, volume, &mut self._musicSink),
-            ETargetTrack::Effect => Audio::PutAudioInSink(source, volume, &mut self._effectSink),
+            ETargetTrack::Music => self._musicChannel.PlayTrack(sample),
+            ETargetTrack::Effect => self._effectChannel.PlayTrack(sample),
         } 
     }
 
-    fn PutAudioInSink(
-        decoder: Decoder<BufReader<File>>, 
-        volume: f32,
-        sink: &mut Sink)
+    pub fn Update(&mut self)
     {
-        sink.stop();
-        sink.set_volume(volume);
-        sink.append(decoder);
-        //sink.sleep_until_end();
+        self._effectChannel.Update();
+        self._musicChannel.Update();
     }
 }
 
-pub struct AudioSample
-{
-    _path: String,
-    _volume: f32,
-    _loops: bool,
-    _audioSpace: EAudioSpace,
-    _audioType: ETargetTrack,
-}
 
-
-impl AudioSample
-{
-    pub fn Create(
-        path: String, 
-        volume: f32, 
-        loops: bool, 
-        space: EAudioSpace, 
-        soundType: ETargetTrack) -> Self
-    {
-        Self
-        {
-            _path: path,
-            _volume: volume,
-            _loops: loops,
-            _audioSpace: space,
-            _audioType: soundType
-        }
-    }
-}
-
-pub enum EAudioSpace
-{
-    Is3D,
-    Is2D
-}
-
-pub enum ETargetTrack
-{
-    Effect,
-    Music,
-}
 
 
 

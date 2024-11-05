@@ -8,9 +8,7 @@ use cgmath::num_traits::ToPrimitive;
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 use winit::keyboard::KeyCode::*;
-use crate::Audio::AudioSample;
-use crate::Audio::EAudioSpace;
-use crate::Audio::ETargetTrack;
+use crate::Audio::sample::*;
 use crate::Components::Component;
 use crate::Components::Bullet::Bullet;
 use crate::Components::RenderComponents::{Renderer2D, Sprite};
@@ -124,10 +122,6 @@ impl PlayerController
                 RefCell::new(
                     Entity::new("Water", entity.world_position)
                 ));
-
-        waterEntity
-            .borrow_mut()
-            .scale = Float3::new(5.0, 5.0, 5.0);
 
         // update constructors to return Rc RwLock wrapped Components
         waterEntity
