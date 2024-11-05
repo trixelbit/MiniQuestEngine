@@ -2,6 +2,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::sync::Arc;
 use std::sync::RwLock;
+use std::sync::Mutex;
 
 use cgmath::num_traits::ToPrimitive;
 use glium::Display;
@@ -113,7 +114,7 @@ impl PlayerController
     }
 
     /// Creates a water ball and fires it in the direction the player is facing.
-    pub fn CreateWaterBall(&mut self, entity: &Entity, api: &mut GameAPI, direction: Float3)
+    pub fn CreateWaterBall(&mut self, entity: &Entity, api: Arc<Mutex<GameAPI>>, direction: Float3)
     {
         let waterEntity =
             Rc::new(
@@ -131,8 +132,8 @@ impl PlayerController
             .add_component(
                 Bullet::Create(
                     direction,
-                    128.0,
-                    2.0
+                    10.0,//128.0,
+                    0.5
                 ));
         
         waterEntity
@@ -141,17 +142,17 @@ impl PlayerController
                         Renderer2D::New(&self._display, self._waterSprite.clone()
                         ));
 
-        api.SceneManager.AddEntity(waterEntity);
+        api.lock().unwrap().SceneManager.AddEntity(waterEntity);
     }
 }
 
 impl Component for PlayerController
 {
-    fn start(&mut self, entity: &mut Entity, api: &mut GameAPI)
+    fn start(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
     {
     }
 
-    fn update(&mut self, entity: &mut Entity,  frame: &GameFrame, api: &mut GameAPI)
+    fn update(&mut self, entity: &mut Entity,  frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         let leftVector = if frame.Input.IsKeyDown(KeyA) {-1.0f32} else {0.0};
         let rightVector = if frame.Input.IsKeyDown(KeyD) {1.0f32} else {0.0};

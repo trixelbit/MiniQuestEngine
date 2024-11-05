@@ -5,7 +5,7 @@ use crate::Frame::GameFrame;
 use crate::GameAPI::GameAPI;
 
 
-use std::sync::RwLock;
+use std::sync::{RwLock, Mutex, Arc};
 use std::rc::Rc;
 
 /// General template for creating new components
@@ -31,12 +31,12 @@ impl Component for ComponentTemplate
 {
     fn start(&mut self, 
         entity: &mut Entity, 
-        api: &mut GameAPI)
+        api: Arc<Mutex<GameAPI>>)
     {
         // Add start life-time
     }
 
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: &mut GameAPI)
+    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         // Add update logic
     }

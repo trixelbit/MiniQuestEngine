@@ -1,5 +1,7 @@
 use std::rc::Rc;
 use std::sync::RwLock;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use crate::Components::Component;
 use crate::GameAPI::GameAPI;
@@ -34,12 +36,12 @@ impl AudioPlayer
 
 impl Component for AudioPlayer
 {
-    fn start(&mut self, entity: &mut Entity, api: &mut GameAPI)
+    fn start(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
     {
-        api.Audio.PlayAudio(&mut self._sample);
+        api.lock().unwrap().Audio.PlayAudio(&mut self._sample);
     }
 
-    fn update(&mut self, entity: &mut Entity,  frame: &GameFrame, api: &mut GameAPI)
+    fn update(&mut self, entity: &mut Entity,  frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
 
     }

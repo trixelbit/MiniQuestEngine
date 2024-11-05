@@ -7,8 +7,7 @@ use crate::GameAPI::GameAPI;
 
 use cgmath::num_traits::ToPrimitive;
 use rxrust::prelude::*;
-use rxrust::prelude::timer::TimerObservable;
-use std::sync::RwLock;
+use std::sync::{RwLock, Mutex, Arc};
 use std::rc::Rc;
 
 pub struct Bullet
@@ -29,7 +28,7 @@ impl Bullet
                 {
                     Direction: direction,
                     Speed: speed,
-                    LifeTime_Seconds: lifeTime_Seconds
+                    LifeTime_Seconds: 1.0// lifeTime_Seconds
                 }
             )
         )
@@ -40,28 +39,45 @@ impl Component for Bullet
 {
     fn start(&mut self, 
         entity: &mut Entity, 
-        api: &mut GameAPI)
+        api: Arc<Mutex<GameAPI>>)
     {
         // sync runner
         // let mut scheduler = FuturesLocalSchedulerPool::new();
     
         // asynch threaded scheduling
         let scheduler = FuturesThreadPoolScheduler::new();
+
+        let apiCopy: Arc<Mutex<GameAPI>> = api.clone();
+        let id = entity.ID().clone();
         
         rxrust::observable::timer(
             false, 
             // TODO: Decompose this  f32 seconds value to u64 seconds values and u34 nano seconds
             Duration::new(self.LifeTime_Seconds.to_u64().unwrap(), 0),  
             scheduler.unwrap())
-            .subscribe
-            (
-                // figure out how to pass mutable death function to thread
-                |_| println!("Died") 
+            .subscribe(
+                move |_| 
+                {
+                    //let napiCopy = apiCopy;
+
+                    let mut c = apiCopy.lock();
+
+                    if c.is_err()
+                    {
+                        println!("Destroy Thread Errored");
+                    let mut c = apiCopy.lock();
+                        return;
+                    }
+
+                    c.unwrap().SceneManager.DestroyEntity(id);
+
+                    println!("Destroyed {}", id);
+                }
             );
 
     }
 
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: &mut GameAPI)
+    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         entity.world_position.add(
             Float3::scale_value(

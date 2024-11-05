@@ -12,6 +12,10 @@ use std::rc::Rc;
 pub struct SceneManager
 {
     pub Entities: Vec<Rc<RefCell<Entity>>>,
+    _idTable: Vec<Uuid>,
+    // All entitys marked for deletion (true)
+    _deletionTable: Vec<bool>,
+
     _scenes : Vec<Scene>
 }
 
@@ -23,6 +27,8 @@ impl SceneManager
         Self
         {
             Entities: Vec::new(),
+            _idTable: Vec::new(),
+            _deletionTable: Vec::new(),
             _scenes: Vec::new()
         }
     }
@@ -48,24 +54,30 @@ impl SceneManager
 
         self.Entities.clear();
 
-        self.Entities.append(
-            &mut scene.unwrap().LoadScene(display)
-        );
+        let list = &mut scene.unwrap().LoadScene(display);
+
+        for entity in list 
+        {
+            self.AddEntity(entity.clone());
+        }
     }
 
     /// Adds a new Entity to active scene.
     pub fn AddEntity(&mut self, newEntity: Rc<RefCell<Entity>>)
     {
-        self.Entities.push(newEntity);
+        self.Entities.push(newEntity.clone());
+        self._deletionTable.push(false);
+        self._idTable.push(newEntity.borrow_mut().ID())
     }
 
-    /// Destroys an Entity with the matching ID
+    /// Marks an entity for deletion next update cycle.
     pub fn DestroyEntity(&mut self, entityID: Uuid)
     {
         let mut index : Option<usize> = None;
-        for i in 0..self.Entities.len()
+
+        for i in 0..self._idTable.len()
         {
-            if entityID == self.Entities[0].borrow_mut().ID()
+            if self._idTable[i].eq(&entityID)
             {
                 index = Some(i);
                 break;
@@ -74,9 +86,32 @@ impl SceneManager
 
         if index.is_some()
         {
-            self.Entities.remove(index.unwrap());
+            self._deletionTable[index.unwrap()] = true;
         }
     }
+
+    pub fn PruneDeadObject(&mut self)
+    {
+        let mut deadIndicies = Vec::new();
+
+        for i in 0..self._deletionTable.len()
+        {
+            if self._deletionTable[i]
+            {
+                deadIndicies.push(i);
+            }
+        }
+
+        deadIndicies
+            .into_iter()
+            .for_each( |x| 
+                {
+                    self.Entities.remove(x);
+                    self._deletionTable.remove(x);
+                    self._idTable.remove(x);
+                });
+    }
+
 }
 
 

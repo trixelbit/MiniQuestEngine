@@ -1,3 +1,4 @@
+use std::sync::{Mutex, Arc};
 use std::rc::Rc;
 use std::sync::RwLock;
 use uuid::Uuid;
@@ -80,7 +81,7 @@ impl Entity
 
     pub fn start(
         &mut self, 
-        api: &mut GameAPI)
+        api: Arc<Mutex<GameAPI>>)
     {
         if self._hasStartBeenCalled
         {
@@ -92,7 +93,7 @@ impl Entity
         for component in components
         {
             let mut writeGuard = component.write().unwrap();
-            writeGuard.start(self, api);
+            writeGuard.start(self, api.clone());
         }
 
         self._hasStartBeenCalled = true;
@@ -101,13 +102,13 @@ impl Entity
     pub fn update(
         &mut self, 
         frame: &GameFrame, 
-        api: &mut GameAPI)
+        api: Arc<Mutex<GameAPI>>)
     {
         let components = &self._components.clone();
 
         for component in components
         {
-            component.write().unwrap().update(self, &frame, api);
+            component.write().unwrap().update(self, &frame, api.clone());
         }
     }
 }

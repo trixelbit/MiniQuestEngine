@@ -1,5 +1,5 @@
 use std::rc::Rc;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, RwLock, Mutex};
 use glium::{Display, Frame, Program, Surface, Texture2d, VertexBuffer};
 use glium::glutin::surface::WindowSurface;
 use glium::index::NoIndices;
@@ -183,11 +183,11 @@ impl Renderer2D
 
 impl Component for Renderer2D
 {
-    fn start(&mut self, entity: &mut Entity, api: &mut GameAPI)
+    fn start(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
     {
     }
 
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: &mut GameAPI)
+    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
     }
 }

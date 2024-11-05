@@ -29,5 +29,7 @@ impl GameAPI
     }
 }
 
+unsafe impl Send for GameAPI{}
+
 
 
