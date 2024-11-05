@@ -1,6 +1,7 @@
 #![allow(nonstandard_style)]
 
-
+use std::sync::Arc;
+use std::sync::Mutex;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::RwLock;
@@ -17,10 +18,10 @@ use crate::Math::*;
 use crate::GameAPI::GameAPI;
 
 /// The Game Application that is running currently.
-///
 pub struct Game    
 {
-    pub API: GameAPI,
+    // TODO: Make this Arc Mutex so it can be shared across threads for async operations.
+    pub API: Arc<Mutex<GameAPI>>,
 }
 
 impl Game
@@ -30,7 +31,11 @@ impl Game
     {
         Self
         {
-            API: GameAPI::Create()
+            API: 
+                Arc::new(
+                    Mutex::new(
+                        GameAPI::Create()
+            ))
         }
     }
 
@@ -50,10 +55,10 @@ impl Game
                 .build(&event_loop);
 
         // Adds all levels that should be available for loading.
-        self.API.SceneManager.AddScene("Level1", "Scenes/test.lvl");
+        self.API.lock().unwrap().SceneManager.AddScene("Level1", "Scenes/test.lvl");
         
         // Build starting scene.
-        self.API.SceneManager.LoadScene("Level1", &display);
+        self.API.lock().unwrap().SceneManager.LoadScene("Level1", &display);
 
         let camera = Rc::new(
             RwLock::new(
@@ -78,22 +83,25 @@ impl Game
         cameraEnt.borrow_mut().add_component(camera.clone());
         cameraEnt.borrow_mut().add_component(cameraController);
 
-        self.API.SceneManager.AddEntity(cameraEnt.clone());
+        self.API.lock().unwrap().SceneManager.AddEntity(cameraEnt.clone());
 
 
         // Enter frame loop
         let mut input = Input::New();
         let mut dateTimeLastFrame = Local::now();
 
-        let entityList =  &self.API.SceneManager.Entities.clone();
+        // TODO: This is bad because it does not respond to the creation and deletion of entities
+        // on runtime.
+        let entityList =  &self.API.lock().unwrap().SceneManager.Entities.clone();
 
         for entityMutRef in entityList
         {
             let mut entity = entityMutRef.borrow_mut();
-            entity.start(&mut self.API);
+            entity.start(self.API.clone());
         }
 
-        event_loop.run(move |event, window_target|
+        // TODO: Break this closure up into static functions
+        event_loop.run( |event, window_target|
         {
             match event
             {
@@ -179,9 +187,10 @@ impl Game
                         {
                             let mut target = display.draw();
 
-                            target.clear_color(0.4, 0.0, 0.2, 1.0);
+                            target.clear_color(0.1, 0.0, 0.4, 1.0);
 
-                            for entityMutex in entityList
+                            let list = &self.API.lock().unwrap().SceneManager.Entities.clone();
+                            for entityMutex in list
                             {
                                 let frame =
                                     Rc::new(
@@ -195,8 +204,16 @@ impl Game
                                     );
 
                                 let mut entity = entityMutex.borrow_mut();
-                                entity.update(&frame, &mut self.API);
 
+                                if !entity.HasStartBeenCalled()
+                                {
+                                    entity.start(self.API.clone());
+                                }
+
+                                entity.update(&frame, self.API.clone());
+
+
+                                // Render
                                 let renderOption =
                                     entity.get_component::<Renderer2D>(None);
 
@@ -208,7 +225,11 @@ impl Game
                                         renderOption.unwrap().write().unwrap().render(&entity, &frame, &mut target);
                                     }
                                 }
+
+                                // Destroy dead objects
+                                self.API.lock().unwrap().SceneManager.PruneDeadObject();
                             }
+
 
                             input.ResetPressedAndReleased();
                             input.SetMouseWheelPixelDelta((0.0, 0.0));

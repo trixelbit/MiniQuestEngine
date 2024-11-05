@@ -2,10 +2,12 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::vec::Vec;
 
+use crate::Audio::EAudioSpace;
 use crate::GameEntity::Entity;
 use crate::Components::*;
 use crate::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Math::*;
+use crate::Components::AudioSource::AudioPlayer;
 
 use std::fs;    
 use std::sync::RwLock;
@@ -36,7 +38,7 @@ impl Scene
 
         if fileReadOption.is_err()
         {
-            panic!("Failed to read file in path: {}", scenePath);
+            panic!("\nFailed to read file in path: {}\n", scenePath);
         }
 
         let contents = fileReadOption.unwrap();
@@ -75,10 +77,16 @@ impl Scene
         {
             "Player" => Some(Scene::BuildPlayer(tokens, display)),
             "Tile" => Some(Scene::BuildTile(tokens, display)),
+            "Audio" => Some(Scene::BuildAudioSource(tokens, display)),
             _ => None
         }
     }
 
+    /// constructs a player object
+    ///
+    /// Entry Structure:
+    ///     1 - name
+    ///     2 - position
     fn BuildPlayer(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
         let name = data[1].as_str();
@@ -88,21 +96,16 @@ impl Scene
         player.borrow_mut().scale = Float3::scale_value(Float3::one(), 5.0);
 
         let renderComponent =
-            Rc::new(
-                RwLock::new(
                     Renderer2D::New(&display,
                         Sprite::new(
-                            "../Images/run_down.png",
+                            "Assets/run_down.png",
                             &display,
                             4,
                             (2,2),
-                            0.001))
-        ));
+                            0.001)
+        );
 
-        let movementComponent =
-            Rc::new(
-                RwLock::new(
-                    PlayerController::PlayerController::new(8.0f32, &display)));
+        let movementComponent = PlayerController::PlayerController::new(64.0f32, &display);
         
         let mut playerMut = player.borrow_mut();
         playerMut.add_component(movementComponent);
@@ -112,7 +115,61 @@ impl Scene
         player
     }
 
+    /// Builds a static tile object
+    ///
+    /// Entry Structure:
+    ///     1 - name
+    ///     2 - position
+    ///     3 - asset path
+    ///     4 - is a collider
+    ///
     fn BuildTile(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
+    {
+        // 1 - name
+        let name = data[1].as_str();
+
+        // 2 - position
+        let position = 
+            Float3::scale_value(
+                Float3::FromString(data[2].as_str()), 
+                5f32);
+
+        // 3 - asset path
+        let assetPath = data[3].as_str();
+
+        // 4 - is a collider - TODO
+
+        let tile = Rc::new(RefCell::new(Entity::new(name, position)));
+        tile.borrow_mut().scale = Float3::scale_value(Float3::one(), 5.0);
+
+        let renderComponent =
+                    Renderer2D::New(&display,
+                        Sprite::new(
+                            assetPath,
+                            &display,
+                            1,
+                            (1,1),
+                            0.001)
+        );
+
+        let mut tileMut = tile.borrow_mut();
+        tileMut.add_component(renderComponent);
+        drop(tileMut);
+
+        tile
+    }
+
+    /// Constructs an audio source object.
+    ///
+    /// Entry Structure:
+    ///     1 - name
+    ///     2 - position
+    ///     3 - path
+    ///     4 - volume 
+    ///     5 - space(2D/ 3D)
+    ///     6 - track(music/ sfx)
+    ///
+    fn BuildAudioSource(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
         let name = data[1].as_str();
         let position = 
@@ -120,28 +177,29 @@ impl Scene
                 Float3::FromString(data[2].as_str()), 
                 5f32);
 
-        let assetPath = data[3].as_str();
+        let assetPath = String::from(data[3].as_str());
 
-        let tile = Rc::new(RefCell::new(Entity::new(name, position)));
-        tile.borrow_mut().scale = Float3::scale_value(Float3::one(), 5.0);
+        // TODO: implement remaining properties
+        
+        let audioSource = Rc::new(RefCell::new(Entity::new(name, position)));
+        
+        let mut mutEnt = audioSource.borrow_mut();
+        mutEnt.scale = Float3::scale_value(Float3::one(), 5.0);
 
-        let renderComponent =
-            Rc::new(
-                RwLock::new(
-                    Renderer2D::New(&display,
-                        Sprite::new(
-                            assetPath,
-                            &display,
-                            1,
-                            (1,1),
-                            0.001))
-        ));
+        let audioSourceComp =
+            AudioPlayer::Create(
+                assetPath, 
+                1.0,
+                true,
+                EAudioSpace::Is2D,
+                crate::Audio::ETargetTrack::Music
+            );
+        
+        mutEnt.add_component(audioSourceComp);
+        drop(mutEnt);
 
-        let mut tileMut = tile.borrow_mut();
-        tileMut.add_component(renderComponent);
-        drop(tileMut);
 
-        tile
+        return audioSource;
     }
 }
 

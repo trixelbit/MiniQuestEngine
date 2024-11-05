@@ -1,6 +1,7 @@
 use crate::SceneManager::SceneManager;
 use crate::GameState::GameState;
 use crate::MetaInfo::MetaInfo;
+use crate::Audio::Audio;
 
 /// # Description
 ///     General utilities that should be exposed to game entities.
@@ -10,7 +11,8 @@ pub struct GameAPI
 {
     pub SceneManager: SceneManager,
     pub GameState: GameState,
-    pub MetaInfo: MetaInfo
+    pub MetaInfo: MetaInfo,
+    pub Audio: Audio
 }
 
 impl GameAPI
@@ -21,10 +23,13 @@ impl GameAPI
         {
             SceneManager: SceneManager::Create(),
             GameState: GameState::Create(),
-            MetaInfo: MetaInfo::Create()
+            MetaInfo: MetaInfo::Create(),
+            Audio: Audio::Create()
         }
     }
 }
+
+unsafe impl Send for GameAPI{}
 
 
 
