@@ -58,23 +58,9 @@ impl Component for Bullet
             .subscribe(
                 move |_| 
                 {
-                    //let napiCopy = apiCopy;
-
-                    let mut c = apiCopy.lock();
-
-                    if c.is_err()
-                    {
-                        println!("Destroy Thread Errored");
-                    let mut c = apiCopy.lock();
-                        return;
-                    }
-
-                    c.unwrap().SceneManager.DestroyEntity(id);
-
-                    println!("Destroyed {}", id);
+                    apiCopy.lock().unwrap().SceneManager.DestroyEntity(id);
                 }
             );
-
     }
 
     fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)

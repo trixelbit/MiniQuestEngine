@@ -11,11 +11,21 @@ use std::rc::Rc;
 
 pub struct SceneManager
 {
+    /// All indicies correspond to a entity for the following Vec fields.
+
+    /// Entites that exist in the game currenlty.
     pub Entities: Vec<Rc<RefCell<Entity>>>,
+
+    /// The IDs of all entities currenlty in game.
+    /// Created to avoid borrow_mut reference from entites to get their IDs
+    /// when marking them for deletion.
     _idTable: Vec<Uuid>,
-    // All entitys marked for deletion (true)
+
+    /// All entitys marked for deletion (true).
     _deletionTable: Vec<bool>,
 
+
+    /// All scenes available for loading into active scene.
     _scenes : Vec<Scene>
 }
 
@@ -67,6 +77,8 @@ impl SceneManager
     {
         self.Entities.push(newEntity.clone());
         self._deletionTable.push(false);
+
+        // this may be unsafe for use in separate threads and could cause panics.
         self._idTable.push(newEntity.borrow_mut().ID())
     }
 
@@ -90,6 +102,8 @@ impl SceneManager
         }
     }
 
+    // Removes all entities that are marked for deletion.
+    // Will be called before the start of the next frame.
     pub fn PruneDeadObject(&mut self)
     {
         let mut deadIndicies = Vec::new();
@@ -111,7 +125,6 @@ impl SceneManager
                     self._idTable.remove(x);
                 });
     }
-
 }
 
 
