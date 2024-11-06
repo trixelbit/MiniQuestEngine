@@ -10,6 +10,8 @@ use glium::{Display, Surface};
 use glium::glutin::surface::WindowSurface;
 use winit::event;
 use winit::event::KeyEvent;
+use winit::event::MouseButton;
+use winit::event::WindowEvent;
 use winit::event::{ElementState, MouseScrollDelta, TouchPhase};
 
 use crate::Frame::GameFrame;
@@ -110,63 +112,19 @@ impl Game
             {
                 winit::event::Event::WindowEvent { event, .. } => match event
                 {
-                    winit::event::WindowEvent::KeyboardInput {event, ..} =>
-                    {
-                        Self::KeyBoardInput(&mut input, event);
-                    },
+                    winit::event::WindowEvent::KeyboardInput {event, ..} 
+                        => Self::KeyBoardInput(&mut input, event),
 
-                    winit::event::WindowEvent::MouseInput {state, device_id, button, ..} =>
-                    {
-                        match state
-                        {
-                            ElementState::Pressed =>
-                                {
-                                    &input.Mouse_Pressed(button);
-                                }
-                            ElementState::Released =>
-                                {
-                                    &input.Mouse_Release(button);
-                                }
-                        }
-                    },
+                    winit::event::WindowEvent::MouseInput {state, device_id, button, ..} 
+                        => Self::MouseInput(&mut input, state, button),
 
-                    winit::event::WindowEvent::MouseWheel {phase, delta, ..} =>
-                    {
-
-                        match delta
-                        {
-                            MouseScrollDelta::LineDelta(x, y) =>
-                            {
-                                input.SetMouseWheelLineOffset((x,y));
-                            },
-
-                            MouseScrollDelta::PixelDelta(value) =>
-                            {
-                                input.SetMouseWheelPixelDelta( (value.x, value.y));
-                            }
-                        };
-
-                        match phase
-                        {
-                            TouchPhase::Started => {}
-                            TouchPhase::Moved => {}
-                            TouchPhase::Ended =>
-                                {
-                                    input.SetMouseWheelPixelDelta((0.0, 0.0));
-                                    input.SetMouseWheelLineOffset((0.0, 0.0));
-                                },
-                            TouchPhase::Cancelled =>
-                                {
-                                    input.SetMouseWheelPixelDelta((0.0, 0.0));
-                                    input.SetMouseWheelLineOffset((0.0, 0.0));
-                                },
-                        };
-                    }
+                    winit::event::WindowEvent::MouseWheel {phase, delta, ..} 
+                        => Self::MouseWheel(&mut input, phase, delta),
 
                     winit::event::WindowEvent::CursorMoved {position,..} =>
                     {
                         &input.SetMousePosition((position.x, position.y));
-                    }
+                    },
 
                     winit::event::WindowEvent::CloseRequested =>
                     {
@@ -206,6 +164,7 @@ impl Game
         })
             .unwrap();
     }
+
 
     pub fn Update(
         display: &Display<WindowSurface>,
@@ -292,6 +251,53 @@ impl Game
         };
     }
 
+    pub fn MouseInput(input: &mut Input, state: ElementState, button: MouseButton)
+    {
+        match state
+        {
+            ElementState::Pressed =>
+                {
+                    &input.Mouse_Pressed(button);
+                }
+            ElementState::Released =>
+                {
+                    &input.Mouse_Release(button);
+                }
+        }
+    }
+
+    pub fn MouseWheel(input: &mut Input, phase: TouchPhase, delta: MouseScrollDelta )
+    {
+        match delta
+        {
+            MouseScrollDelta::LineDelta(x, y) =>
+            {
+                input.SetMouseWheelLineOffset((x,y));
+            },
+
+            MouseScrollDelta::PixelDelta(value) =>
+            {
+                input.SetMouseWheelPixelDelta( (value.x, value.y));
+            }
+        };
+
+        match phase
+        {
+            TouchPhase::Started => {}
+            TouchPhase::Moved => {}
+            TouchPhase::Ended =>
+                {
+                    input.SetMouseWheelPixelDelta((0.0, 0.0));
+                    input.SetMouseWheelLineOffset((0.0, 0.0));
+                },
+            TouchPhase::Cancelled =>
+                {
+                    input.SetMouseWheelPixelDelta((0.0, 0.0));
+                    input.SetMouseWheelLineOffset((0.0, 0.0));
+                },
+        };
+
+    }
 }
 
 
