@@ -7,6 +7,8 @@ use crate::GameEntity::Entity;
 
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::{Arc, Mutex};
+use crate::GameAPI::GameAPI;
 
 
 pub struct SceneManager
@@ -102,9 +104,10 @@ impl SceneManager
         }
     }
 
-    // Removes all entities that are marked for deletion.
-    // Will be called before the start of the next frame.
-    pub fn PruneDeadObject(&mut self)
+    /// Removes all entities that are marked for deletion.
+    /// Also calls OnDestroy() on entities before deletion.
+    /// Will be called before the start of the next frame.
+    pub fn PruneDeadObject(&mut self, api: Arc<Mutex<GameAPI>>)
     {
         let mut deadIndicies = Vec::new();
 
@@ -120,7 +123,7 @@ impl SceneManager
             .into_iter()
             .for_each( |x| 
                 {
-                    self.Entities[x].borrow_mut().OnDestroy();
+                    self.Entities[x].borrow_mut().OnDestroy(api.clone());
                     self.Entities.remove(x);
                     self._deletionTable.remove(x);
                     self._idTable.remove(x);

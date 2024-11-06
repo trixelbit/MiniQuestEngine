@@ -72,6 +72,11 @@ impl Component for Bullet
                 self.Speed * frame.DeltaTime_Seconds
             ));
     }
+
+    fn OnDestroy(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
+    {
+        println!("OnDestroy called for entity.");
+    }
 }
 
 

@@ -229,7 +229,7 @@ impl Game
                                 }
 
                                 // Destroy dead objects
-                                self.API.lock().unwrap().SceneManager.PruneDeadObject();
+                                self.API.lock().unwrap().SceneManager.PruneDeadObject(self.API.clone());
                             }
 
 
