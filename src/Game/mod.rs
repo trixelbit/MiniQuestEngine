@@ -5,8 +5,9 @@ use std::sync::Mutex;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::RwLock;
-use chrono::Local;
-use glium::Surface;
+use chrono::{DateTime, Local};
+use glium::{Display, Surface};
+use glium::glutin::surface::WindowSurface;
 use winit::event::{ElementState, MouseScrollDelta, TouchPhase};
 
 use crate::Frame::GameFrame;
@@ -185,61 +186,14 @@ impl Game
                     // We now need to render everything in response to a RedrawRequested event due to the animation
                     winit::event::WindowEvent::RedrawRequested =>
                         {
-                            let mut target = display.draw();
-
-                            target.clear_color(0.1, 0.0, 0.2, 1.0);
-
-                            self.API.lock().unwrap().Audio.Update();
-
-                            let list = &self.API.lock().unwrap().SceneManager.Entities.clone();
-                            for entityMutex in list
-                            {
-                                let frame =
-                                    Rc::new(
-                                        GameFrame::new(
-                                                input.GetStateCopy(),
-                                                       Local::now() - timeStart,
-                                                       Local::now() - dateTimeLastFrame,
-                                                       camera.read().unwrap().ViewMatrix(),
-                                                camera.read().unwrap().PerspectiveMatrix()
-                                        )
-                                    );
-
-                                let mut entity = entityMutex.borrow_mut();
-
-                                if !entity.HasStartBeenCalled()
-                                {
-                                    entity.start(self.API.clone());
-                                }
-
-                                entity.update(&frame, self.API.clone());
-
-
-                                // Render
-                                let renderOption =
-                                    entity.get_component::<Renderer2D>(None);
-
-                                match renderOption
-                                {
-                                    None => {}
-                                    Some(_) =>
-                                    {
-                                        renderOption.unwrap().write().unwrap().render(&entity, &frame, &mut target);
-                                    }
-                                }
-
-                                // Destroy dead objects
-                                self.API.lock().unwrap().SceneManager.PruneDeadObject(self.API.clone());
-                            }
-
-
-                            input.ResetPressedAndReleased();
-                            input.SetMouseWheelPixelDelta((0.0, 0.0));
-                            input.SetMouseWheelLineOffset((0.0, 0.0));
-                            dateTimeLastFrame = Local::now();
-
-                            target.finish();
-                            display.finish();
+                            Self::Update(
+                                &display,
+                                self.API.clone(),
+                                &mut input,
+                                timeStart,
+                                &mut dateTimeLastFrame,
+                                camera.clone()
+                            );
                         },
 
                     // Because glium doesn't know about windows we need to resize the display
@@ -261,6 +215,76 @@ impl Game
         })
             .unwrap();
     }
+
+    pub fn Update(
+        display: &Display<WindowSurface>,
+        api: Arc<Mutex<GameAPI>>,
+        input: &mut Input,
+        timeStart: DateTime<Local>,
+        dateTimeLastFrame: &mut DateTime<Local>,
+        camera: Rc<RwLock<Camera::Camera>>
+    )
+    {
+        let mut target = display.draw();
+
+        target.clear_color(0.1, 0.0, 0.2, 1.0);
+
+        api.lock().unwrap().Audio.Update();
+
+        let timeLastFrame = dateTimeLastFrame.clone();
+
+        let list = &api.lock().unwrap().SceneManager.Entities.clone();
+        for entityMutex in list
+        {
+            let frame =
+                Rc::new(
+                    GameFrame::new(
+                        input.GetStateCopy(),
+                        Local::now() - timeStart,
+                        Local::now() - timeLastFrame,
+                        camera.read().unwrap().ViewMatrix(),
+                        camera.read().unwrap().PerspectiveMatrix()
+                    )
+                );
+
+            let mut entity = entityMutex.borrow_mut();
+
+            if !entity.HasStartBeenCalled()
+            {
+                entity.start(api.clone());
+            }
+
+            entity.update(&frame, api.clone());
+
+
+            // Render
+            let renderOption =
+                entity.get_component::<Renderer2D>(None);
+
+            match renderOption
+            {
+                None => {}
+                Some(_) =>
+                    {
+                        renderOption.unwrap().write().unwrap().render(&entity, &frame, &mut target);
+                    }
+            }
+
+            // Destroy dead objects
+            api.lock().unwrap().SceneManager.PruneDeadObject(api.clone());
+        }
+
+
+        input.ResetPressedAndReleased();
+        input.SetMouseWheelPixelDelta((0.0, 0.0));
+        input.SetMouseWheelLineOffset((0.0, 0.0));
+
+        *dateTimeLastFrame = Local::now();
+
+        target.finish();
+        display.finish();
+    }
+
 }
 
 
