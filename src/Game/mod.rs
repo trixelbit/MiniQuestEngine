@@ -8,6 +8,8 @@ use std::sync::RwLock;
 use chrono::{DateTime, Local};
 use glium::{Display, Surface};
 use glium::glutin::surface::WindowSurface;
+use winit::event;
+use winit::event::KeyEvent;
 use winit::event::{ElementState, MouseScrollDelta, TouchPhase};
 
 use crate::Frame::GameFrame;
@@ -110,18 +112,7 @@ impl Game
                 {
                     winit::event::WindowEvent::KeyboardInput {event, ..} =>
                     {
-                        match event.state
-                        {
-                            ElementState::Pressed =>
-                            {
-                                &input.Key_Pressed(event.physical_key)
-                            },
-
-                            ElementState::Released =>
-                            {
-                                &input.Key_Released(event.physical_key)
-                            }
-                        };
+                        Self::KeyBoardInput(&mut input, event);
                     },
 
                     winit::event::WindowEvent::MouseInput {state, device_id, button, ..} =>
@@ -283,6 +274,22 @@ impl Game
 
         target.finish();
         display.finish();
+    }
+
+    pub fn KeyBoardInput(input: &mut Input, event: KeyEvent)
+    {
+        match event.state
+        {
+            ElementState::Pressed =>
+            {
+                &input.Key_Pressed(event.physical_key)
+            },
+
+            ElementState::Released =>
+            {
+                &input.Key_Released(event.physical_key)
+            }
+        };
     }
 
 }
