@@ -2,6 +2,7 @@ use crate::SceneManager::SceneManager;
 use crate::GameState::GameState;
 use crate::MetaInfo::MetaInfo;
 use crate::Audio::AudioModule;
+use crate::Collision::CollisionModule;
 
 /// # Description
 ///     General utilities that should be exposed to game entities.
@@ -12,7 +13,8 @@ pub struct GameAPI
     pub SceneManager: SceneManager,
     pub GameState: GameState,
     pub MetaInfo: MetaInfo,
-    pub Audio: AudioModule
+    pub Audio: AudioModule,
+    pub Collision: CollisionModule,
 }
 
 impl GameAPI
@@ -24,7 +26,8 @@ impl GameAPI
             SceneManager: SceneManager::Create(),
             GameState: GameState::Create(),
             MetaInfo: MetaInfo::Create(),
-            Audio: AudioModule::Create()
+            Audio: AudioModule::Create(),
+            Collision: CollisionModule::Create()
         }
     }
 }

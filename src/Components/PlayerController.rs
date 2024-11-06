@@ -211,7 +211,16 @@ impl Component for PlayerController
             self._direction = EDirection::Down;
         }
 
-        entity.world_position.add(Float3::scale_value(self._velocity, frame.DeltaTime_Seconds));
+
+        let positionDelta = Float3::scale_value(self._velocity, frame.DeltaTime_Seconds);
+        let futurePosition = entity.world_position + positionDelta;
+
+        if !api.lock().unwrap().Collision.IsThereACollisionAt(entity.ID(), futurePosition)
+        { 
+            entity.world_position.add(Float3::scale_value(self._velocity, frame.DeltaTime_Seconds));
+        }
+
+
         self.animation_update(entity, self._state, self._direction);
 
         // Shoot water ball

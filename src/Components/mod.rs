@@ -1,13 +1,14 @@
 pub mod PlayerController;
 pub mod RenderComponents;
 pub mod AudioSource;
-pub(crate) mod Camera;
+pub mod Collider;
+pub mod Camera;
 pub mod Bullet;
 mod RenderUtilities;
 mod ComponentTemplate;
 
-use std::any::Any;
-use std::sync::{Arc, Mutex, RwLock};
+
+use std::sync::{Arc, Mutex};
 
 use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
@@ -38,7 +39,5 @@ pub trait Component: Downcast
     {
         api.SceneManager.DestroyEntity(entity.ID());
     }
-
-
 }
 impl_downcast!(Component);

@@ -179,6 +179,7 @@ impl Game
 
         target.clear_color(0.1, 0.0, 0.2, 1.0);
 
+
         api.lock().unwrap().Audio.Update();
 
         let timeLastFrame = dateTimeLastFrame.clone();
@@ -199,6 +200,20 @@ impl Game
 
             let mut entity = entityMutex.borrow_mut();
 
+            // Update Collider Components First
+            let colliderOption =
+                entity.get_component::<Collider::Collider>(None);
+
+            match colliderOption
+            {
+                None => {}
+                Some(_) =>
+                    {
+                        colliderOption.unwrap().write().unwrap().update(&mut entity, &frame, api.clone());
+                    }
+            }
+
+            // Entity Start and Update
             if !entity.HasStartBeenCalled()
             {
                 entity.start(api.clone());
@@ -231,7 +246,7 @@ impl Game
 
         *dateTimeLastFrame = Local::now();
 
-        target.finish();
+        let _ = target.finish();
         display.finish();
     }
 

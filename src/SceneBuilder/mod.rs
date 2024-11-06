@@ -6,6 +6,7 @@ use glium::Display;
 use glium::glutin::surface::WindowSurface;
 
 use crate::Audio::sample::*;
+use crate::Collision::collider::{ECollisionTag, ECollisionType};
 use crate::GameEntity::Entity;
 use crate::Components::*;
 use crate::Components::RenderComponents::{Renderer2D, Sprite};
@@ -109,6 +110,11 @@ impl Scene
         let mut playerMut = player.borrow_mut();
         playerMut.add_component(movementComponent);
         playerMut.add_component(renderComponent);
+        playerMut.add_component(
+            Collider::Collider::Create(
+                position, Float3::new(32.0, 32.0, 32.0), ECollisionType::Solid, ECollisionTag::None
+            ));
+
         drop(playerMut);
 
         player
@@ -121,7 +127,7 @@ impl Scene
     ///     2 - position
     ///     3 - asset path
     ///     4 - is a collider
-    ///
+    ///     5 - tag
     fn BuildTile(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
         // 1 - name
@@ -133,7 +139,15 @@ impl Scene
         // 3 - asset path
         let assetPath = data[3].as_str();
 
+
         // 4 - is a collider - TODO
+        let mut collider = false;
+        
+        if data.len() >= 5
+        {
+            collider = data[4].as_str().parse().unwrap();
+        }
+
 
         let tile = Rc::new(RefCell::new(Entity::new(name, position)));
 
@@ -149,6 +163,15 @@ impl Scene
 
         let mut tileMut = tile.borrow_mut();
         tileMut.add_component(renderComponent);
+
+        if collider
+        {
+            tileMut.add_component(
+                Collider::Collider::Create(
+                    position, Float3::new(32.0, 32.0, 32.0), ECollisionType::Solid, ECollisionTag::None
+                ));
+        }
+
         drop(tileMut);
 
         tile

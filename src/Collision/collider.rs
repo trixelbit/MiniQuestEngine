@@ -1,7 +1,10 @@
+
+
 use crate::Math::Float3;
 
 // Do we separate bounds from collider?
-pub struct ColliderBounds
+#[derive(Clone, Copy)]
+pub struct ColliderData
 {
     _origin: Float3,
     _size: Float3,
@@ -10,7 +13,7 @@ pub struct ColliderBounds
     _collisionType: ECollisionType,
 }
 
-impl ColliderBounds
+impl ColliderData
 {
     pub fn Create(
         position: Float3,
@@ -83,7 +86,7 @@ impl ColliderBounds
         self._extents = Float3::scale_value(newSize, 0.5);
     }
 
-    pub fn DoesPointIntersectBounds(point: Float3, collider: &ColliderBounds) -> bool
+    pub fn DoesPointIntersectBounds(point: Float3, collider: &ColliderData) -> bool
     {
         let minMaxValues = collider.GetMinMaxBounds();
         let x = point.x();
@@ -93,7 +96,7 @@ impl ColliderBounds
             y >= minMaxValues.2 && y <= minMaxValues.3
     }
 
-    pub fn DoBoundsCollide(a: &ColliderBounds, b: &ColliderBounds) -> bool
+    pub fn DoBoundsCollide(a: &ColliderData, b: &ColliderData) -> bool
     {
         let corners = Self::GetCorners(a);
 
