@@ -16,6 +16,8 @@ mod Collision;
 extern crate glium;
 
 
+const DEBUG_MODE: bool = true;
+
 fn main()
 {
     let mut game = Game::Game::New();

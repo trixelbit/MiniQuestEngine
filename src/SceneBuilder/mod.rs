@@ -112,7 +112,11 @@ impl Scene
         playerMut.add_component(renderComponent);
         playerMut.add_component(
             Collider::Collider::Create(
-                position, Float3::new(32.0, 32.0, 32.0), ECollisionType::Solid, ECollisionTag::None
+                display.clone(),
+                position,
+                Float3::new(32.0, 32.0, 32.0),
+                ECollisionType::Solid,
+                ECollisionTag::None
             ));
 
         drop(playerMut);
@@ -138,7 +142,6 @@ impl Scene
 
         // 3 - asset path
         let assetPath = data[3].as_str();
-
 
         // 4 - is a collider - TODO
         let mut collider = false;
@@ -168,7 +171,11 @@ impl Scene
         {
             tileMut.add_component(
                 Collider::Collider::Create(
-                    position, Float3::new(32.0, 32.0, 32.0), ECollisionType::Solid, ECollisionTag::None
+                    display.clone(),
+                    position,
+                    Float3::new(32.0, 32.0, 32.0),
+                    ECollisionType::Solid,
+                    ECollisionTag::None
                 ));
         }
 

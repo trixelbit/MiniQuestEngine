@@ -235,6 +235,19 @@ impl Game
                     }
             }
 
+            // Render Debug
+            let colliderOption =
+                entity.get_component::<Collider::Collider>(None);
+
+            match colliderOption
+            {
+                None => {}
+                Some(_) =>
+                    {
+                        colliderOption.unwrap().write().unwrap().render(&entity, &frame, &mut target);
+                    }
+            }
+
             // Destroy dead objects
             api.lock().unwrap().SceneManager.PruneDeadObject(api.clone());
         }
