@@ -1,11 +1,12 @@
-
-
 use crate::GameEntity::Entity;
 use crate::Components::Component;
 use crate::Frame::GameFrame;
 use crate::GameAPI::GameAPI;
 use crate::Math::Float3;
-
+use crate::Collision::collider::{ColliderData, ECollisionType, ECollisionTag};
+use crate::Components::RenderComponents::{Renderer, Renderer2D, Sprite};
+use crate::Components::RenderUtilities::{Indicies, PlaneVertexBuffer, Vertex};
+use crate::DEBUG_MODE;
 
 use std::sync::{RwLock, Mutex, Arc};
 use std::rc::Rc;
@@ -15,10 +16,6 @@ use glium::glutin::surface::WindowSurface;
 use glium::index::NoIndices;
 use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
 
-use crate::Collision::collider::{ColliderData, ECollisionType, ECollisionTag};
-use crate::Components::RenderComponents::{Renderer, Renderer2D, Sprite};
-use crate::Components::RenderUtilities::{Indicies, PlaneVertexBuffer, Vertex};
-use crate::DEBUG_MODE;
 
 /// This component reports current collision data to collision module for most recent information
 pub struct Collider

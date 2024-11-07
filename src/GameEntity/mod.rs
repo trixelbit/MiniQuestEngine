@@ -30,7 +30,7 @@ impl Entity
         self._id.clone()
     }
 
-    pub fn new(name: &str, position: Float3) -> Self
+    pub fn Create(name: &str, position: Float3) -> Self
     {
         Entity
         {

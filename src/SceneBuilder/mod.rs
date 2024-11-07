@@ -93,7 +93,7 @@ impl Scene
         let name = data[1].as_str();
         let position = Float3::FromString(data[2].as_str());
 
-        let player = Rc::new(RefCell::new(Entity::new(name, position)));
+        let player = Rc::new(RefCell::new(Entity::Create(name, position)));
 
         let renderComponent =
                     Renderer2D::New(&display,
@@ -152,7 +152,7 @@ impl Scene
         }
 
 
-        let tile = Rc::new(RefCell::new(Entity::new(name, position)));
+        let tile = Rc::new(RefCell::new(Entity::Create(name, position)));
 
         let renderComponent =
                     Renderer2D::New(&display,
@@ -204,7 +204,7 @@ impl Scene
         let volume : f32 = data[4].as_str().trim().parse().unwrap();
         
         // TODO: implement remaining properties
-        let audioSource = Rc::new(RefCell::new(Entity::new(name, position)));
+        let audioSource = Rc::new(RefCell::new(Entity::Create(name, position)));
         
         let mut mutEnt = audioSource.borrow_mut();
 

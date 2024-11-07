@@ -120,7 +120,7 @@ impl PlayerController
         let waterEntity =
             Rc::new(
                 RefCell::new(
-                    Entity::new("Water", entity.world_position)
+                    Entity::Create("Water", entity.world_position)
                 ));
 
         // update constructors to return Rc RwLock wrapped Components

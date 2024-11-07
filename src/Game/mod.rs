@@ -8,10 +8,8 @@ use std::sync::RwLock;
 use chrono::{DateTime, Local};
 use glium::{Display, Surface};
 use glium::glutin::surface::WindowSurface;
-use winit::event;
 use winit::event::KeyEvent;
 use winit::event::MouseButton;
-use winit::event::WindowEvent;
 use winit::event::{ElementState, MouseScrollDelta, TouchPhase};
 
 use crate::Frame::GameFrame;
@@ -79,7 +77,7 @@ impl Game
         let cameraEnt =
             Rc::new(
                 RefCell::new(
-                    Entity::new(
+                    Entity::Create(
                         "",
                         Float3::new(0.0, 0.0, 1.0)
                     )
