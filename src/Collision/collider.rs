@@ -39,6 +39,8 @@ impl ColliderData
 
     pub fn Tag(&self) -> ECollisionTag {self._tag.clone()}
 
+    pub fn Type(&self) -> ECollisionType {self._collisionType.clone()}
+
     pub fn GetMinMaxBounds(&self) -> (f32, f32, f32, f32)
     {
         let corners = self.GetCorners();
@@ -113,7 +115,7 @@ pub enum ECollisionTag
     None,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ECollisionType
 {
     /// Used to restrict physical movement and prevent clipping.

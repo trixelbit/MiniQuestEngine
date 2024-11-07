@@ -211,13 +211,43 @@ impl Component for PlayerController
             self._direction = EDirection::Down;
         }
 
+        /// jump
+        if true
+        {
+            if frame.Input.IsKeyPressed(Space)
+            {
+                self._velocity = self._velocity + Float3::new(0.0, 64.0, 0.0);
+            }
+
+            self._velocity = self._velocity + Float3::new(0.0, -2.0, 0.0);
+        }
 
         let positionDelta = Float3::scale_value(self._velocity, frame.DeltaTime_Seconds);
         let futurePosition = entity.world_position + positionDelta;
 
-        if !api.lock().unwrap().Collision.IsThereACollisionAt(entity.ID(), futurePosition)
+        // Check for collision.
+        if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(entity.ID(), futurePosition)
         { 
             entity.world_position.add(Float3::scale_value(self._velocity, frame.DeltaTime_Seconds));
+        }
+        else
+        {
+            // Check and see if we can apply sliding.
+            let x_comp = Float3::new(positionDelta.x(), 0.0, 0.0);
+            if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
+                entity.ID(),
+                entity.world_position + x_comp)
+            {
+                entity.world_position.add(x_comp);
+            }
+
+            let y_comp = Float3::new(0.0, positionDelta.y(), 0.0);
+            if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
+                entity.ID(),
+                entity.world_position + y_comp)
+            { 
+                entity.world_position.add(y_comp);
+            }
         }
 
 

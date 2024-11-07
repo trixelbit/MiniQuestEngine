@@ -1,7 +1,7 @@
 pub mod collider;
 
 use uuid::Uuid;
-use crate::Collision::collider::ColliderData;
+use crate::Collision::collider::{ColliderData, ECollisionType};
 use crate::Math::Float3;
 
 
@@ -22,9 +22,19 @@ impl CollisionModule
         }
     }
 
-    pub fn IsThereACollisionAt(&self, id: Uuid, position: Float3) -> bool
-    { 
-        // should cache to prevent double traversal  
+    /// Checks if the provided entity will collide with any solid objects at the given position.
+    pub fn IsThereSolidCollisionAt(&self, id: Uuid, position: Float3) -> bool
+    {
+        return self.IsThereCollisionAt(id, position, true)
+    }
+    pub fn IsThereAnyCollisionAt(&self, id: Uuid, position: Float3) -> bool
+    {
+        return self.IsThereCollisionAt(id, position, false)
+    }
+
+    fn IsThereCollisionAt(&self, id: Uuid, position: Float3, excludeTriggers: bool) -> bool
+    {
+        // maybe should cache to prevent double traversal
         let indexOption = self.FindIndex(id);
 
         if indexOption.is_none()
@@ -44,22 +54,31 @@ impl CollisionModule
                 continue;
             }
 
+            if excludeTriggers
+            {
+                if self._colliders[i].Type() != ECollisionType::Solid
+                {
+                    continue;
+                }
+            }
+
             if ColliderData::DoBoundsCollide(&collider, &self._colliders[i])
             {
                 return true;
             }
-
         }
 
         false
     }
 
+    /// Adds a collider to Collision Module.
     pub fn Add(&mut self, id: Uuid, collider: ColliderData)
     {
         self._ids.push(id);
         self._colliders.push(collider);
     }
 
+    /// Updates the position of the collider in module.
     pub fn UpdateOrigin(&mut self, id: Uuid, position: Float3)
     {
         let index = self.FindIndex(id).unwrap();
@@ -67,6 +86,8 @@ impl CollisionModule
         self._colliders[index].UpdateOrigin(position);
     }
 
+
+    /// Updates the size of collision module.
     pub fn UpdateSize(&mut self, id: Uuid, size: Float3)
     {
         let index = self.FindIndex(id).unwrap();
@@ -74,6 +95,7 @@ impl CollisionModule
         self._colliders[index].UpdateSize(size);
     }
 
+    /// Removes ColliderData from Module.
     pub fn Remove(&mut self, id: Uuid)
     {
         let index = self.FindIndex(id).unwrap();
