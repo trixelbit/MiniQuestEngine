@@ -119,15 +119,14 @@ impl SceneManager
             }
         }
 
-        deadIndicies
-            .into_iter()
-            .for_each( |x| 
-                {
-                    self.Entities[x].borrow_mut().OnDestroy(api.clone());
-                    self.Entities.remove(x);
-                    self._deletionTable.remove(x);
-                    self._idTable.remove(x);
-                });
+        for i in self._deletionTable.len() - 1..0
+        {
+            self.Entities[deadIndicies[i]].borrow_mut().OnDestroy(api.clone());
+            self.Entities.remove(deadIndicies[i]);
+            self._deletionTable.remove(deadIndicies[i]);
+            self._idTable.remove(deadIndicies[i]);
+
+        }
     }
 }
 
