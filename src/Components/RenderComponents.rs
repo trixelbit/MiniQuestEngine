@@ -73,7 +73,12 @@ impl Renderer for Renderer2D
 
 impl Renderer2D
 {
-    pub fn New(display : &Display<WindowSurface>, initialSprite: Arc<Sprite>) -> Rc<RwLock<Self>>
+    pub fn New(
+        display : &Display<WindowSurface>, 
+        initialSprite: Arc<Sprite>,
+        fragmentShader: Option<String>,
+        vertexShader: Option<String>
+        ) -> Rc<RwLock<Self>>
     {
         let vertexBuffer = PlaneVertexBuffer(&display);
 
