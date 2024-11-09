@@ -1,14 +1,16 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::{Mutex, Arc};
 use std::vec::Vec;
 use std::fs;    
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 
+use crate::GameAPI::GameAPI;
 use crate::Audio::sample::*;
 use crate::Collision::collider::{ECollisionTag, ECollisionType};
 use crate::GameEntity::Entity;
-use crate::Components::*;
+use crate::{Components::*};
 use crate::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Math::*;
 use crate::Components::AudioSource::AudioPlayer;
@@ -51,21 +53,24 @@ impl Scene
         }
     }
 
-    pub fn LoadScene(&self, display: &Display<WindowSurface> ) -> Vec<Rc<RefCell<Entity>>>
+    /// Constructs a list of entities from a scene. 
+    pub fn LoadScene(&self, display: &Display<WindowSurface>, api: Arc<Mutex<GameAPI>> ) -> Vec<Rc<RefCell<Entity>>>
     {
         println!("Loaded Scene: {}", self._name);
 
         let lines = self._rawSceneContents.lines().filter( |x| !x.contains("*"));
-       
+
+        println!("Loaded Lines");
+        
         lines
-            .map( |x| Scene::ParseEntity(x, display))
+            .map( |x| Scene::ParseEntity(x, display, api.clone()))
             .filter(|x| x.is_some())
             .map(|x| x.unwrap())
             .collect()
 
     }
 
-    fn ParseEntity(entry: &str, display: &Display<WindowSurface>) -> Option<Rc<RefCell<Entity>>>
+    fn ParseEntity(entry: &str, display: &Display<WindowSurface>, api: Arc<Mutex<GameAPI>>) -> Option<Rc<RefCell<Entity>>>
     {
         let mut tokens : Vec<String> = Vec::new();
         entry
@@ -76,9 +81,9 @@ impl Scene
 
         match objectType.as_str()
         {
-            "Player" => Some(Scene::BuildPlayer(tokens, display)),
-            "Tile" => Some(Scene::BuildTile(tokens, display)),
-            "Audio" => Some(Scene::BuildAudioSource(tokens, display)),
+            "Player" => Some(Scene::BuildPlayer(tokens, display, api.clone())),
+            "Tile" => Some(Scene::BuildTile(tokens, display, api.clone())),
+            "Audio" => Some(Scene::BuildAudioSource(tokens, display, api.clone())),
             _ => None
         }
     }
@@ -88,7 +93,7 @@ impl Scene
     /// Entry Structure:
     ///     1 - name
     ///     2 - position
-    fn BuildPlayer(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
+    fn BuildPlayer(data: Vec<String>, display: &Display<WindowSurface>, api: Arc<Mutex<GameAPI>>) -> Rc<RefCell<Entity>>
     {
         let name = data[1].as_str();
         let position = Float3::FromString(data[2].as_str());
@@ -102,7 +107,7 @@ impl Scene
                             &display,
                             4,
                             (2,2),
-                            0.001)
+                            0.001),
         );
 
         let movementComponent = PlayerController::PlayerController::new(16.0f32, &display);
@@ -132,7 +137,7 @@ impl Scene
     ///     3 - asset path
     ///     4 - is a collider
     ///     5 - tag
-    fn BuildTile(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
+    fn BuildTile(data: Vec<String>, display: &Display<WindowSurface>, api: Arc<Mutex<GameAPI>>) -> Rc<RefCell<Entity>>
     {
         // 1 - name
         let name = data[1].as_str();
@@ -161,7 +166,7 @@ impl Scene
                             &display,
                             1,
                             (1,1),
-                            0.001)
+                            0.001),
         );
 
         let mut tileMut = tile.borrow_mut();
@@ -194,7 +199,8 @@ impl Scene
     ///     5 - space(2D/ 3D)
     ///     6 - track(music/ sfx)
     ///
-    fn BuildAudioSource(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
+    fn BuildAudioSource(data: Vec<String>, display: &Display<WindowSurface>, api: Arc<Mutex<GameAPI>>) 
+        -> Rc<RefCell<Entity>>
     {
         let name = data[1].as_str();
         let position = Float3::FromString(data[2].as_str());

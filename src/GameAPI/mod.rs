@@ -3,6 +3,7 @@ use crate::GameState::GameState;
 use crate::MetaInfo::MetaInfo;
 use crate::Audio::AudioModule;
 use crate::Collision::CollisionModule;
+use crate::Shader::ShaderModule;
 
 /// # Description
 ///     General utilities that should be exposed to game entities.
@@ -15,6 +16,7 @@ pub struct GameAPI
     pub MetaInfo: MetaInfo,
     pub Audio: AudioModule,
     pub Collision: CollisionModule,
+    pub Shader: ShaderModule
 }
 
 impl GameAPI
@@ -27,7 +29,8 @@ impl GameAPI
             GameState: GameState::Create(),
             MetaInfo: MetaInfo::Create(),
             Audio: AudioModule::Create(),
-            Collision: CollisionModule::Create()
+            Collision: CollisionModule::Create(),
+            Shader: ShaderModule::Create()
         }
     }
 }

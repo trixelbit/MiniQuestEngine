@@ -10,6 +10,7 @@ use crate::Frame::GameFrame;
 use crate::GameEntity::Entity;
 use crate::Components::RenderUtilities::{ImageBufferFromPath, Indicies, PlaneVertexBuffer, Vertex};
 use crate::GameAPI::GameAPI;
+use crate::Shader::{DEFAULT_FRAGMENT, DEFAULT_VERTEX};
 
 pub trait Renderer
 {
@@ -24,6 +25,8 @@ pub struct Renderer2D
     pub Program: Program,
     pub Display: Display<WindowSurface>,
     pub Sprite: Arc<Sprite>,
+    _vertexShader: Option<String>,
+    _fragmentShader: Option<String>
 }
 
 impl Renderer for Renderer2D
@@ -38,7 +41,6 @@ impl Renderer for Renderer2D
             magnify_filter: MagnifySamplerFilter::Nearest,
             ..Default::default()
         };
-
 
         let rawTransform =
         [
@@ -73,35 +75,28 @@ impl Renderer for Renderer2D
 
 impl Renderer2D
 {
+    /// Creates a new 2D Rendering component
+    /// 
+    /// Display - Display Reference
+    /// Sprite - Sprite that should be rendered
     pub fn New(
         display : &Display<WindowSurface>, 
-        initialSprite: Arc<Sprite>,
-        fragmentShader: Option<String>,
-        vertexShader: Option<String>
+        initialSprite: Arc<Sprite>
         ) -> Rc<RwLock<Self>>
     {
         let vertexBuffer = PlaneVertexBuffer(&display);
-
-        let result =
-            Program::from_source(display, Self::VertexShader(), Self::FragmentCode(), None);
-
-        match result
-        {
-            Ok(_) => {}
-            Err(x) => {panic!("Render Program Errored: {}", x.to_string())}
-        }
-
-        let program = result.unwrap();
 
         Rc::new(
             RwLock::new(
                 Self
                 {
+                    Display: display.clone(),
                     Sprite: initialSprite,
                     VertexBuffer: vertexBuffer,
                     Indicies: Indicies(),
-                    Program: program,
-                    Display: display.clone()
+                    Program: Program::from_source(display, DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER, None).unwrap(),
+                    _fragmentShader: None,
+                    _vertexShader: None,
                 }
             )
         )
@@ -112,84 +107,47 @@ impl Renderer2D
         self.Sprite = newSprite;
     }
 
-    pub fn FragmentCode() -> &'static str
-    {
-        r#"
-        #version 140
-
-        in vec2 v_tex_coords;
-        out vec4 color;
-
-        uniform int time;
-        uniform float frame_count;
-        uniform float cell_x_count;
-        uniform float cell_y_count;
-        uniform float speed;
-
-        uniform sampler2D tex;
-
-        void main()
-        {
-            int currentIndex = int(mod(time * speed, frame_count));
-
-            vec2 cellSize
-                = vec2(
-                    1.0 / cell_x_count,
-                    1.0 / cell_y_count
-                );
-
-            vec2 offset = vec2(
-                 mod(float(currentIndex), cell_x_count) / cell_x_count,
-                  1 - (0.5 * floor(2 * float(currentIndex) * cellSize.x * cellSize.y))
-            );
-
-
-            vec2 cellCoord = vec2(
-                v_tex_coords.x * cellSize.x,
-                -(1 - v_tex_coords.y) * cellSize.y
-            );
-
-            vec2 samplePoint = offset + cellCoord;
-            color = texture(tex, samplePoint);
-
-            if(color.a < .01)
-            {
-                discard;
-            }
-        }
-        "#
-    }
-
-    pub fn VertexShader() -> &'static str
-    {
-        r#"
-        #version 140
-
-        in vec3 position;
-        in vec3 normal;
-        in vec2 tex_coords;
-        out vec2 v_tex_coords;
-        out vec3 v_normal;
-
-        uniform mat4 perspective;
-        uniform mat4 view;
-        uniform mat4 model;
-
-        void main() {
-            v_tex_coords = tex_coords;
-            mat4 modelview = view * model;
-            v_normal = transpose(inverse(mat3(modelview))) * normal;
-            gl_Position = perspective * modelview * vec4(position, 1.0);
-            //gl_Position = matrix * vec4(position, 0.0, 1.0);
-        }
-        "#
-    }
 }
 
 impl Component for Renderer2D
 {
     fn start(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
     {
+        let vertexBuffer = PlaneVertexBuffer(&self.Display);
+
+
+        let loadedFragmentShader: String = 
+        match &self._fragmentShader
+        {
+            Some(x) => api.lock().unwrap().Shader.GetShader(x.as_str()),
+            None => api.lock().unwrap().Shader.GetShader(DEFAULT_FRAGMENT)
+        };
+
+        let loadedVertexShader: String = 
+        match &self._vertexShader
+        {
+            Some(x) => api.lock().unwrap().Shader.GetShader(x.as_str()),
+            None => api.lock().unwrap().Shader.GetShader(DEFAULT_VERTEX)
+        };
+        
+
+        let result =
+            Program::from_source(&self.Display, loadedVertexShader.as_str(), loadedFragmentShader.as_str(), None);
+
+        match result
+        {
+            Ok(_) => {}
+            Err(x) => {panic!("Render Program Errored: {}", x.to_string())}
+        }
+
+        let program = result.unwrap();
+
+        self.VertexBuffer = vertexBuffer;
+        self.Indicies = Indicies();
+        self.Program = program;
+        self._fragmentShader = Some(loadedFragmentShader);
+        self._vertexShader = Some(loadedVertexShader);
+
     }
 
     fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
@@ -210,7 +168,6 @@ pub struct Sprite
 
     /// Speed the animation plays at
     pub AnimationSpeed: f32
-
 }
 
 impl Sprite
@@ -234,7 +191,7 @@ impl Sprite
         )
     }
 
-    /// Creates a new Sprite
+    /// Creates a new Sprite.
     ///
     /// spritePath - Path to Sprite Image (png).
     /// display - Display reference.
@@ -260,3 +217,74 @@ impl Sprite
             })
     }
 }
+
+
+
+pub const DEFAULT_FRAGMENT_SHADER: &str = 
+    r#"
+    #version 140
+
+    in vec2 v_tex_coords;
+    out vec4 color;
+
+    uniform int time;
+    uniform float frame_count;
+    uniform float cell_x_count;
+    uniform float cell_y_count;
+    uniform float speed;
+
+    uniform sampler2D tex;
+
+    void main()
+    {
+        int currentIndex = int(mod(time * speed, frame_count));
+
+        vec2 cellSize
+            = vec2(
+                1.0 / cell_x_count,
+                1.0 / cell_y_count
+            );
+
+        vec2 offset = vec2(
+             mod(float(currentIndex), cell_x_count) / cell_x_count,
+              1 - (0.5 * floor(2 * float(currentIndex) * cellSize.x * cellSize.y))
+        );
+
+
+        vec2 cellCoord = vec2(
+            v_tex_coords.x * cellSize.x,
+            -(1 - v_tex_coords.y) * cellSize.y
+        );
+
+        vec2 samplePoint = offset + cellCoord;
+        color = texture(tex, samplePoint);
+
+        if(color.a < .01)
+        {
+            discard;
+        }
+    }
+    "#;
+
+pub const DEFAULT_VERTEX_SHADER: &str = 
+    r#"
+    #version 140
+
+    in vec3 position;
+    in vec3 normal;
+    in vec2 tex_coords;
+    out vec2 v_tex_coords;
+    out vec3 v_normal;
+
+    uniform mat4 perspective;
+    uniform mat4 view;
+    uniform mat4 model;
+
+    void main() {
+        v_tex_coords = tex_coords;
+        mat4 modelview = view * model;
+        v_normal = transpose(inverse(mat3(modelview))) * normal;
+        gl_Position = perspective * modelview * vec4(position, 1.0);
+        //gl_Position = matrix * vec4(position, 0.0, 1.0);
+    }
+    "#;

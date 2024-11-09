@@ -16,6 +16,8 @@ use glium::glutin::surface::WindowSurface;
 use glium::index::NoIndices;
 use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
 
+use super::RenderComponents::{DEFAULT_FRAGMENT_SHADER, DEFAULT_VERTEX_SHADER};
+
 
 /// This component reports current collision data to collision module for most recent information
 pub struct Collider
@@ -55,9 +57,9 @@ impl Collider
                     _indicies: Indicies(),
                     _vertexBuffer: PlaneVertexBuffer(&display),
                     _program: Program::from_source(&display,
-                                                   Renderer2D::VertexShader(),
-                                                   Renderer2D::FragmentCode(),
-                                                   None).unwrap(),
+                                                    DEFAULT_VERTEX_SHADER,
+                                                    DEFAULT_FRAGMENT_SHADER,
+                                                    None).unwrap(),
                     _debugSprite: Sprite::new_simple("Assets/collider.png", &display),
                     _display: display.clone(),
 

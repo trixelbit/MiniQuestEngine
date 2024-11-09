@@ -61,7 +61,7 @@ impl Game
         self.API.lock().unwrap().SceneManager.AddScene("Level1", "Scenes/test.lvl");
         
         // Build starting scene.
-        self.API.lock().unwrap().SceneManager.LoadScene("Level1", &display);
+        self.API.lock().unwrap().SceneManager.LoadScene("Level1", &display, self.API.clone());
 
         let camera = Rc::new(
             RwLock::new(

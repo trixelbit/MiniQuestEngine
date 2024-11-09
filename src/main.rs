@@ -11,6 +11,7 @@ mod MetaInfo;
 mod GameState;
 mod Audio;
 mod Collision;
+mod Shader;
 
 #[macro_use]
 extern crate glium;

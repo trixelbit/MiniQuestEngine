@@ -136,8 +136,11 @@ impl PlayerController
         waterEntity
             .borrow_mut()
             .add_component(
-                        Renderer2D::New(&self._display, self._waterSprite.clone()
-                        ));
+                        Renderer2D::New(
+                            &self._display, 
+                            self._waterSprite.clone(), 
+                ));
+
 
         api.lock().unwrap().Audio.PlayAudio(
             &AudioSample::Create(
