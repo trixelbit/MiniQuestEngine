@@ -57,7 +57,7 @@ impl SceneManager
     }
 
     /// Loads a scene
-    pub fn LoadScene(&mut self, alias: &str, display: &Display<WindowSurface>, api: Arc<Mutex<GameAPI>>)
+    pub fn LoadScene(&mut self, alias: &str, display: &Display<WindowSurface>)
     {
         let mut sceneIter = self._scenes.iter();
 
@@ -66,7 +66,7 @@ impl SceneManager
 
         self.Entities.clear();
 
-        let list = &mut scene.unwrap().LoadScene(display, api.clone());
+        let list = &mut scene.unwrap().LoadScene(display);
 
         for entity in list 
         {

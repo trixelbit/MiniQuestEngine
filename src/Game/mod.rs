@@ -61,7 +61,7 @@ impl Game
         self.API.lock().unwrap().SceneManager.AddScene("Level1", "Scenes/test.lvl");
         
         // Build starting scene.
-        self.API.lock().unwrap().SceneManager.LoadScene("Level1", &display, self.API.clone());
+        self.API.lock().unwrap().SceneManager.LoadScene("Level1", &display);
 
         let camera = Rc::new(
             RwLock::new(
@@ -69,20 +69,21 @@ impl Game
             )
         );
 
+        let cameraEnt =
+            Rc::new(
+                RefCell::new(
+                    Entity::Create(
+                        "Camera",
+                        Float3::new(0.0, 0.0, 1.0)
+                    )
+                )
+            );
+
         let cameraController =
             Rc::new(
                 RwLock::new(
                     Components::Camera::CameraMouseController::New()));
 
-        let cameraEnt =
-            Rc::new(
-                RefCell::new(
-                    Entity::Create(
-                        "",
-                        Float3::new(0.0, 0.0, 1.0)
-                    )
-                )
-            );
         cameraEnt.borrow_mut().add_component(camera.clone());
         cameraEnt.borrow_mut().add_component(cameraController);
 
@@ -113,7 +114,7 @@ impl Game
                     winit::event::WindowEvent::KeyboardInput {event, ..} 
                         => Self::KeyBoardInput(&mut input, event),
 
-                    winit::event::WindowEvent::MouseInput {state, device_id, button, ..} 
+                    winit::event::WindowEvent::MouseInput {state, button, ..} 
                         => Self::MouseInput(&mut input, state, button),
 
                     winit::event::WindowEvent::MouseWheel {phase, delta, ..} 
@@ -121,7 +122,7 @@ impl Game
 
                     winit::event::WindowEvent::CursorMoved {position,..} =>
                     {
-                        &input.SetMousePosition((position.x, position.y));
+                        let _ = &input.SetMousePosition((position.x, position.y));
                     },
 
                     winit::event::WindowEvent::CloseRequested =>
@@ -176,7 +177,6 @@ impl Game
         let mut target = display.draw();
 
         target.clear_color(0.1, 0.0, 0.2, 1.0);
-
 
         api.lock().unwrap().Audio.Update();
 
@@ -283,11 +283,11 @@ impl Game
         {
             ElementState::Pressed =>
                 {
-                    &input.Mouse_Pressed(button);
+                    let _ = &input.Mouse_Pressed(button);
                 }
             ElementState::Released =>
                 {
-                    &input.Mouse_Release(button);
+                    let _ = &input.Mouse_Release(button);
                 }
         }
     }
@@ -322,7 +322,6 @@ impl Game
                     input.SetMouseWheelLineOffset((0.0, 0.0));
                 },
         };
-
     }
 }
 

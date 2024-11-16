@@ -54,23 +54,21 @@ impl Scene
     }
 
     /// Constructs a list of entities from a scene. 
-    pub fn LoadScene(&self, display: &Display<WindowSurface>, api: Arc<Mutex<GameAPI>> ) -> Vec<Rc<RefCell<Entity>>>
+    pub fn LoadScene(&self, display: &Display<WindowSurface>) -> Vec<Rc<RefCell<Entity>>>
     {
         println!("Loaded Scene: {}", self._name);
 
         let lines = self._rawSceneContents.lines().filter( |x| !x.contains("*"));
 
-        println!("Loaded Lines");
-        
         lines
-            .map( |x| Scene::ParseEntity(x, display, api.clone()))
+            .map( |x| Scene::ParseEntity(x, display))
             .filter(|x| x.is_some())
             .map(|x| x.unwrap())
             .collect()
 
     }
 
-    fn ParseEntity(entry: &str, display: &Display<WindowSurface>, api: Arc<Mutex<GameAPI>>) -> Option<Rc<RefCell<Entity>>>
+    fn ParseEntity(entry: &str, display: &Display<WindowSurface>) -> Option<Rc<RefCell<Entity>>>
     {
         let mut tokens : Vec<String> = Vec::new();
         entry
@@ -81,9 +79,9 @@ impl Scene
 
         match objectType.as_str()
         {
-            "Player" => Some(Scene::BuildPlayer(tokens, display, api.clone())),
-            "Tile" => Some(Scene::BuildTile(tokens, display, api.clone())),
-            "Audio" => Some(Scene::BuildAudioSource(tokens, display, api.clone())),
+            "Player" => Some(Scene::BuildPlayer(tokens, display)),
+            "Tile" => Some(Scene::BuildTile(tokens, display)),
+            "Audio" => Some(Scene::BuildAudioSource(tokens, display)),
             _ => None
         }
     }
@@ -93,7 +91,7 @@ impl Scene
     /// Entry Structure:
     ///     1 - name
     ///     2 - position
-    fn BuildPlayer(data: Vec<String>, display: &Display<WindowSurface>, api: Arc<Mutex<GameAPI>>) -> Rc<RefCell<Entity>>
+    fn BuildPlayer(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
         let name = data[1].as_str();
         let position = Float3::FromString(data[2].as_str());
@@ -137,7 +135,7 @@ impl Scene
     ///     3 - asset path
     ///     4 - is a collider
     ///     5 - tag
-    fn BuildTile(data: Vec<String>, display: &Display<WindowSurface>, api: Arc<Mutex<GameAPI>>) -> Rc<RefCell<Entity>>
+    fn BuildTile(data: Vec<String>, display: &Display<WindowSurface>) -> Rc<RefCell<Entity>>
     {
         // 1 - name
         let name = data[1].as_str();
@@ -199,7 +197,7 @@ impl Scene
     ///     5 - space(2D/ 3D)
     ///     6 - track(music/ sfx)
     ///
-    fn BuildAudioSource(data: Vec<String>, display: &Display<WindowSurface>, api: Arc<Mutex<GameAPI>>) 
+    fn BuildAudioSource(data: Vec<String>, display: &Display<WindowSurface>) 
         -> Rc<RefCell<Entity>>
     {
         let name = data[1].as_str();

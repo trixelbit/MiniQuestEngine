@@ -1,13 +1,12 @@
 use std::collections::hash_map::HashMap;
-use std::{fs, path::*};
-use std::fs::*;
-use std::io::Write;
+use std::fs;
 
 pub const DEFAULT_FRAGMENT: &str = "Shaders/F_UnlitSprite.shader";
 
 pub const DEFAULT_VERTEX: &str = "Shaders/V_Standard.shader";
 
-
+/// Loads all shaders stored in the Shader folder and allows query for them.
+/// Avoids the needs for loading files on runtime.
 pub struct ShaderModule
 {
     _programLookUp: HashMap<String, String>
@@ -54,6 +53,7 @@ impl ShaderModule
             panic!("Could not find shader {}", shaderName);
         }
 
+        // I would prefer avoiding copying the shader program.
         String::from(option.unwrap())
     }
 }

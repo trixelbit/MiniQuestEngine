@@ -23,7 +23,9 @@ use super::RenderComponents::{DEFAULT_FRAGMENT_SHADER, DEFAULT_VERTEX_SHADER};
 pub struct Collider
 {
     _data: ColliderData,
-    // TODO: Add Offset
+
+    /// The Amount to offset collider from entity.
+    _offset: Float3,
 
     // WireFrameRendering
     _display: Display<WindowSurface>,
@@ -53,6 +55,7 @@ impl Collider
                         collisionType,
                         tag
                     ),
+                    _offset: Float3::zero(),
 
                     _indicies: Indicies(),
                     _vertexBuffer: PlaneVertexBuffer(&display),

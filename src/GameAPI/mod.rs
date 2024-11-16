@@ -14,6 +14,7 @@ pub struct GameAPI
     pub SceneManager: SceneManager,
     pub GameState: GameState,
     pub MetaInfo: MetaInfo,
+
     pub Audio: AudioModule,
     pub Collision: CollisionModule,
     pub Shader: ShaderModule
