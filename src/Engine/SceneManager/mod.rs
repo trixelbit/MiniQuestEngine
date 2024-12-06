@@ -2,46 +2,48 @@ use glium::glutin::surface::WindowSurface;
 use glium::Display;
 use uuid::Uuid;
 
-use crate::SceneBuilder::Scene;
-use crate::GameEntity::Entity;
+use crate::Engine::SceneBuilder::{Scene, SceneBuilder};
+use crate::Engine::GameEntity::Entity;
 
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
-use crate::GameAPI::GameAPI;
+use crate::Engine::GameAPI::GameAPI;
 
 
 pub struct SceneManager
 {
-    /// All indicies correspond to a entity for the following Vec fields.
+    /// All indices correspond to an entity for the following Vec fields.
 
-    /// Entites that exist in the game currenlty.
+    /// Entities that exist in the game currently.
     pub Entities: Vec<Rc<RefCell<Entity>>>,
 
-    /// The IDs of all entities currenlty in game.
-    /// Created to avoid borrow_mut reference from entites to get their IDs
+    /// The IDs of all entities currently in game.
+    /// Created to avoid borrow_mut reference from entities to get their IDs
     /// when marking them for deletion.
     _idTable: Vec<Uuid>,
 
     /// All entitys marked for deletion (true).
     _deletionTable: Vec<bool>,
 
-
     /// All scenes available for loading into active scene.
-    _scenes : Vec<Scene>
+    _scenes : Vec<Scene>,
+
+    _sceneBuilder : SceneBuilder
 }
 
 
 impl SceneManager
 {
-    pub fn Create() -> Self
+    pub fn Create(sceneBuilderMethod: SceneBuilder) -> Self
     {
         Self
         {
             Entities: Vec::new(),
             _idTable: Vec::new(),
             _deletionTable: Vec::new(),
-            _scenes: Vec::new()
+            _scenes: Vec::new(),
+            _sceneBuilder: sceneBuilderMethod
         }
     }
 
@@ -53,7 +55,7 @@ impl SceneManager
     /// path - Path to scene file.
     pub fn AddScene(&mut self, alias: &str, path: &str)
     {
-        self._scenes.push(Scene::new(alias, path));
+        self._scenes.push(Scene::new(alias, path, self._sceneBuilder));
     }
 
     /// Loads a scene

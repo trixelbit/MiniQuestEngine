@@ -5,12 +5,12 @@ use glium::glutin::surface::WindowSurface;
 use glium::index::NoIndices;
 use glium::texture::RawImage2d;
 use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
-use crate::Components::Component;
-use crate::Frame::GameFrame;
-use crate::GameEntity::Entity;
-use crate::Components::RenderUtilities::{ImageBufferFromPath, Indicies, PlaneVertexBuffer, Vertex};
-use crate::GameAPI::GameAPI;
-use crate::Shader::{DEFAULT_FRAGMENT, DEFAULT_VERTEX};
+use crate::Engine::Components::Component;
+use crate::Engine::Frame::GameFrame;
+use crate::Engine::GameEntity::Entity;
+use crate::Engine::Components::RenderUtilities::{ImageBufferFromPath, Indicies, PlaneVertexBuffer, Vertex};
+use crate::Engine::GameAPI::GameAPI;
+use crate::Engine::Shader::{DEFAULT_FRAGMENT, DEFAULT_VERTEX};
 
 pub trait Renderer
 {

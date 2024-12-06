@@ -51,12 +51,12 @@ impl Float3
 
     pub fn left() -> Float3
     {
-        crate::Math::Float3::new(-1.0, 0.0, 0.0)
+        crate::Engine::Math::Float3::new(-1.0, 0.0, 0.0)
     }
 
     pub fn right() -> Float3
     {
-        crate::Math::Float3::new(1.0, 0.0, 0.0)
+        crate::Engine::Math::Float3::new(1.0, 0.0, 0.0)
     }
 
     pub fn ToCGPoint(&self) -> Point3<f32>

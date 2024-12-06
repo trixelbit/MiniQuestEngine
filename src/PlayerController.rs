@@ -8,14 +8,14 @@ use cgmath::num_traits::ToPrimitive;
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 use winit::keyboard::KeyCode::*;
-use crate::Audio::sample::*;
-use crate::Components::Component;
-use crate::Components::Bullet::Bullet;
-use crate::Components::RenderComponents::{Renderer2D, Sprite};
-use crate::Frame::GameFrame;
-use crate::GameEntity::Entity;
-use crate::Math::{Float3, Ray};
-use crate::GameAPI::GameAPI;
+use crate::Engine::Audio::sample::*;
+use crate::Engine::Components::Component;
+use crate::Engine::Components::Bullet::Bullet;
+use crate::Engine::Components::RenderComponents::{Renderer2D, Sprite};
+use crate::Engine::Frame::GameFrame;
+use crate::Engine::GameEntity::Entity;
+use crate::Engine::Math::{Float3, Ray};
+use crate::Engine::GameAPI::GameAPI;
 
 #[derive(Copy, Clone)]
 enum EPlayerState

@@ -1,8 +1,8 @@
 pub mod collider;
 
 use uuid::Uuid;
-use crate::Collision::collider::{ColliderData, ECollisionType};
-use crate::Math::Float3;
+use crate::Engine::Collision::collider::{ColliderData, ECollisionType};
+use crate::Engine::Math::Float3;
 
 
 pub struct CollisionModule

@@ -1,4 +1,3 @@
-pub mod PlayerController;
 pub mod RenderComponents;
 pub mod AudioSource;
 pub mod Collider;
@@ -9,10 +8,10 @@ mod ComponentTemplate;
 
 
 use std::sync::{Arc, Mutex};
-use crate::Frame::GameFrame;
-use crate::GameEntity::Entity;
+use crate::Engine::Frame::GameFrame;
+use crate::Engine::GameEntity::Entity;
 use downcast_rs::{impl_downcast, DowncastSync, Downcast};
-use crate::GameAPI::GameAPI;
+use crate::Engine::GameAPI::GameAPI;
 
 
 /// Behavior that is attached to entities.

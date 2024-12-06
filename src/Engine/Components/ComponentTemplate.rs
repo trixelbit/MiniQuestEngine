@@ -1,8 +1,8 @@
 
-use crate::GameEntity::Entity;
-use crate::Components::Component;
-use crate::Frame::GameFrame;
-use crate::GameAPI::GameAPI;
+use crate::Engine::GameEntity::Entity;
+use crate::Engine::Components::Component;
+use crate::Engine::Frame::GameFrame;
+use crate::Engine::GameAPI::GameAPI;
 
 
 use std::sync::{RwLock, Mutex, Arc};

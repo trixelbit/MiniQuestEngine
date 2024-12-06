@@ -12,13 +12,14 @@ use winit::event::KeyEvent;
 use winit::event::MouseButton;
 use winit::event::{ElementState, MouseScrollDelta, TouchPhase};
 
-use crate::Frame::GameFrame;
-use crate::Frame::Input::Input;
-use crate::GameEntity::Entity;
-use crate::Components::{self, *};
-use crate::Components::RenderComponents::{Renderer, Renderer2D};
-use crate::Math::*;
-use crate::GameAPI::GameAPI;
+use crate::Engine::Frame::GameFrame;
+use crate::Engine::Frame::Input::Input;
+use crate::Engine::GameEntity::Entity;
+use crate::Engine::Components::{self, *};
+use crate::Engine::Components::RenderComponents::{Renderer, Renderer2D};
+use crate::Engine::Math::*;
+use crate::Engine::GameAPI::GameAPI;
+use crate::Engine::SceneBuilder::SceneBuilder;
 
 /// The Game Application that is running currently.
 pub struct Game    
@@ -30,14 +31,14 @@ pub struct Game
 impl Game
 {
     /// Constructs game and performs any tasks before actual application window opens.
-    pub fn New() -> Self
+    pub fn New(sceneBuilderMethod: SceneBuilder) -> Self
     {
         Self
         {
             API: 
                 Arc::new(
                     Mutex::new(
-                        GameAPI::Create()
+                        GameAPI::Create(sceneBuilderMethod)
             ))
         }
     }

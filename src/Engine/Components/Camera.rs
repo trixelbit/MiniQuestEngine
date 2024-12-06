@@ -3,11 +3,11 @@ use cgmath::{Matrix4, perspective, Vector3};
 use winit::event::MouseButton;
 use winit::keyboard::KeyCode;
 use winit::keyboard::KeyCode::SuperLeft;
-use crate::Components::Component;
-use crate::Frame::GameFrame;
-use crate::GameEntity::Entity;
-use crate::Math::Float3;
-use crate::GameAPI::GameAPI;
+use crate::Engine::Components::Component;
+use crate::Engine::Frame::GameFrame;
+use crate::Engine::GameEntity::Entity;
+use crate::Engine::Math::Float3;
+use crate::Engine::GameAPI::GameAPI;
 
 
 pub struct Camera

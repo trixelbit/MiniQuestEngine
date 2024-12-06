@@ -3,10 +3,10 @@ use std::rc::Rc;
 use std::sync::RwLock;
 use uuid::Uuid;
 use winit::keyboard::KeyCode::*;
-use crate::Frame::GameFrame;
-use crate::Math::Float3;
-use crate::Components::Component;
-use crate::GameAPI::GameAPI;
+use crate::Engine::Frame::GameFrame;
+use crate::Engine::Math::Float3;
+use crate::Engine::Components::Component;
+use crate::Engine::GameAPI::GameAPI;
 
 pub struct Entity
 {

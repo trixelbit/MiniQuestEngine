@@ -1,9 +1,10 @@
-use crate::SceneManager::SceneManager;
-use crate::GameState::GameState;
-use crate::MetaInfo::MetaInfo;
-use crate::Audio::AudioModule;
-use crate::Collision::CollisionModule;
-use crate::Shader::ShaderModule;
+use crate::Engine::SceneManager::SceneManager;
+use crate::Engine::GameState::GameState;
+use crate::Engine::MetaInfo::MetaInfo;
+use crate::Engine::Audio::AudioModule;
+use crate::Engine::Collision::CollisionModule;
+use crate::Engine::SceneBuilder::SceneBuilder;
+use crate::Engine::Shader::ShaderModule;
 
 /// # Description
 ///     General utilities that should be exposed to game entities.
@@ -22,11 +23,11 @@ pub struct GameAPI
 
 impl GameAPI
 {
-    pub fn Create() -> Self
+    pub fn Create(sceneBuilderMethod: SceneBuilder) -> Self
     {
         Self
         {
-            SceneManager: SceneManager::Create(),
+            SceneManager: SceneManager::Create(sceneBuilderMethod),
             GameState: GameState::Create(),
             MetaInfo: MetaInfo::Create(),
             Audio: AudioModule::Create(),

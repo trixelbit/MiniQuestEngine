@@ -1,8 +1,8 @@
-use crate::GameEntity::Entity;
-use crate::Components::Component;
-use crate::Frame::GameFrame;
-use crate::Math::Float3;
-use crate::GameAPI::GameAPI;
+use crate::Engine::GameEntity::Entity;
+use crate::Engine::Components::Component;
+use crate::Engine::Frame::GameFrame;
+use crate::Engine::Math::Float3;
+use crate::Engine::GameAPI::GameAPI;
 
 
 use cgmath::num_traits::ToPrimitive;

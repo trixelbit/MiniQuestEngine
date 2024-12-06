@@ -3,11 +3,11 @@ use std::sync::RwLock;
 use std::sync::Arc;
 use std::sync::Mutex;
 
-use crate::Components::Component;
-use crate::GameAPI::GameAPI;
-use crate::Frame::GameFrame;
-use crate::GameEntity::Entity;
-use crate::Audio::sample::*;
+use crate::Engine::Components::Component;
+use crate::Engine::GameAPI::GameAPI;
+use crate::Engine::Frame::GameFrame;
+use crate::Engine::GameEntity::Entity;
+use crate::Engine::Audio::sample::*;
 
 pub struct AudioPlayer
 {

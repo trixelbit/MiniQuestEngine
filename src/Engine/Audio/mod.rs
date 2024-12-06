@@ -5,9 +5,9 @@ use rodio::*;
 use std::fs::File;
 use std::io::BufReader;
 
-use crate::Math::Float3;
-use crate::Audio::sample::*;
-use crate::Audio::channel::Channel;
+use crate::Engine::Math::Float3;
+use crate::Engine::Audio::sample::*;
+use crate::Engine::Audio::channel::Channel;
 
 /// General Audio Module used for the playing and listening of audio.
 ///

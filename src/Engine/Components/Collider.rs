@@ -1,12 +1,12 @@
-use crate::GameEntity::Entity;
-use crate::Components::Component;
-use crate::Frame::GameFrame;
-use crate::GameAPI::GameAPI;
-use crate::Math::Float3;
-use crate::Collision::collider::{ColliderData, ECollisionType, ECollisionTag};
-use crate::Components::RenderComponents::{Renderer, Renderer2D, Sprite};
-use crate::Components::RenderUtilities::{Indicies, PlaneVertexBuffer, Vertex};
-use crate::DEBUG_MODE;
+use crate::Engine::GameEntity::Entity;
+use crate::Engine::Components::Component;
+use crate::Engine::Frame::GameFrame;
+use crate::Engine::GameAPI::GameAPI;
+use crate::Engine::Math::Float3;
+use crate::Engine::Collision::collider::{ColliderData, ECollisionType, ECollisionTag};
+use crate::Engine::Components::RenderComponents::{Renderer, Renderer2D, Sprite};
+use crate::Engine::Components::RenderUtilities::{Indicies, PlaneVertexBuffer, Vertex};
+use crate::Engine::DEBUG_MODE;
 
 use std::sync::{RwLock, Mutex, Arc};
 use std::rc::Rc;
