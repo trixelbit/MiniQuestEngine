@@ -1,7 +1,7 @@
 use std::collections::hash_map::HashMap;
 use std::fs;
 
-// Directory Limiter is OS dependent.
+// Directory Delimiter is OS dependent.
 // Need to make this delimiter OS independent
 pub const DEFAULT_FRAGMENT: &str = "Shaders\\F_UnlitSprite.shader";
 

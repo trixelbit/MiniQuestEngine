@@ -10,7 +10,7 @@ use crate::Engine::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Engine::GameEntity::Entity;
 use crate::Engine::Math::Float3;
 use crate::Engine::SceneBuilder::{Scene, TSceneBuilder};
-use crate::PlayerController;
+use crate::{LunaController, Grappler};
 
 pub struct GCSBSceneBuilder
 {
@@ -80,7 +80,8 @@ impl GCSBSceneBuilder
                                 0.001),
             );
 
-        let movementComponent = PlayerController::PlayerController::new(16.0f32, &display);
+        let movementComponent = Grappler::GrapplerController::new(16.0f32, &display);
+        //LunaController::LunaController::new(16.0f32, &display);
 
         let mut playerMut = player.borrow_mut();
         playerMut.add_component(movementComponent);

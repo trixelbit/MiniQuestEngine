@@ -5,6 +5,7 @@ use std::sync::Mutex;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::RwLock;
+use std::time::SystemTime;
 use chrono::{DateTime, Local};
 use glium::{Display, Surface};
 use glium::glutin::surface::WindowSurface;
@@ -175,6 +176,8 @@ impl Game
         camera: Rc<RwLock<Camera::Camera>>
     )
     {
+        let now = SystemTime::now();
+
         let mut target = display.draw();
 
         target.clear_color(0.1, 0.0, 0.2, 1.0);
@@ -260,6 +263,15 @@ impl Game
 
         let _ = target.finish();
         display.finish();
+
+        match now.elapsed()
+        {
+                Ok(elapsed) => 
+                    {
+                        println!("ms:{} fps:{}", elapsed.as_millis(), (1_000_000_000.0 / elapsed.as_nanos() as f32) as u32);
+                    },
+                _ => {}
+        };
     }
 
     pub fn KeyBoardInput(input: &mut Input, event: KeyEvent)

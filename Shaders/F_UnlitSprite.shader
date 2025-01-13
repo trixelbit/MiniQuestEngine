@@ -4,7 +4,10 @@
 in vec2 v_tex_coords;
 out vec4 color;
 
+// engine information
 uniform int time;
+
+
 uniform float frame_count;
 uniform float cell_x_count;
 uniform float cell_y_count;

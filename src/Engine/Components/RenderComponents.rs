@@ -10,7 +10,26 @@ use crate::Engine::Frame::GameFrame;
 use crate::Engine::GameEntity::Entity;
 use crate::Engine::Components::RenderUtilities::{ImageBufferFromPath, Indicies, PlaneVertexBuffer, Vertex};
 use crate::Engine::GameAPI::GameAPI;
+use crate::Engine::Math::Float3;
 use crate::Engine::Shader::{DEFAULT_FRAGMENT, DEFAULT_VERTEX};
+
+pub struct LightSource
+{
+    pub Color : Float3,
+    pub Intensity: f32
+}
+
+impl Component for LightSource
+{
+    fn start(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
+    {
+    }
+
+    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    {
+    }
+}
+
 
 pub trait Renderer
 {
@@ -21,7 +40,7 @@ pub trait Renderer
 pub struct Renderer2D
 {
     pub VertexBuffer: VertexBuffer<Vertex>,
-    pub Indicies: NoIndices,
+    pub Indices: NoIndices,
     pub Program: Program,
     pub Display: Display<WindowSurface>,
     pub Sprite: Arc<Sprite>,
@@ -68,7 +87,7 @@ impl Renderer for Renderer2D
             speed: self.Sprite.AnimationSpeed
         };
 
-        target.draw(&self.VertexBuffer, &self.Indicies, &self.Program, &uniforms,
+        target.draw(&self.VertexBuffer, &self.Indices, &self.Program, &uniforms,
                     &Default::default()).unwrap();
     }
 }
@@ -93,7 +112,7 @@ impl Renderer2D
                     Display: display.clone(),
                     Sprite: initialSprite,
                     VertexBuffer: vertexBuffer,
-                    Indicies: Indicies(),
+                    Indices: Indicies(),
                     Program: Program::from_source(display, DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER, None).unwrap(),
                     _fragmentShader: None,
                     _vertexShader: None,
@@ -143,7 +162,7 @@ impl Component for Renderer2D
         let program = result.unwrap();
 
         self.VertexBuffer = vertexBuffer;
-        self.Indicies = Indicies();
+        self.Indices = Indicies();
         self.Program = program;
         self._fragmentShader = Some(loadedFragmentShader);
         self._vertexShader = Some(loadedVertexShader);

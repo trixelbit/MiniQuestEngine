@@ -105,6 +105,27 @@ impl Float3
         self.clone()
     }
 
+    pub fn OverrideX(&mut self, value: f32) -> Self
+    {
+        self.position = [
+            value,
+            self.position[1],
+            self.position[2]
+        ];
+        self.clone()
+    }
+
+    pub fn OverrideY(&mut self, value: f32) -> Self
+    {
+        self.position = [
+            self.position[0],
+            value,
+            self.position[2]
+        ];
+        self.clone()
+
+    }
+
     pub fn magnitude(&self) -> f32
     {
         return

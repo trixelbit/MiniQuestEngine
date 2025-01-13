@@ -12,4 +12,6 @@ pub mod Audio;
 pub mod Collision;
 pub mod Shader;
 
+pub mod Rendering;
+
 const DEBUG_MODE: bool = true;
