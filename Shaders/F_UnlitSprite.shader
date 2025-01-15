@@ -25,19 +25,28 @@ void main()
             1.0 / cell_y_count
         );
 
-    vec2 offset = vec2(
-         mod(float(currentIndex), cell_x_count) / cell_x_count,
-          1 - (0.5 * floor(2 * float(currentIndex) * cellSize.x * cellSize.y))
-    );
+
+  float modValue = mod(float(currentIndex), cell_x_count);
+  float uv_x = modValue / cell_x_count;
+
+  float y_cell = cell_y_count - floor((currentIndex) / cell_x_count);
+  float uv_y = y_cell / cell_y_count;
+
+
+             //1 - (0.5 * floor(2 * float(currentIndex) * cellSize.x * cellSize.y));
+
+    vec2 offset = vec2(uv_x, uv_y);
 
 
     vec2 cellCoord = vec2(
         v_tex_coords.x * cellSize.x,
-        -(1 - v_tex_coords.y) * cellSize.y
+        -(1.0 - v_tex_coords.y) * cellSize.y
+        //-(1 - v_tex_coords.y) * cellSize.y
     );
 
     vec2 samplePoint = offset + cellCoord;
     color = texture(tex, samplePoint);
+
 
     if(color.a < .01)
     {

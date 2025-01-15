@@ -39,12 +39,12 @@ const RUN_SPEED: f32 = 0.01;
 // Sprite Asset References
 pub const IDLE_DOWN: &str  = "Assets/idle_down.png";
 const IDLE_UP: &str    = "Assets/idle_up.png";
-const IDLE_LEFT: &str  = "Assets/idle_left.png";
+const IDLE_LEFT: &str  = "Assets/boxer_idle_left.png";
 const IDLE_RIGHT: &str = "Assets/boxer_idle_right.png";
     
 const RUN_DOWN: &str   = "Assets/run_down.png";
 const RUN_UP: &str     = "Assets/run_up.png";
-const RUN_LEFT: &str   = "Assets/run_left.png";
+const RUN_LEFT: &str   = "Assets/boxer_run_left.png";
 const RUN_RIGHT: &str  = "Assets/boxer_run_right.png";
 
 const WATER_BALL_SPRITE: &str = "Assets/waterball.png";
@@ -84,12 +84,12 @@ impl GrapplerController
                         [
                             Sprite::new_simple(IDLE_DOWN, display),
                             Sprite::new_simple(IDLE_UP, display),
-                            Sprite::new_simple(IDLE_LEFT, display),
+                            Sprite::new(IDLE_LEFT, display, 8, (3,3), RUN_SPEED),
                             Sprite::new(IDLE_RIGHT, display, 8, (3,3), RUN_SPEED),
                             Sprite::new(RUN_DOWN, display, 4,(2,2), RUN_SPEED),
                             Sprite::new(RUN_UP, display, 4, (2,2), RUN_SPEED),
-                            Sprite::new(RUN_LEFT, display, 4, (2,2), RUN_SPEED),
-                            Sprite::new(RUN_RIGHT, display, 8, (3,3), RUN_SPEED)
+                            Sprite::new(RUN_LEFT, display, 8, (3,3), RUN_SPEED),
+                            Sprite::new(RUN_RIGHT, display, 7, (3,3), RUN_SPEED)
                         ],
 
                     _state: EPlayerState::idle,

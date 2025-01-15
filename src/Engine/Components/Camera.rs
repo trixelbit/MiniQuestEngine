@@ -41,8 +41,8 @@ impl Camera
 
     pub fn PerspectiveMatrix(&self) -> Matrix4<f32>
     {
-        let bound_width = 0.3;
-        let bound_height = 0.3;
+        let bound_width = 0.2;
+        let bound_height = 0.2;
 
         ortho(-bound_width, bound_width, -bound_height, bound_height, -10.0, 10.0)
         //perspective(cgmath::Deg(self.FieldOfView), 1.0, 0.1, 100.0)
