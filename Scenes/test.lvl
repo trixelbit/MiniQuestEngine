@@ -37,7 +37,7 @@ Tile|Box| -128, 0, 0 |Assets/crate.png|true
 Tile|Box| 0, -64, 0 |Assets/crate.png|true
 Tile|Box| 32, -64, 0 |Assets/crate.png|true
 
-Player|Lola| 0, -0.5, 0
+Player|Lola| 0, 0.5, 0.1
 
 //Audio|Music| 0, 0, 0|Assets/song2.ogg| 0.1
 

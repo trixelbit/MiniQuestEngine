@@ -167,6 +167,7 @@ impl Game
     }
 
 
+
     pub fn Update(
         display: &Display<WindowSurface>,
         api: Arc<Mutex<GameAPI>>,
@@ -177,10 +178,11 @@ impl Game
     )
     {
         let now = SystemTime::now();
+        let mut renderTime: u128 = 0;
 
         let mut target = display.draw();
 
-        target.clear_color(0.1, 0.0, 0.2, 1.0);
+        target.clear_color_and_depth((0.1, 0.0, 0.2, 1.0), 1.0);
 
         api.lock().unwrap().Audio.Update();
 
@@ -233,7 +235,13 @@ impl Game
                 None => {}
                 Some(_) =>
                     {
-                        renderOption.unwrap().write().unwrap().render(&entity, &frame, &mut target);
+                        let now = SystemTime::now();
+                        renderOption
+                                .unwrap()
+                                .write()
+                                .unwrap()
+                                .render(&entity, &frame, &mut target);
+                        renderTime = renderTime + now.elapsed().unwrap().as_millis();
                     }
             }
 
@@ -246,9 +254,17 @@ impl Game
                 None => {}
                 Some(_) =>
                     {
-                        colliderOption.unwrap().write().unwrap().render(&entity, &frame, &mut target);
+
+                        let now = SystemTime::now();
+                        colliderOption
+                                    .unwrap()
+                                    .write()
+                                    .unwrap()
+                                    .render(&entity, &frame, &mut target);
+                        renderTime = renderTime + now.elapsed().unwrap().as_millis();
                     }
             }
+
 
             // Destroy dead objects
             api.lock().unwrap().SceneManager.PruneDeadObject(api.clone());
@@ -261,14 +277,18 @@ impl Game
 
         *dateTimeLastFrame = Local::now();
 
+        let rnow = SystemTime::now();
         let _ = target.finish();
         display.finish();
+        renderTime = renderTime + rnow.elapsed().unwrap().as_millis();
 
         match now.elapsed()
         {
                 Ok(elapsed) => 
                     {
                         println!("ms:{} fps:{}", elapsed.as_millis(), (1_000_000_000.0 / elapsed.as_nanos() as f32) as u32);
+                        println!("render:{}", renderTime);
+
                     },
                 _ => {}
         };
@@ -337,7 +357,5 @@ impl Game
         };
     }
 }
-
-
 
 

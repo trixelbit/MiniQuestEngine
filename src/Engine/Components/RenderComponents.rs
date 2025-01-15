@@ -61,12 +61,41 @@ impl Renderer for Renderer2D
             ..Default::default()
         };
 
+        let x = entity.world_position.x();
+        let y = entity.world_position.y();
+        let z = entity.world_position.z();
+
+
+        let display_width = dim.0 as f32;
+        let display_height = dim.1 as f32;
+
+        let image_dimension_x = self.Sprite.Texture.dimensions().0 as f32;
+        let image_dimension_y = self.Sprite.Texture.dimensions().1 as f32;
+        let cell_count_x = self.Sprite.CellCounts.0 as f32;
+        let cell_count_y = self.Sprite.CellCounts.1 as f32;
+
         let rawTransform =
         [
-            [entity.scale.x() * self.Sprite.Texture.dimensions().0 as f32 / (1f32 * dim.0 as f32 * self.Sprite.CellCounts.0 as f32) , 0.0, 0.0, 0.0],
-            [0.0, entity.scale.y() * self.Sprite.Texture.dimensions().1 as f32 / (1f32 * dim.1 as f32 * self.Sprite.CellCounts.1 as f32), 0.0, 0.0],
-            [0.0, 0.0, 1.0, 0.0],
-            [entity.world_position.x() / dim.0 as f32, entity.world_position.y() / dim.1 as f32, entity.world_position.z(), 1.0f32],
+            [
+                entity.scale.x() * image_dimension_x / (1.0 * display_width * cell_count_x), 
+                0.0, 
+                0.0, 
+                0.0],
+            [
+                0.0, 
+                entity.scale.y() * image_dimension_y / (1.0 * display_height * cell_count_y), 
+                0.0, 
+                0.0],
+            [
+                0.0, 
+                0.0, 
+                1.0, 
+                0.0],
+            [
+                x / display_width, 
+                y / display_height, 
+                z, 
+                1.0],
         ];
 
         let view_mat : [[f32;4];4] = frame.CameraView.into();
@@ -87,8 +116,21 @@ impl Renderer for Renderer2D
             speed: self.Sprite.AnimationSpeed
         };
 
+        let params = glium::DrawParameters{
+            depth: glium::Depth
+                {
+                    test: glium::draw_parameters::DepthTest::IfLess,
+                    write: true,
+                    .. Default::default()
+                },
+
+                .. Default::default()
+        };
+
         target.draw(&self.VertexBuffer, &self.Indices, &self.Program, &uniforms,
-                    &Default::default()).unwrap();
+                    &params//Default::default()
+
+        ).unwrap();
     }
 }
 

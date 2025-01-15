@@ -1,5 +1,5 @@
 use std::sync::{Mutex, Arc};
-use cgmath::{Matrix4, perspective, Vector3};
+use cgmath::{Matrix4, perspective, Vector3, ortho};
 use winit::event::MouseButton;
 use winit::keyboard::KeyCode;
 use winit::keyboard::KeyCode::SuperLeft;
@@ -9,6 +9,11 @@ use crate::Engine::GameEntity::Entity;
 use crate::Engine::Math::Float3;
 use crate::Engine::GameAPI::GameAPI;
 
+pub enum EProjectionType 
+{
+    Perspective,
+    Orthographic
+}
 
 pub struct Camera
 {
@@ -16,6 +21,7 @@ pub struct Camera
     pub FocalDirection: Float3,
     pub UpDirection : Float3,
     pub FieldOfView : f32,
+    pub Projection : EProjectionType
 
 }
 
@@ -29,27 +35,33 @@ impl Camera
             FocalDirection: Float3::new(0.0, 0.0, 1.0),
             UpDirection: Float3::up(),
             FieldOfView: fov,
+            Projection: EProjectionType::Orthographic
         }
     }
 
     pub fn PerspectiveMatrix(&self) -> Matrix4<f32>
     {
-        perspective(cgmath::Deg(self.FieldOfView), 1.0, 0.1, 100.0)
+        let bound_width = 0.3;
+        let bound_height = 0.3;
+
+        ortho(-bound_width, bound_width, -bound_height, bound_height, -10.0, 10.0)
+        //perspective(cgmath::Deg(self.FieldOfView), 1.0, 0.1, 100.0)
     }
 
     pub fn ViewMatrix(&self) -> Matrix4<f32>
     {
+        return Matrix4::from([
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [self.EyePosition.x(), -self.EyePosition.y(), -self.EyePosition.z(), 1.0]
+        ]);
         return Matrix4::look_at_lh(
             self.EyePosition.ToCGPoint(),
             (self.EyePosition + self.FocalDirection).ToCGPoint(),
             self.UpDirection.ToCGVector()
         );
-        return Matrix4::from([
-            [0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0],
-            [self.EyePosition.x(), -self.EyePosition.y(), -self.EyePosition.z(), 0.0]
-        ]);
+
         let a =
         cgmath::Matrix4::look_at_lh(
             self.EyePosition.ToCGPoint(),
