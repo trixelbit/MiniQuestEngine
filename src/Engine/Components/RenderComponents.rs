@@ -12,6 +12,9 @@ use crate::Engine::Components::RenderUtilities::{ImageBufferFromPath, Indicies, 
 use crate::Engine::GameAPI::GameAPI;
 use crate::Engine::Math::Float3;
 use crate::Engine::Shader::{DEFAULT_FRAGMENT, DEFAULT_VERTEX};
+use std::time::{Instant, Duration};
+
+
 
 pub struct LightSource
 {
@@ -39,19 +42,34 @@ pub trait Renderer
 /// Draws a 2D sprite to screen.
 pub struct Renderer2D
 {
+    pub CurrentIndex: usize,
+
     pub VertexBuffer: VertexBuffer<Vertex>,
     pub Indices: NoIndices,
     pub Program: Program,
     pub Display: Display<WindowSurface>,
     pub Sprite: Arc<Sprite>,
     _vertexShader: Option<String>,
-    _fragmentShader: Option<String>
+    _fragmentShader: Option<String>,
+    _playTime: Instant,
 }
 
 impl Renderer for Renderer2D
 {
     fn render(&self, entity: &Entity, frame: &GameFrame, target: &mut Frame)
     {
+        
+        // calculate sprite index
+        let elapsedTime = self._playTime.elapsed().as_millis() as f32;
+        let currentIndex = 
+            (
+                (elapsedTime * self.Sprite.AnimationSpeed as f32) 
+                % 
+                self.Sprite.FrameCount as f32
+            ) 
+            as i32;
+
+
         let dim = self.Display.get_framebuffer_dimensions();
 
         let behavior = glium::uniforms::SamplerBehavior
@@ -110,6 +128,7 @@ impl Renderer for Renderer2D
 
             tex: glium::uniforms::Sampler(&self.Sprite.Texture, behavior),
             is_lit: 1.0f32,
+            current_index: currentIndex,
             pixel_dimension_x: image_dimension_x,
             pixel_dimension_y: image_dimension_y,
             time: frame.TimeSinceGameStart.num_milliseconds() as i32,
@@ -156,11 +175,13 @@ impl Renderer2D
                 {
                     Display: display.clone(),
                     Sprite: initialSprite,
+                    CurrentIndex: 0,
                     VertexBuffer: vertexBuffer,
                     Indices: Indicies(),
                     Program: Program::from_source(display, DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER, None).unwrap(),
                     _fragmentShader: None,
                     _vertexShader: None,
+                    _playTime: Instant::now()
                 }
             )
         )
@@ -168,6 +189,8 @@ impl Renderer2D
 
     pub fn set_new_sprite(&mut self, newSprite: Arc<Sprite>)
     {
+        self._playTime = Instant::now();
+        self.CurrentIndex = 0;
         self.Sprite = newSprite;
     }
 

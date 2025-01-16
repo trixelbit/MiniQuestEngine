@@ -11,6 +11,7 @@ uniform int time;
 
 // sprite information
 uniform float is_lit;
+uniform int current_index;
 uniform float pixel_dimension_x;
 uniform float pixel_dimension_y;
 uniform float frame_count;
@@ -25,7 +26,7 @@ void main()
   
 
   // SPRITE SHEET ANIMATION
-  int currentIndex = int(mod(time * speed, frame_count));
+  //int currentIndex = int(mod(time * speed, frame_count));
 
   vec2 cellSize
       = vec2(
@@ -34,10 +35,10 @@ void main()
       );
 
 
-  float modValue = mod(float(currentIndex), cell_x_count);
+  float modValue = mod(float(current_index), cell_x_count);
   float uv_x = modValue / cell_x_count;
 
-  float y_cell = cell_y_count - floor((currentIndex) / cell_x_count);
+  float y_cell = cell_y_count - floor((current_index) / cell_x_count);
   float uv_y = y_cell / cell_y_count;
 
 

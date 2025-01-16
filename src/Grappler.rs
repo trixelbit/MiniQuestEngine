@@ -17,7 +17,7 @@ use crate::Engine::GameEntity::Entity;
 use crate::Engine::Math::{Float3, Ray};
 use crate::Engine::GameAPI::GameAPI;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 enum EPlayerState
 {
     idle,
@@ -27,7 +27,7 @@ enum EPlayerState
     fall,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 enum EDirection
 {
     Left = 0,
@@ -52,6 +52,12 @@ const FALL_RIGHT: &str  = "Assets/boxer_fall_right.png";
 
 const TROT_LEFT: &str   = "Assets/boxer_trot_left.png";
 const TROT_RIGHT: &str  = "Assets/boxer_trot_right.png";
+
+const PUNCH1_LEFT: &str   = "Assets/boxer_1_left.png";
+const PUNCH1_RIGHT: &str  = "Assets/boxer_1_right.png";
+
+const PUNCH2_LEFT: &str   = "Assets/boxer_2_left.png";
+const PUNCH2_RIGHT: &str  = "Assets/boxer_2_right.png";
 
 
 const WATER_BALL_SPRITE: &str = "Assets/waterball.png";
@@ -185,6 +191,9 @@ impl Component for GrapplerController
 
     fn update(&mut self, entity: &mut Entity,  frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
+        let oldDirection = self._direction;
+
+
         let leftVector : f32 = if frame.Input.IsKeyDown(KeyA) {-1.0} else {0.0};
         let rightVector: f32 = if frame.Input.IsKeyDown(KeyD) {1.0} else {0.0};
         let upVector : f32 = if frame.Input.IsKeyDown(KeyW) {1.0} else {0.0};
@@ -230,7 +239,6 @@ impl Component for GrapplerController
         {
             self._direction = EDirection::Right;
         }
-
 
         let gravity = Float3::new(0.0, -GRAVITY, 0.0);
 
@@ -328,6 +336,8 @@ impl Component for GrapplerController
             }
         }
 
+        let oldState = self._state;
+
         if(isGrounded)
         {
             if(self._velocity.x().abs() > 15.0)
@@ -355,7 +365,11 @@ impl Component for GrapplerController
             }
         }
 
-        self.animation_update(entity, self._state, self._direction);
+        if(oldState != self._state || oldDirection != self._direction)
+        {
+            self.animation_update(entity, self._state, self._direction);
+        }
+
 
         // Shoot water ball
         if frame.Input.IsKeyPressed(Space)
