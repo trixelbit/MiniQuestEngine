@@ -109,6 +109,9 @@ impl Renderer for Renderer2D
             perspective: perspective_mat,
 
             tex: glium::uniforms::Sampler(&self.Sprite.Texture, behavior),
+            is_lit: 1.0f32,
+            pixel_dimension_x: image_dimension_x,
+            pixel_dimension_y: image_dimension_y,
             time: frame.TimeSinceGameStart.num_milliseconds() as i32,
             cell_x_count: self.Sprite.CellCounts.0 as f32,
             cell_y_count: self.Sprite.CellCounts.1 as f32,

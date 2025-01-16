@@ -20,38 +20,45 @@ use crate::Engine::GameAPI::GameAPI;
 #[derive(Copy, Clone)]
 enum EPlayerState
 {
-    idle = 0,
-    run = 1,
+    idle,
+    run,
+    trot,
+    jump,
+    fall,
 }
 
 #[derive(Copy, Clone)]
 enum EDirection
 {
-    Up = 0,
-    Down = 1,
-    Left = 2,
-    Right = 3
+    Left = 0,
+    Right = 1
 }
 
 
 const RUN_SPEED: f32 = 0.01;
 
 // Sprite Asset References
-pub const IDLE_DOWN: &str  = "Assets/idle_down.png";
-const IDLE_UP: &str    = "Assets/idle_up.png";
 const IDLE_LEFT: &str  = "Assets/boxer_idle_left.png";
 const IDLE_RIGHT: &str = "Assets/boxer_idle_right.png";
     
-const RUN_DOWN: &str   = "Assets/run_down.png";
-const RUN_UP: &str     = "Assets/run_up.png";
 const RUN_LEFT: &str   = "Assets/boxer_run_left.png";
 const RUN_RIGHT: &str  = "Assets/boxer_run_right.png";
+
+const JUMP_LEFT: &str   = "Assets/boxer_jump_left.png";
+const JUMP_RIGHT: &str  = "Assets/boxer_jump_right.png";
+
+const FALL_LEFT: &str   = "Assets/boxer_fall_left.png";
+const FALL_RIGHT: &str  = "Assets/boxer_fall_right.png";
+
+const TROT_LEFT: &str   = "Assets/boxer_trot_left.png";
+const TROT_RIGHT: &str  = "Assets/boxer_trot_right.png";
+
 
 const WATER_BALL_SPRITE: &str = "Assets/waterball.png";
 const WATER_SHOOT_SFX: &str = "Assets/Shoot.ogg";
 
-const GRAVITY : f32 = 0.3;
-const JUMP_STRENGTH: f32 = 25.0;
+const GRAVITY : f32 = 0.5;
+const JUMP_STRENGTH: f32 = 35.0;
 
 pub struct GrapplerController
 {
@@ -59,7 +66,7 @@ pub struct GrapplerController
     pub _velocity: Float3,
     pub _lastInputVector: Float3,
 
-    _spriteTable: [Arc<Sprite>; 8],
+    _spriteTable: [Arc<Sprite>; 10],
 
     _state : EPlayerState,
     _direction :  EDirection,
@@ -82,18 +89,24 @@ impl GrapplerController
 
                     _spriteTable:
                         [
-                            Sprite::new_simple(IDLE_DOWN, display),
-                            Sprite::new_simple(IDLE_UP, display),
                             Sprite::new(IDLE_LEFT, display, 8, (3,3), RUN_SPEED),
                             Sprite::new(IDLE_RIGHT, display, 8, (3,3), RUN_SPEED),
-                            Sprite::new(RUN_DOWN, display, 4,(2,2), RUN_SPEED),
-                            Sprite::new(RUN_UP, display, 4, (2,2), RUN_SPEED),
+                            
                             Sprite::new(RUN_LEFT, display, 8, (3,3), RUN_SPEED),
-                            Sprite::new(RUN_RIGHT, display, 7, (3,3), RUN_SPEED)
+                            Sprite::new(RUN_RIGHT, display, 8, (3,3), RUN_SPEED),
+                            
+                            Sprite::new(TROT_LEFT, display, 5, (3,2), RUN_SPEED),
+                            Sprite::new(TROT_RIGHT, display, 5, (3,2), RUN_SPEED),
+                       
+                            Sprite::new(JUMP_LEFT, display, 2, (2,1), RUN_SPEED),
+                            Sprite::new(JUMP_RIGHT, display, 2, (2,1), RUN_SPEED),
+                            
+                            Sprite::new(FALL_LEFT, display, 2, (2,1), RUN_SPEED),
+                            Sprite::new(FALL_RIGHT, display, 2, (2,1), RUN_SPEED),
                         ],
 
                     _state: EPlayerState::idle,
-                    _direction: EDirection::Up,
+                    _direction: EDirection::Left,
                     _display: display.clone(),
                     _waterSprite: Sprite::new_simple(WATER_BALL_SPRITE, display),
                 }
@@ -111,10 +124,14 @@ impl GrapplerController
         }
 
         let renderer = componentOption.unwrap();
-
-        let index = (state as usize  * 4) + direction as usize;
-
+        let index = (state as usize  * 2) + direction as usize;
+       
         renderer.write().unwrap().set_new_sprite(self._spriteTable[index].clone());
+    }
+
+    fn get_index_for_state(state: EPlayerState, direction: EDirection) -> usize
+    {
+        (state as usize  * 2) + direction as usize
     }
 
     /// Creates a water ball and fires it in the direction the player is facing.
@@ -182,20 +199,26 @@ impl Component for GrapplerController
         if inputVector.magnitude() > 0.001
         {
             damping = 1.0;
-            self._state = EPlayerState::run;
             self._lastInputVector = inputVector;
         }
         else
         {
-            damping = 0.1;
-            self._state = EPlayerState::idle;
+            damping = 0.05;
         }
 
+
+
+        let isGrounded = 
+            api.clone().lock().unwrap().Collision.IsThereSolidCollisionAt(
+                entity.ID(),
+                entity.world_position + Float3::new(0.0, -0.1, 0.0));
+
+
+        // horizontal movement
         let targetVector = Float3::scale_value(inputVector, self._movementSpeed)
             .OverrideY(self._velocity.y());
 
 
-        // move this logic into frame
         self._velocity =
                 Float3::Lerp(self._velocity, targetVector, damping);
 
@@ -208,25 +231,12 @@ impl Component for GrapplerController
             self._direction = EDirection::Right;
         }
 
-        if self._velocity.y() < 0.0
-        {
-            //self._direction = EDirection::Up;
-        }
-        else if self._velocity.y() > 0.0
-        {
-            //self._direction = EDirection::Down;
-        }
-
-
-
 
         let gravity = Float3::new(0.0, -GRAVITY, 0.0);
 
 
         // Ground behavior
-        if api.clone().lock().unwrap().Collision.IsThereSolidCollisionAt(
-                entity.ID(),
-                entity.world_position + Float3::new(0.0, -0.1, 0.0))
+        if isGrounded
         {
             self._velocity = self._velocity.OverrideY(0.0);
         }
@@ -236,7 +246,7 @@ impl Component for GrapplerController
         }
 
         // Jump logic
-        if frame.Input.IsKeyPressed(KeyW)
+        if frame.Input.IsKeyPressed(KeyW) && isGrounded
         {
             self._velocity = self._velocity.OverrideY(JUMP_STRENGTH);
         }
@@ -318,6 +328,32 @@ impl Component for GrapplerController
             }
         }
 
+        if(isGrounded)
+        {
+            if(self._velocity.x().abs() > 15.0)
+            {
+                self._state = EPlayerState::run;
+            }
+            else if(self._velocity.x().abs() > 3.0)
+            {
+                self._state = EPlayerState::trot;
+            }
+            else
+            {
+                self._state = EPlayerState::idle;
+            }
+        }
+        else
+        {
+            if(self._velocity.y() > 0.0)
+            {
+                self._state = EPlayerState::jump;
+            }
+            else
+            {
+                self._state = EPlayerState::fall;
+            }
+        }
 
         self.animation_update(entity, self._state, self._direction);
 
@@ -330,3 +366,11 @@ impl Component for GrapplerController
         println!("{}", self._velocity);
     }
 }
+
+
+
+
+
+
+
+

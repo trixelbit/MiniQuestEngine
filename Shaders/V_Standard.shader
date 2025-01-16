@@ -15,7 +15,8 @@ void main()
 {
     v_tex_coords = tex_coords;
     mat4 modelview = view * model;
-    v_normal = transpose(inverse(mat3(modelview))) * normal;
+    v_normal = vec3(0,0,1);//transpose(inverse(mat3(modelview))) * vec3(0, 0, 1);//normal;
     gl_Position = perspective * modelview * vec4(position, 1.0);
+
     //gl_Position = matrix * vec4(position, 0.0, 1.0);
 }
