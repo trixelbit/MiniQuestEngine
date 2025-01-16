@@ -25,6 +25,8 @@ enum EPlayerState
     trot,
     jump,
     fall,
+    punch1,
+    punch2,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq)]
@@ -53,10 +55,10 @@ const FALL_RIGHT: &str  = "Assets/boxer_fall_right.png";
 const TROT_LEFT: &str   = "Assets/boxer_trot_left.png";
 const TROT_RIGHT: &str  = "Assets/boxer_trot_right.png";
 
-const PUNCH1_LEFT: &str   = "Assets/boxer_1_left.png";
+const PUNCH1_LEFT: &str   = "Assets/boxer_1_right.png";
 const PUNCH1_RIGHT: &str  = "Assets/boxer_1_right.png";
 
-const PUNCH2_LEFT: &str   = "Assets/boxer_2_left.png";
+const PUNCH2_LEFT: &str   = "Assets/boxer_2_right.png";
 const PUNCH2_RIGHT: &str  = "Assets/boxer_2_right.png";
 
 
@@ -72,7 +74,7 @@ pub struct GrapplerController
     pub _velocity: Float3,
     pub _lastInputVector: Float3,
 
-    _spriteTable: [Arc<Sprite>; 10],
+    _spriteTable: [Arc<Sprite>; 14],
 
     _state : EPlayerState,
     _direction :  EDirection,
@@ -109,6 +111,12 @@ impl GrapplerController
                             
                             Sprite::new(FALL_LEFT, display, 2, (2,1), RUN_SPEED),
                             Sprite::new(FALL_RIGHT, display, 2, (2,1), RUN_SPEED),
+                       
+                            Sprite::new(PUNCH1_LEFT, display, 3, (2,2), RUN_SPEED),
+                            Sprite::new(PUNCH1_RIGHT, display, 3, (2,2), RUN_SPEED),
+                            
+                            Sprite::new(PUNCH2_LEFT, display, 4, (2,2), RUN_SPEED),
+                            Sprite::new(PUNCH2_RIGHT, display, 4, (2,2), RUN_SPEED),
                         ],
 
                     _state: EPlayerState::idle,
@@ -128,6 +136,8 @@ impl GrapplerController
         {
             return;
         }
+
+
 
         let renderer = componentOption.unwrap();
         let index = (state as usize  * 2) + direction as usize;
@@ -192,6 +202,7 @@ impl Component for GrapplerController
     fn update(&mut self, entity: &mut Entity,  frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         let oldDirection = self._direction;
+        let oldState = self._state;
 
 
         let leftVector : f32 = if frame.Input.IsKeyDown(KeyA) {-1.0} else {0.0};
@@ -336,7 +347,6 @@ impl Component for GrapplerController
             }
         }
 
-        let oldState = self._state;
 
         if(isGrounded)
         {
@@ -364,6 +374,26 @@ impl Component for GrapplerController
                 self._state = EPlayerState::fall;
             }
         }
+
+        let notAttacking = 
+            (self._state != EPlayerState::punch1 
+            && self._state != EPlayerState::punch2);
+
+        /*
+        let isAttackDone = 
+            (self._state == EPlayerState::punch1 || 
+            self._state != EPlayerState::punch2) &&
+            self.
+                */
+
+
+        if(frame.Input.IsKeyPressed(KeyU) && 
+            (notAttacking)
+        )
+        {
+            self._state = EPlayerState::punch1;
+        }
+
 
         if(oldState != self._state || oldDirection != self._direction)
         {
