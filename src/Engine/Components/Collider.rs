@@ -96,7 +96,7 @@ impl Component for Collider
 impl Renderer for Collider
 {
     /// Draws bounds of collider if debug mode enabled
-    fn render(&self, entity: &Entity, frame: &GameFrame, target: &mut Frame)
+    fn render(&mut self, entity: &Entity, frame: &GameFrame, target: &mut Frame)
     {
         if !DEBUG_MODE
         {

@@ -34,15 +34,10 @@ impl Component for LightSource
 }
 
 
-pub trait Renderer
-{
-    fn render(&self, entity: &Entity, frame: &GameFrame, target: &mut Frame);
-}
 
 /// Draws a 2D sprite to screen.
 pub struct Renderer2D
 {
-    pub CurrentIndex: usize,
 
     pub VertexBuffer: VertexBuffer<Vertex>,
     pub Indices: NoIndices,
@@ -52,22 +47,111 @@ pub struct Renderer2D
     _vertexShader: Option<String>,
     _fragmentShader: Option<String>,
     _playTime: Instant,
+   
+    _currentIndex: i32,
+    _loops: bool,
+    _completed: bool,
+}
+
+impl Renderer2D
+{
+    /// Creates a new 2D Rendering component
+    /// 
+    /// Display - Display Reference
+    /// Sprite - Sprite that should be rendered
+    pub fn New(
+        display : &Display<WindowSurface>, 
+        initialSprite: Arc<Sprite>
+        ) -> Rc<RwLock<Self>>
+    {
+        let vertexBuffer = PlaneVertexBuffer(&display);
+
+        Rc::new(
+            RwLock::new(
+                Self
+                {
+                    Display: display.clone(),
+                    Sprite: initialSprite,
+                    VertexBuffer: vertexBuffer,
+                    Indices: Indicies(),
+                    Program: Program::from_source(display, DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER, None).unwrap(),
+                    _fragmentShader: None,
+                    _vertexShader: None,
+
+                    _currentIndex: 0,
+                    _loops: true,
+                    _completed: false,
+                    _playTime: Instant::now()
+                }
+            )
+        )
+    }
+
+    pub fn SetSprite1Loop(&mut self, newSprite: Arc<Sprite>)
+    {
+        self._playTime = Instant::now();
+        self._currentIndex = 0;
+        self.Sprite = newSprite;
+        self._loops = false;
+        self._completed = false;
+    }
+
+    pub fn set_new_sprite(&mut self, newSprite: Arc<Sprite>)
+    {
+        self._playTime = Instant::now();
+        self._currentIndex = 0;
+        self.Sprite = newSprite;
+        self._loops = true;
+        self._completed = false;
+    }
+
+    // properties
+
+    /// Current index of sprite
+    pub fn CurrentIndex(&self) -> i32
+    {
+        self._currentIndex
+    }
+
+
+    /// Returns true if this is a non looped animation and it has finished playing.
+    pub fn IsComplete(&self) -> bool
+    {
+        self._completed
+    }
+}
+
+pub trait Renderer
+{
+    fn render(&mut self, entity: &Entity, frame: &GameFrame, target: &mut Frame);
 }
 
 impl Renderer for Renderer2D
 {
-    fn render(&self, entity: &Entity, frame: &GameFrame, target: &mut Frame)
+    fn render(&mut self, entity: &Entity, frame: &GameFrame, target: &mut Frame)
     {
         
         // calculate sprite index
         let elapsedTime = self._playTime.elapsed().as_millis() as f32;
-        let currentIndex = 
-            (
-                (elapsedTime * self.Sprite.AnimationSpeed as f32) 
-                % 
-                self.Sprite.FrameCount as f32
-            ) 
-            as i32;
+
+        if(self._loops || !self._completed)
+        {
+            self._currentIndex 
+                = 
+                (
+                    (elapsedTime * self.Sprite.AnimationSpeed as f32) 
+                    % 
+                    self.Sprite.FrameCount as f32
+                ) 
+                as i32;
+
+            if(!self._loops && 
+                (self._currentIndex == (self.Sprite.FrameCount - 1) as i32))
+            {
+                self._completed = true;
+            }
+        }
+
 
 
         let dim = self.Display.get_framebuffer_dimensions();
@@ -128,7 +212,7 @@ impl Renderer for Renderer2D
 
             tex: glium::uniforms::Sampler(&self.Sprite.Texture, behavior),
             is_lit: 1.0f32,
-            current_index: currentIndex,
+            current_index: self._currentIndex,
             pixel_dimension_x: image_dimension_x,
             pixel_dimension_y: image_dimension_y,
             time: frame.TimeSinceGameStart.num_milliseconds() as i32,
@@ -156,45 +240,6 @@ impl Renderer for Renderer2D
     }
 }
 
-impl Renderer2D
-{
-    /// Creates a new 2D Rendering component
-    /// 
-    /// Display - Display Reference
-    /// Sprite - Sprite that should be rendered
-    pub fn New(
-        display : &Display<WindowSurface>, 
-        initialSprite: Arc<Sprite>
-        ) -> Rc<RwLock<Self>>
-    {
-        let vertexBuffer = PlaneVertexBuffer(&display);
-
-        Rc::new(
-            RwLock::new(
-                Self
-                {
-                    Display: display.clone(),
-                    Sprite: initialSprite,
-                    CurrentIndex: 0,
-                    VertexBuffer: vertexBuffer,
-                    Indices: Indicies(),
-                    Program: Program::from_source(display, DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER, None).unwrap(),
-                    _fragmentShader: None,
-                    _vertexShader: None,
-                    _playTime: Instant::now()
-                }
-            )
-        )
-    }
-
-    pub fn set_new_sprite(&mut self, newSprite: Arc<Sprite>)
-    {
-        self._playTime = Instant::now();
-        self.CurrentIndex = 0;
-        self.Sprite = newSprite;
-    }
-
-}
 
 impl Component for Renderer2D
 {
@@ -224,7 +269,7 @@ impl Component for Renderer2D
         match result
         {
             Ok(_) => {}
-            Err(x) => {panic!("Render Program Errored: {}", x.to_string())}
+            Err(x) => {panic!("Render Program Error: {}", x.to_string())}
         }
 
         let program = result.unwrap();

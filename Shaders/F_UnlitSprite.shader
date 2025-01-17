@@ -101,25 +101,42 @@ float transparent = 0.01;
   }
 
   // LIGHTING
+
+  // blue
   vec4 shadow_color = vec4(0.02, 0.02, 0.1, 1);
   vec4 light_color = vec4(0.6, 0.9, 1.0, 0.5);
+
+  // yellow green
+  //vec4 shadow_color = vec4(0.1, 0.2, 0.2, 1);
+  //vec4 light_color = vec4(1.0, 0.9, 0.3, 0.5);
+
+  // white
+  //vec4 shadow_color = vec4(0.14, 0.14, 0.14, 1);
+  //vec4 light_color = vec4(1.0, 1.0, 1.0, 1.0);
+
+
   float intensity = 1;
   
   vec3 direction = normalize(vec3(
-    1,
-    -2, 
-    2 * sin(time / 1000.0)//-2
+    sin( float(time) / 800.0), 
+    cos(float(time) / 800.0), 
+    1 * sin(time / 1200.0) - 1
     ));
+    //1,
+    //-2, 
+    //2 * sin(time / 1000.0) - 1//-2
+
     //sin( float(time) / 500.0), 
     //cos(float(time) / 500.0), 
     //-2 * sin(float(time) / 1000.0)
     //));
 
   vec4 shadowAmount = dot(v_normal, -direction) * vec4(1,1,1,1);
-  vec4 shadowMix = mix(color, shadow_color, shadowAmount.x);
+  vec4 shadowMix = mix(color * light_color, shadow_color, shadowAmount.x);
 
   color = shadowMix;
 
+  // rim lighting
   vec2 light_offset = pixel_size * -normalize(vec2(direction.x, direction.y));
   vec4 value = texture(tex, samplePoint + (light_offset));
   vec4 value2 = texture(tex, samplePoint + (light_offset * 2));
@@ -132,7 +149,7 @@ float transparent = 0.01;
   }
   else if(value2.a < 0.01)
   {
-    color = color + (light_color / 2 * shadowAmount);
+    color = color + (light_color / 1.2 * shadowAmount);
   }
 
   color = max(color, vec4(0,0,0,0));

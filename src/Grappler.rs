@@ -38,6 +38,8 @@ enum EDirection
 
 
 const RUN_SPEED: f32 = 0.01;
+const LIGHT_SPEED: f32 = 0.015;
+const MEDIUM_SPEED: f32 = 0.015;
 
 // Sprite Asset References
 const IDLE_LEFT: &str  = "Assets/boxer_idle_left.png";
@@ -55,7 +57,7 @@ const FALL_RIGHT: &str  = "Assets/boxer_fall_right.png";
 const TROT_LEFT: &str   = "Assets/boxer_trot_left.png";
 const TROT_RIGHT: &str  = "Assets/boxer_trot_right.png";
 
-const PUNCH1_LEFT: &str   = "Assets/boxer_1_right.png";
+const PUNCH1_LEFT: &str   = "Assets/boxer_1_left.png";
 const PUNCH1_RIGHT: &str  = "Assets/boxer_1_right.png";
 
 const PUNCH2_LEFT: &str   = "Assets/boxer_2_right.png";
@@ -80,7 +82,8 @@ pub struct GrapplerController
     _direction :  EDirection,
     _display: Display<WindowSurface>,
 
-    _waterSprite: Arc<Sprite>
+    _waterSprite: Arc<Sprite>,
+    _isAttacking: bool,
 }
 
 impl GrapplerController
@@ -112,23 +115,24 @@ impl GrapplerController
                             Sprite::new(FALL_LEFT, display, 2, (2,1), RUN_SPEED),
                             Sprite::new(FALL_RIGHT, display, 2, (2,1), RUN_SPEED),
                        
-                            Sprite::new(PUNCH1_LEFT, display, 3, (2,2), RUN_SPEED),
-                            Sprite::new(PUNCH1_RIGHT, display, 3, (2,2), RUN_SPEED),
+                            Sprite::new(PUNCH1_LEFT, display, 3, (2,2), LIGHT_SPEED),
+                            Sprite::new(PUNCH1_RIGHT, display, 3, (2,2), LIGHT_SPEED),
                             
-                            Sprite::new(PUNCH2_LEFT, display, 4, (2,2), RUN_SPEED),
-                            Sprite::new(PUNCH2_RIGHT, display, 4, (2,2), RUN_SPEED),
+                            Sprite::new(PUNCH2_LEFT, display, 4, (2,2), MEDIUM_SPEED),
+                            Sprite::new(PUNCH2_RIGHT, display, 4, (2,2), MEDIUM_SPEED),
                         ],
 
                     _state: EPlayerState::idle,
                     _direction: EDirection::Left,
                     _display: display.clone(),
                     _waterSprite: Sprite::new_simple(WATER_BALL_SPRITE, display),
+                    _isAttacking: false,
                 }
             )
         )
     }
 
-    fn animation_update(&self, entity: &mut Entity, state: EPlayerState, direction: EDirection)
+    fn animation_update(&mut self, entity: &mut Entity, state: EPlayerState, direction: EDirection)
     {
         let componentOption = entity.get_component::<Renderer2D>(Some(self));
 
@@ -140,12 +144,38 @@ impl GrapplerController
 
 
         let renderer = componentOption.unwrap();
+
+        if self._isAttacking 
+        {
+            if renderer.write().unwrap().IsComplete()
+            {
+                self._isAttacking = false;
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        if(state == EPlayerState::punch1 || state == EPlayerState::punch2)
+        {
+
+            let index = Self::IndexFromState(state, direction);
+            renderer.write().unwrap()
+                .SetSprite1Loop(self._spriteTable[index].clone());
+            
+            self._isAttacking = true;
+
+            return;
+        }
+
+        // render all other simple states
         let index = (state as usize  * 2) + direction as usize;
        
         renderer.write().unwrap().set_new_sprite(self._spriteTable[index].clone());
     }
 
-    fn get_index_for_state(state: EPlayerState, direction: EDirection) -> usize
+    fn IndexFromState(state: EPlayerState, direction: EDirection) -> usize
     {
         (state as usize  * 2) + direction as usize
     }
@@ -216,7 +246,7 @@ impl Component for GrapplerController
 
         let damping;
 
-        if inputVector.magnitude() > 0.001
+        if inputVector.magnitude() > 0.001 && !self._isAttacking
         {
             damping = 1.0;
             self._lastInputVector = inputVector;
@@ -375,9 +405,6 @@ impl Component for GrapplerController
             }
         }
 
-        let notAttacking = 
-            (self._state != EPlayerState::punch1 
-            && self._state != EPlayerState::punch2);
 
         /*
         let isAttackDone = 
@@ -387,15 +414,20 @@ impl Component for GrapplerController
                 */
 
 
-        if(frame.Input.IsKeyPressed(KeyU) && 
-            (notAttacking)
-        )
+        if frame.Input.IsKeyPressed(KeyU) && !self._isAttacking
         {
             self._state = EPlayerState::punch1;
         }
 
+        if frame.Input.IsKeyPressed(KeyI) && !self._isAttacking
+        {
+            self._state = EPlayerState::punch2;
+        }
 
-        if(oldState != self._state || oldDirection != self._direction)
+        
+        if
+            self._isAttacking ||
+            (oldState != self._state || oldDirection != self._direction)
         {
             self.animation_update(entity, self._state, self._direction);
         }
