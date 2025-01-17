@@ -68,16 +68,26 @@ impl GCSBSceneBuilder
         let name = data[1].as_str();
         let position = Float3::FromString(data[2].as_str());
 
+        let mut isLit = false;
+        
+        if data.len() >= 4
+        {
+            isLit = data[3].as_str().parse().unwrap();
+        }
+
         let player = Rc::new(RefCell::new(Entity::Create(name, position)));
 
         let renderComponent =
-            Renderer2D::New(&display,
-                            Sprite::new(
-                                "Assets/run_down.png",
-                                &display,
-                                4,
-                                (2,2),
-                                0.001),
+            Renderer2D::New(
+                &display,
+                Sprite::new(
+                    "Assets/run_down.png",
+                    &display,
+                    4,
+                    (2,2),
+                    0.001),
+                isLit
+                                
             );
 
         let movementComponent = Grappler::GrapplerController::new(16.0f32, &display);
@@ -124,20 +134,35 @@ impl GCSBSceneBuilder
 
         if data.len() >= 5
         {
-            collider = data[4].as_str().parse().unwrap();
+            let o: Result<bool, _> = data[4].as_str().parse();
+
+            if(o.is_ok())
+            {
+                collider = data[4].as_str().parse().unwrap();
+
+            }
         }
 
+        // 5 - is lit
+
+        let mut isLit = false;
+        if data.len() >= 6
+        {
+            isLit = data[5].as_str().parse().unwrap();
+        }
 
         let tile = Rc::new(RefCell::new(Entity::Create(name, position)));
 
         let renderComponent =
-            Renderer2D::New(&display,
-                            Sprite::new(
-                                assetPath,
-                                &display,
-                                1,
-                                (1,1),
-                                0.001),
+            Renderer2D::New(
+                &display,
+                Sprite::new(
+                    assetPath,
+                    &display,
+                    1,
+                    (1,1),
+                    0.001),
+                isLit
             );
 
         let mut tileMut = tile.borrow_mut();

@@ -44,6 +44,7 @@ pub struct Renderer2D
     pub Program: Program,
     pub Display: Display<WindowSurface>,
     pub Sprite: Arc<Sprite>,
+
     _vertexShader: Option<String>,
     _fragmentShader: Option<String>,
     _playTime: Instant,
@@ -51,6 +52,8 @@ pub struct Renderer2D
     _currentIndex: i32,
     _loops: bool,
     _completed: bool,
+
+    _isLit: bool,
 }
 
 impl Renderer2D
@@ -61,7 +64,8 @@ impl Renderer2D
     /// Sprite - Sprite that should be rendered
     pub fn New(
         display : &Display<WindowSurface>, 
-        initialSprite: Arc<Sprite>
+        initialSprite: Arc<Sprite>,
+        isLit: bool
         ) -> Rc<RwLock<Self>>
     {
         let vertexBuffer = PlaneVertexBuffer(&display);
@@ -81,7 +85,8 @@ impl Renderer2D
                     _currentIndex: 0,
                     _loops: true,
                     _completed: false,
-                    _playTime: Instant::now()
+                    _playTime: Instant::now(),
+                    _isLit: isLit,
                 }
             )
         )
@@ -118,6 +123,11 @@ impl Renderer2D
     pub fn IsComplete(&self) -> bool
     {
         self._completed
+    }
+
+    pub fn ChangeLightState(&mut self, isLit: bool)
+    {
+        self._isLit = isLit;
     }
 }
 
@@ -176,16 +186,26 @@ impl Renderer for Renderer2D
         let cell_count_x = self.Sprite.CellCounts.0 as f32;
         let cell_count_y = self.Sprite.CellCounts.1 as f32;
 
+        let scale = 
+        if(entity.world_position.z() < 0.0)
+        {
+            Float3::scale_value(entity.scale, -entity.world_position.z())
+        }
+        else
+        {
+            entity.scale
+        };
+
         let rawTransform =
         [
             [
-                entity.scale.x() * image_dimension_x / (1.0 * display_width * cell_count_x), 
+                scale.x() * image_dimension_x / (1.0 * display_width * cell_count_x), 
                 0.0, 
                 0.0, 
                 0.0],
             [
                 0.0, 
-                entity.scale.y() * image_dimension_y / (1.0 * display_height * cell_count_y), 
+                scale.y() * image_dimension_y / (1.0 * display_height * cell_count_y), 
                 0.0, 
                 0.0],
             [
@@ -211,7 +231,7 @@ impl Renderer for Renderer2D
             perspective: perspective_mat,
 
             tex: glium::uniforms::Sampler(&self.Sprite.Texture, behavior),
-            is_lit: 1.0f32,
+            is_lit: self._isLit,
             current_index: self._currentIndex,
             pixel_dimension_x: image_dimension_x,
             pixel_dimension_y: image_dimension_y,

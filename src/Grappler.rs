@@ -205,6 +205,7 @@ impl GrapplerController
                         Renderer2D::New(
                             &self._display, 
                             self._waterSprite.clone(), 
+                        true
                 ));
 
 

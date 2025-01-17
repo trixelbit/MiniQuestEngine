@@ -10,7 +10,7 @@ uniform int time;
 
 
 // sprite information
-uniform float is_lit;
+uniform bool is_lit;
 uniform int current_index;
 uniform float pixel_dimension_x;
 uniform float pixel_dimension_y;
@@ -95,7 +95,7 @@ float transparent = 0.01;
   }
 */
 
-  if(is_lit != 1.0)
+  if(!is_lit)
   {
     return;
   }
@@ -118,10 +118,14 @@ float transparent = 0.01;
   float intensity = 1;
   
   vec3 direction = normalize(vec3(
-    sin( float(time) / 800.0), 
-    cos(float(time) / 800.0), 
-    1 * sin(time / 1200.0) - 1
+    0,-1, -0.5
     ));
+    
+    // demo settings
+    //sin( float(time) / 800.0), 
+    //cos(float(time) / 800.0), 
+    //1 * sin(time / 1200.0) - 1
+
     //1,
     //-2, 
     //2 * sin(time / 1000.0) - 1//-2
