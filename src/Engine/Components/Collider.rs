@@ -1,15 +1,13 @@
-use crate::Engine::GameEntity::Entity;
-use crate::Engine::Components::Component;
+use crate::Engine::GameEntity::{TEntity, EntityHeader};
 use crate::Engine::Frame::GameFrame;
 use crate::Engine::GameAPI::GameAPI;
 use crate::Engine::Math::Float3;
 use crate::Engine::Collision::collider::{ColliderData, ECollisionType, ECollisionTag};
-use crate::Engine::Components::RenderComponents::{Renderer, Renderer2D, Sprite};
+use crate::Engine::Components::RenderComponents::Sprite;
 use crate::Engine::Components::RenderUtilities::{Indicies, PlaneVertexBuffer, Vertex};
 use crate::Engine::DEBUG_MODE;
 
-use std::sync::{RwLock, Mutex, Arc};
-use std::rc::Rc;
+use std::sync::{Mutex, Arc};
 use glium::{BackfaceCullingMode, Depth, Display, DrawParameters, Frame, PolygonMode, Program, Surface, VertexBuffer};
 use glium::draw_parameters::{ClipControlDepth, ClipControlOrigin, ProvokingVertex};
 use glium::glutin::surface::WindowSurface;
@@ -39,64 +37,54 @@ impl Collider
 {
     pub fn Create(
         display: Display<WindowSurface>,
-        position: Float3,
+        worldPosition: Float3,
         size: Float3,
         collisionType: ECollisionType,
         tag: ECollisionTag)
-        -> Rc<RwLock<Self>>
+        -> Self
     {
-        Rc::new(
-            RwLock::new(
-                Self
-                {
-                    _data: ColliderData::Create(
-                        position,
-                        size,
-                        collisionType,
-                        tag
-                    ),
-                    _offset: Float3::zero(),
+        Self
+        {
+            _data: ColliderData::Create(
+                worldPosition,
+                size,
+                collisionType,
+                tag
+            ),
+            _offset: Float3::zero(),
 
-                    _indicies: Indicies(),
-                    _vertexBuffer: PlaneVertexBuffer(&display),
-                    _program: Program::from_source(&display,
-                                                    DEFAULT_VERTEX_SHADER,
-                                                    DEFAULT_FRAGMENT_SHADER,
-                                                    None).unwrap(),
-                    _debugSprite: Sprite::new_simple("Assets/collider.png", &display),
-                    _display: display.clone(),
+            _indicies: Indicies(),
+            _vertexBuffer: PlaneVertexBuffer(&display),
+            _program: Program::from_source(&display,
+                                            DEFAULT_VERTEX_SHADER,
+                                            DEFAULT_FRAGMENT_SHADER,
+                                            None).unwrap(),
+            _debugSprite: Sprite::new_simple("Assets/collider.png", &display),
+            _display: display.clone(),
 
-                }
-            )
-        )
+        }
     }
-}
 
-impl Component for Collider
-{
-    fn start(&mut self, 
-        entity: &mut Entity, 
+    fn start(&mut self,
+        entity: &EntityHeader,
         api: Arc<Mutex<GameAPI>>)
     {
         api.lock().unwrap().Collision.Add(entity.ID(), self._data);
         api.lock().unwrap().Collision.UpdateOrigin(entity.ID(), entity.world_position);
     }
 
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn update(&mut self, entity: &EntityHeader, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         api.lock().unwrap().Collision.UpdateOrigin(entity.ID(), entity.world_position);
     }
 
-    fn OnDestroy(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>) 
+    fn OnDestroy(&mut self, entity: &EntityHeader, api: Arc<Mutex<GameAPI>>)
     {
         api.lock().unwrap().Collision.Remove(entity.ID());
     }
-}
 
-impl Renderer for Collider
-{
     /// Draws bounds of collider if debug mode enabled
-    fn render(&mut self, entity: &Entity, frame: &GameFrame, target: &mut Frame)
+    fn render(&mut self, entity: &EntityHeader, frame: &GameFrame, target: &mut Frame)
     {
         if !DEBUG_MODE
         {

@@ -1,22 +1,12 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::{Mutex, Arc};
-use std::vec::Vec;
-use std::fs;    
+use std::fs;
+
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
 
-use crate::Engine::GameAPI::GameAPI;
-use crate::Engine::Audio::sample::*;
-use crate::Engine::Collision::collider::{ECollisionTag, ECollisionType};
-use crate::Engine::GameEntity::Entity;
-use crate::Engine::{Components::*};
-use crate::Engine::Components::RenderComponents::{Renderer2D, Sprite};
-use crate::Engine::Math::*;
-use crate::Engine::Components::AudioSource::AudioPlayer;
+use crate::Entities::Entities;
 
 pub type SceneBuilder
-= fn(name: String, rawScene: String, display: &Display<WindowSurface>) -> Vec<Rc<RefCell<Entity>>>;
+= fn(name: String, rawScene: String, display: &Display<WindowSurface>) -> Entities;
 
 pub const PROPERTY_SEPARATOR: &str = "|";
 
@@ -60,7 +50,7 @@ impl Scene
     }
 
     /// Constructs a list of entities from a scene. 
-    pub fn LoadScene(&self, display: &Display<WindowSurface>) -> Vec<Rc<RefCell<Entity>>>
+    pub fn LoadScene(&self, display: &Display<WindowSurface>) -> Entities
     {
         (self._sceneBuilder)(
             String::from(&self._name),
@@ -74,7 +64,9 @@ impl Scene
 /// how a scene a deserialized.
 pub trait TSceneBuilder
 {
-    fn LoadScene(name: String, rawScene: String, display: &Display<WindowSurface>) -> Vec<Rc<RefCell<Entity>>>;
+    fn LoadScene(name: String, rawScene: String, display: &Display<WindowSurface>) -> Entities;
 }
+
+
 
 

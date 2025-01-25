@@ -5,7 +5,7 @@ use winit::keyboard::KeyCode;
 use winit::keyboard::KeyCode::SuperLeft;
 use crate::Engine::Components::Component;
 use crate::Engine::Frame::GameFrame;
-use crate::Engine::GameEntity::Entity;
+use crate::Engine::GameEntity::TEntity;
 use crate::Engine::Math::Float3;
 use crate::Engine::GameAPI::GameAPI;
 
@@ -103,12 +103,12 @@ impl Camera
 
 impl Component for Camera
 {
-    fn start(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
+    fn start(&mut self, entity: &mut TEntity, api: Arc<Mutex<GameAPI>>)
     {
 
     }
 
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn update(&mut self, entity: &mut TEntity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         self.EyePosition = entity.world_position;
     }
@@ -137,12 +137,12 @@ impl CameraMouseController
 
 impl Component for CameraMouseController
 {
-    fn start(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
+    fn start(&mut self, entity: &mut TEntity, api: Arc<Mutex<GameAPI>>)
     {
 
     }
 
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn update(&mut self, entity: &mut TEntity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         let mousePosition = frame.Input.MousePosition();
         let vectorPosition = Float3::new(-mousePosition.0 as f32 / 300.0, mousePosition.1 as f32 / 300.0, 0.0);

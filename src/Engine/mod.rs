@@ -14,4 +14,6 @@ pub mod Shader;
 
 pub mod Rendering;
 
+pub mod Tile;
+
 const DEBUG_MODE: bool = false;

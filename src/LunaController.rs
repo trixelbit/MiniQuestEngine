@@ -13,7 +13,7 @@ use crate::Engine::Components::Component;
 use crate::Engine::Components::Bullet::Bullet;
 use crate::Engine::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Engine::Frame::GameFrame;
-use crate::Engine::GameEntity::Entity;
+use crate::Engine::GameEntity::TEntity;
 use crate::Engine::Math::{Float3, Ray};
 use crate::Engine::GameAPI::GameAPI;
 
@@ -98,7 +98,7 @@ impl LunaController
         )
     }
 
-    fn animation_update(&self, entity: &mut Entity, state: EPlayerState, direction: EDirection)
+    fn animation_update(&self, entity: &mut TEntity, state: EPlayerState, direction: EDirection)
     {
         let componentOption = entity.get_component::<Renderer2D>(Some(self));
 
@@ -115,12 +115,12 @@ impl LunaController
     }
 
     /// Creates a water ball and fires it in the direction the player is facing.
-    pub fn CreateWaterBall(&mut self, entity: &Entity, api: Arc<Mutex<GameAPI>>, direction: Float3)
+    pub fn CreateWaterBall(&mut self, entity: &TEntity, api: Arc<Mutex<GameAPI>>, direction: Float3)
     {
         let waterEntity =
             Rc::new(
                 RefCell::new(
-                    Entity::Create("Water", entity.world_position)
+                    TEntity::Create("Water", entity.world_position)
                 ));
 
         // update constructors to return Rc RwLock wrapped Components
@@ -159,11 +159,11 @@ impl LunaController
 
 impl Component for LunaController
 {
-    fn start(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
+    fn start(&mut self, entity: &mut TEntity, api: Arc<Mutex<GameAPI>>)
     {
     }
 
-    fn update(&mut self, entity: &mut Entity,  frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn update(&mut self, entity: &mut TEntity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         let leftVector = if frame.Input.IsKeyDown(KeyA) {-1.0f32} else {0.0};
         let rightVector = if frame.Input.IsKeyDown(KeyD) {1.0f32} else {0.0};

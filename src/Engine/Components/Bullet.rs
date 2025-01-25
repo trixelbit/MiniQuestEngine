@@ -1,4 +1,4 @@
-use crate::Engine::GameEntity::Entity;
+use crate::Engine::GameEntity::TEntity;
 use crate::Engine::Components::Component;
 use crate::Engine::Frame::GameFrame;
 use crate::Engine::Math::Float3;
@@ -38,9 +38,9 @@ impl Bullet
 
 impl Component for Bullet
 {
-    fn start(&mut self, 
-        entity: &mut Entity, 
-        api: Arc<Mutex<GameAPI>>)
+    fn start(&mut self,
+             entity: &mut TEntity,
+             api: Arc<Mutex<GameAPI>>)
     {
         // sync runner
         // let mut scheduler = FuturesLocalSchedulerPool::new();
@@ -64,7 +64,7 @@ impl Component for Bullet
             );
     }
 
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn update(&mut self, entity: &mut TEntity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         entity.world_position.add(
             Float3::scale_value(
@@ -73,7 +73,7 @@ impl Component for Bullet
             ));
     }
 
-    fn OnDestroy(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
+    fn OnDestroy(&mut self, entity: &mut TEntity, api: Arc<Mutex<GameAPI>>)
     {
         println!("OnDestroy called for entity.");
     }

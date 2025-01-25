@@ -15,7 +15,7 @@ use winit::event::{ElementState, MouseScrollDelta, TouchPhase};
 
 use crate::Engine::Frame::GameFrame;
 use crate::Engine::Frame::Input::Input;
-use crate::Engine::GameEntity::Entity;
+use crate::Engine::GameEntity::TEntity;
 use crate::Engine::Components::{self, *};
 use crate::Engine::Components::RenderComponents::{Renderer, Renderer2D};
 use crate::Engine::Math::*;
@@ -74,7 +74,7 @@ impl Game
         let cameraEnt =
             Rc::new(
                 RefCell::new(
-                    Entity::Create(
+                    TEntity::Create(
                         "Camera",
                         Float3::new(0.0, 0.0, 1.0)
                     )

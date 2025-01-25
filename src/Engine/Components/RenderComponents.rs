@@ -1,20 +1,18 @@
-use std::rc::Rc;
-use std::sync::{Arc, RwLock, Mutex};
+use std::sync::{Arc, Mutex};
+use std::time::Instant;
+
 use glium::{Display, Frame, Program, Surface, Texture2d, VertexBuffer};
 use glium::glutin::surface::WindowSurface;
 use glium::index::NoIndices;
 use glium::texture::RawImage2d;
 use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
-use crate::Engine::Components::Component;
-use crate::Engine::Frame::GameFrame;
-use crate::Engine::GameEntity::Entity;
+
 use crate::Engine::Components::RenderUtilities::{ImageBufferFromPath, Indicies, PlaneVertexBuffer, Vertex};
+use crate::Engine::Frame::GameFrame;
 use crate::Engine::GameAPI::GameAPI;
+use crate::Engine::GameEntity::EntityHeader;
 use crate::Engine::Math::Float3;
 use crate::Engine::Shader::{DEFAULT_FRAGMENT, DEFAULT_VERTEX};
-use std::time::{Instant, Duration};
-
-
 
 pub struct LightSource
 {
@@ -22,13 +20,13 @@ pub struct LightSource
     pub Intensity: f32
 }
 
-impl Component for LightSource
+impl LightSource
 {
-    fn start(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
+    pub fn start(&mut self, api: Arc<Mutex<GameAPI>>)
     {
     }
 
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    pub fn update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
     }
 }
@@ -66,30 +64,26 @@ impl Renderer2D
         display : &Display<WindowSurface>, 
         initialSprite: Arc<Sprite>,
         isLit: bool
-        ) -> Rc<RwLock<Self>>
+        ) -> Self
     {
         let vertexBuffer = PlaneVertexBuffer(&display);
 
-        Rc::new(
-            RwLock::new(
-                Self
-                {
-                    Display: display.clone(),
-                    Sprite: initialSprite,
-                    VertexBuffer: vertexBuffer,
-                    Indices: Indicies(),
-                    Program: Program::from_source(display, DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER, None).unwrap(),
-                    _fragmentShader: None,
-                    _vertexShader: None,
+        Self
+        {
+            Display: display.clone(),
+            Sprite: initialSprite,
+            VertexBuffer: vertexBuffer,
+            Indices: Indicies(),
+            Program: Program::from_source(display, DEFAULT_VERTEX_SHADER, DEFAULT_FRAGMENT_SHADER, None).unwrap(),
+            _fragmentShader: None,
+            _vertexShader: None,
 
-                    _currentIndex: 0,
-                    _loops: true,
-                    _completed: false,
-                    _playTime: Instant::now(),
-                    _isLit: isLit,
-                }
-            )
-        )
+            _currentIndex: 0,
+            _loops: true,
+            _completed: false,
+            _playTime: Instant::now(),
+            _isLit: isLit,
+        }
     }
 
     pub fn SetSprite1Loop(&mut self, newSprite: Arc<Sprite>)
@@ -129,22 +123,14 @@ impl Renderer2D
     {
         self._isLit = isLit;
     }
-}
 
-pub trait Renderer
-{
-    fn render(&mut self, entity: &Entity, frame: &GameFrame, target: &mut Frame);
-}
-
-impl Renderer for Renderer2D
-{
-    fn render(&mut self, entity: &Entity, frame: &GameFrame, target: &mut Frame)
+    pub fn render(&mut self, entity: &EntityHeader, frame: &GameFrame, target: &mut Frame)
     {
         
         // calculate sprite index
         let elapsedTime = self._playTime.elapsed().as_millis() as f32;
 
-        if(self._loops || !self._completed)
+        if self._loops || !self._completed
         {
             self._currentIndex 
                 = 
@@ -155,8 +141,8 @@ impl Renderer for Renderer2D
                 ) 
                 as i32;
 
-            if(!self._loops && 
-                (self._currentIndex == (self.Sprite.FrameCount - 1) as i32))
+            if !self._loops && 
+                (self._currentIndex == (self.Sprite.FrameCount - 1) as i32)
             {
                 self._completed = true;
             }
@@ -258,12 +244,8 @@ impl Renderer for Renderer2D
 
         ).unwrap();
     }
-}
 
-
-impl Component for Renderer2D
-{
-    fn start(&mut self, entity: &mut Entity, api: Arc<Mutex<GameAPI>>)
+    fn start(&mut self, entity: &EntityHeader, api: Arc<Mutex<GameAPI>>)
     {
         let vertexBuffer = PlaneVertexBuffer(&self.Display);
 
@@ -301,11 +283,9 @@ impl Component for Renderer2D
         self._vertexShader = Some(loadedVertexShader);
 
     }
-
-    fn update(&mut self, entity: &mut Entity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
-    {
-    }
 }
+
+
 
 pub struct Sprite
 {

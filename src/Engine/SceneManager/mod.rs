@@ -3,7 +3,7 @@ use glium::Display;
 use uuid::Uuid;
 
 use crate::Engine::SceneBuilder::{Scene, SceneBuilder};
-use crate::Engine::GameEntity::Entity;
+use crate::Engine::GameEntity::TEntity;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -16,7 +16,7 @@ pub struct SceneManager
     /// All indices correspond to an entity for the following Vec fields.
 
     /// Entities that exist in the game currently.
-    pub Entities: Vec<Rc<RefCell<Entity>>>,
+    pub Entities: Vec<Rc<RefCell<TEntity>>>,
 
     /// The IDs of all entities currently in game.
     /// Created to avoid borrow_mut reference from entities to get their IDs
@@ -77,7 +77,7 @@ impl SceneManager
     }
 
     /// Adds a new Entity to active scene.
-    pub fn AddEntity(&mut self, newEntity: Rc<RefCell<Entity>>)
+    pub fn AddEntity(&mut self, newEntity: Rc<RefCell<TEntity>>)
     {
         self.Entities.push(newEntity.clone());
         self._deletionTable.push(false);

@@ -2,7 +2,8 @@
 mod Engine;
 mod GrapplerSceneBuilder;
 mod LunaController;
-mod Grappler;
+pub mod Boxer;
+mod Entities;
 
 #[macro_use]
 extern crate glium;

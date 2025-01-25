@@ -62,7 +62,7 @@ void main()
   vec2 pixel_size = vec2(pixel_size_x, pixel_size_y);
 
 
-float transparent = 0.01;
+  float transparent = 0.01;
   if(color.a < transparent)
   {
     discard;
@@ -70,29 +70,29 @@ float transparent = 0.01;
 
 /*  SPRITE OUTLINE SHADER
 
- float transparent = 0.01;
 
-  if(color.a < transparent)
-  {
-    if( 
-        (
-        texture(tex, samplePoint + (vec2(1,0) * pixel_size)).a > transparent ||
-        texture(tex, samplePoint + (vec2(-1,0) * pixel_size)).a > transparent ||
-        texture(tex, samplePoint + (vec2(0,1) * pixel_size)).a > transparent ||
-        texture(tex, samplePoint + (vec2(0,-1) * pixel_size)).a > transparent 
-        )
 
-    )
-    {
-      color = vec4(0,0,0,0);
-    
-    }
-    else 
-    {
-        discard;
-    }
-
-  }
+//  if(color.a < transparent)
+//  {
+//    if( 
+//        (
+//        texture(tex, samplePoint + (vec2(1,0) * pixel_size)).a > transparent ||
+//        texture(tex, samplePoint + (vec2(-1,0) * pixel_size)).a > transparent ||
+//        texture(tex, samplePoint + (vec2(0,1) * pixel_size)).a > transparent ||
+//        texture(tex, samplePoint + (vec2(0,-1) * pixel_size)).a > transparent 
+//        )
+//
+//    )
+//    {
+//      color = vec4(0,0,0,0);
+//    
+//    }
+//    else 
+//    {
+//        discard;
+//    }
+//
+//  }
 */
 
   if(!is_lit)
@@ -157,7 +157,6 @@ float transparent = 0.01;
   }
 
   color = max(color, vec4(0,0,0,0));
-
 
 }
 
