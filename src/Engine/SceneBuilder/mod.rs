@@ -14,7 +14,11 @@ pub const PROPERTY_SEPARATOR: &str = "|";
 /// game specific constructions methods for deserializing scene data.
 pub struct Scene
 {
+    // The alias name of the scene
     _name: String,
+
+    // Name of scene file.
+    _fileName: String,
     _rawSceneContents: String,
     _sceneBuilder: SceneBuilder
 }
@@ -56,6 +60,11 @@ impl Scene
             String::from(&self._name),
             String::from(&self._rawSceneContents),
             &display.clone())
+    }
+
+    pub fn SaveScene(&self, entities: &Entities)
+    {
+
     }
 }
 

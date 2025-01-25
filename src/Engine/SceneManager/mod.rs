@@ -5,30 +5,31 @@ use uuid::Uuid;
 use crate::Engine::SceneBuilder::{Scene, SceneBuilder};
 use crate::Engine::GameEntity::TEntity;
 
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use crate::Engine::GameAPI::GameAPI;
+use crate::Entities::{Entities, EEntities};
 
 
+/// Contains the active scene state.
+/// And manages the loading and saving of scenes
+/// Also contains all scenes in the Scene folder and keeps them ready for loading.
 pub struct SceneManager
 {
-    /// All indices correspond to an entity for the following Vec fields.
-
-    /// Entities that exist in the game currently.
-    pub Entities: Vec<Rc<RefCell<TEntity>>>,
+    /// Entities that actively exist in the game currently.
+    pub Entities: Entities,
 
     /// The IDs of all entities currently in game.
     /// Created to avoid borrow_mut reference from entities to get their IDs
     /// when marking them for deletion.
     _idTable: Vec<Uuid>,
 
-    /// All entitys marked for deletion (true).
-    _deletionTable: Vec<bool>,
+    /// All entitys marked for deletion.
+    _deletionSet: Vec<Uuid>,
 
     /// All scenes available for loading into active scene.
     _scenes : Vec<Scene>,
 
+    /// Game Specific builder application
     _sceneBuilder : SceneBuilder
 }
 
@@ -77,9 +78,16 @@ impl SceneManager
     }
 
     /// Adds a new Entity to active scene.
-    pub fn AddEntity(&mut self, newEntity: Rc<RefCell<TEntity>>)
+    pub fn AddEntity(&mut self, newEntity: EEntities)
     {
-        self.Entities.push(newEntity.clone());
+        match newEntity
+        {
+            EEntities::Boxer(e) => self.Entities.Boxer.push(e), 
+            EEntities::Tile(e) => self.Entities.Tiles.push(e),
+            EEntities::AudioPlayer(e) => self.Entities.AudioPlayers.push(e),
+            e => {!panic!("Unsupported entity type {}", e);}
+        }
+
         self._deletionTable.push(false);
 
         // this may be unsafe for use in separate threads
@@ -127,7 +135,6 @@ impl SceneManager
             self.Entities.remove(deadIndicies[i]);
             self._deletionTable.remove(deadIndicies[i]);
             self._idTable.remove(deadIndicies[i]);
-
         }
     }
 }

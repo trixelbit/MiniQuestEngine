@@ -7,6 +7,14 @@ use crate::Engine::GameAPI::GameAPI;
 use crate::Engine::GameEntity::TEntity;
 use crate::Engine::Tile::Tile;
 
+
+pub enum EEntities 
+{
+    Boxer(Boxer),
+    Tiles(Tile),
+    AudioPlayer(AudioPlayer)
+}
+
 /// Collection of all entities that can exist in application
 pub struct Entities
 {

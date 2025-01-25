@@ -1,13 +1,11 @@
 use std::sync::{Mutex, Arc};
 use cgmath::{Matrix4, perspective, Vector3, ortho};
 use winit::event::MouseButton;
-use winit::keyboard::KeyCode;
-use winit::keyboard::KeyCode::SuperLeft;
-use crate::Engine::Components::Component;
 use crate::Engine::Frame::GameFrame;
-use crate::Engine::GameEntity::TEntity;
+use crate::Engine::GameEntity::{EntityHeader, TEntity};
 use crate::Engine::Math::Float3;
 use crate::Engine::GameAPI::GameAPI;
+
 
 pub enum EProjectionType 
 {
@@ -17,6 +15,7 @@ pub enum EProjectionType
 
 pub struct Camera
 {
+    pub Header: EntityHeader,
     pub EyePosition: Float3,
     pub FocalDirection: Float3,
     pub UpDirection : Float3,
@@ -101,17 +100,19 @@ impl Camera
 
 }
 
-impl Component for Camera
+impl TEntity for Camera
 {
-    fn start(&mut self, entity: &mut TEntity, api: Arc<Mutex<GameAPI>>)
+    jfn start(&mut self, entity: &mut EntityHeader, api: Arc<Mutex<GameAPI>>)
     {
 
     }
 
-    fn update(&mut self, entity: &mut TEntity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn update(&mut self, entity: &mut EntityHeader, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         self.EyePosition = entity.world_position;
     }
+
+
 }
 
 
@@ -133,14 +134,7 @@ impl CameraMouseController
             _delta: Float3::zero()
         }
     }
-}
 
-impl Component for CameraMouseController
-{
-    fn start(&mut self, entity: &mut TEntity, api: Arc<Mutex<GameAPI>>)
-    {
-
-    }
 
     fn update(&mut self, entity: &mut TEntity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
