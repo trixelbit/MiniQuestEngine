@@ -5,7 +5,9 @@ use glium::glutin::surface::WindowSurface;
 
 use crate::Entities::Entities;
 
-pub type SceneBuilder
+/// Function pointer type so a game specific builder with knowledge os all
+/// types can build its entities.
+pub type SceneBuilderFunction
 = fn(name: String, rawScene: String, display: &Display<WindowSurface>) -> Entities;
 
 pub const PROPERTY_SEPARATOR: &str = "|";
@@ -20,7 +22,7 @@ pub struct Scene
     // Name of scene file.
     _fileName: String,
     _rawSceneContents: String,
-    _sceneBuilder: SceneBuilder
+    _sceneBuilder: SceneBuilderFunction
 }
 
 /// Do we load this directly to game state? 
@@ -32,7 +34,7 @@ impl Scene
     }
 
     pub fn new(alias: &str, scenePath : &str,
-               sceneBuilder: SceneBuilder
+               sceneBuilder: SceneBuilderFunction
     ) -> Self
     {
         // TODO: Add better error messages.
@@ -56,10 +58,11 @@ impl Scene
     /// Constructs a list of entities from a scene. 
     pub fn LoadScene(&self, display: &Display<WindowSurface>) -> Entities
     {
-        (self._sceneBuilder)(
-            String::from(&self._name),
-            String::from(&self._rawSceneContents),
-            &display.clone())
+        (self._sceneBuilder)
+            (
+                String::from(&self._name),
+                String::from(&self._rawSceneContents),
+                &display.clone())
     }
 
     pub fn SaveScene(&self, entities: &Entities)

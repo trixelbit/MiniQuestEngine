@@ -1,6 +1,7 @@
+use std::fmt::{Debug, Formatter};
 use std::sync::{Arc, Mutex};
 
-use glium::Display;
+use glium::{Display, Frame};
 use glium::glutin::surface::WindowSurface;
 use uuid::Uuid;
 
@@ -38,6 +39,13 @@ impl Tile
     }
 }
 
+impl Debug for Tile {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "Tile")
+    }
+}
+
 impl TEntity for Tile
 {
     fn HasStartBeenCalled(&self) -> bool
@@ -50,15 +58,20 @@ impl TEntity for Tile
         self.Header.ID()
     }
 
-    fn start(&mut self, api: Arc<Mutex<GameAPI>>)
+    fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
     {
     }
 
-    fn update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
     }
 
     fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
     {
+    }
+
+    fn Render(&self, frame: &GameFrame, target: &mut Frame)
+    {
+        self._renderer.render(&self.Header, frame, target);
     }
 }

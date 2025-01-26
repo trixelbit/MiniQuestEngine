@@ -1,5 +1,6 @@
 use std::sync::{Mutex, Arc};
 use cgmath::{Matrix4, perspective, Vector3, ortho};
+use uuid::Uuid;
 use winit::event::MouseButton;
 use crate::Engine::Frame::GameFrame;
 use crate::Engine::GameEntity::{EntityHeader, TEntity};
@@ -102,17 +103,29 @@ impl Camera
 
 impl TEntity for Camera
 {
-    jfn start(&mut self, entity: &mut EntityHeader, api: Arc<Mutex<GameAPI>>)
-    {
-
+    fn HasStartBeenCalled(&self) -> bool {
+        todo!()
     }
 
-    fn update(&mut self, entity: &mut EntityHeader, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn ID(&self) -> Uuid
+    {
+        todo!()
+    }
+
+    fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
+    {
+    }
+
+
+    fn Update(&mut self, entity: &mut EntityHeader, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         self.EyePosition = entity.world_position;
     }
 
-
+    fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
+    {
+        todo!()
+    }
 }
 
 

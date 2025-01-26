@@ -1,14 +1,9 @@
-use glium::glutin::surface::WindowSurface;
 use glium::Display;
+use glium::glutin::surface::WindowSurface;
 use uuid::Uuid;
 
-use crate::Engine::SceneBuilder::{Scene, SceneBuilder};
-use crate::Engine::GameEntity::TEntity;
-
-use std::sync::{Arc, Mutex};
-use crate::Engine::GameAPI::GameAPI;
-use crate::Entities::{Entities, EEntities};
-
+use crate::Engine::SceneBuilder::{Scene, SceneBuilderFunction};
+use crate::Entities::{EEntities, Entities};
 
 /// Contains the active scene state.
 /// And manages the loading and saving of scenes
@@ -30,19 +25,19 @@ pub struct SceneManager
     _scenes : Vec<Scene>,
 
     /// Game Specific builder application
-    _sceneBuilder : SceneBuilder
+    _sceneBuilder : SceneBuilderFunction
 }
 
 
 impl SceneManager
 {
-    pub fn Create(sceneBuilderMethod: SceneBuilder) -> Self
+    pub fn Create(sceneBuilderMethod: SceneBuilderFunction) -> Self
     {
         Self
         {
-            Entities: Vec::new(),
+            Entities: Entities::Create(),
             _idTable: Vec::new(),
-            _deletionTable: Vec::new(),
+            _deletionSet: Vec::new(),
             _scenes: Vec::new(),
             _sceneBuilder: sceneBuilderMethod
         }
@@ -51,7 +46,7 @@ impl SceneManager
     /// Adds a scene that can be loaded by the game at runtime.
     ///
     /// alias - A name that to associate with the scene. 
-    ///     Avoideds needing to know the scene path name.
+    ///     Avoids needing to know the scene path name.
     ///
     /// path - Path to scene file.
     pub fn AddScene(&mut self, alias: &str, path: &str)
@@ -83,59 +78,16 @@ impl SceneManager
         match newEntity
         {
             EEntities::Boxer(e) => self.Entities.Boxer.push(e), 
-            EEntities::Tile(e) => self.Entities.Tiles.push(e),
-            EEntities::AudioPlayer(e) => self.Entities.AudioPlayers.push(e),
-            e => {!panic!("Unsupported entity type {}", e);}
+            EEntities::Tiles(e) => self.Entities.Tiles.push(e),
+            EEntities::AudioPlayer(e) => self.Entities.AudioSources.push(e),
+            e => !panic!("Unsupported entity type {:?}", e)
         }
-
-        self._deletionTable.push(false);
-
-        // this may be unsafe for use in separate threads
-        self._idTable.push(newEntity.borrow_mut().ID())
     }
 
     /// Marks an entity for deletion next update cycle.
     pub fn DestroyEntity(&mut self, entityID: Uuid)
     {
-        let mut index : Option<usize> = None;
-
-        for i in 0..self._idTable.len()
-        {
-            if self._idTable[i].eq(&entityID)
-            {
-                index = Some(i);
-                break;
-            }
-        }
-
-        if index.is_some()
-        {
-            self._deletionTable[index.unwrap()] = true;
-        }
-    }
-
-    /// Removes all entities that are marked for deletion.
-    /// Also calls OnDestroy() on entities before deletion.
-    /// Will be called before the start of the next frame.
-    pub fn PruneDeadObject(&mut self, api: Arc<Mutex<GameAPI>>)
-    {
-        let mut deadIndicies = Vec::new();
-
-        for i in 0..self._deletionTable.len()
-        {
-            if self._deletionTable[i]
-            {
-                deadIndicies.push(i);
-            }
-        }
-
-        for i in self._deletionTable.len() - 1..0
-        {
-            self.Entities[deadIndicies[i]].borrow_mut().OnDestroy(api.clone());
-            self.Entities.remove(deadIndicies[i]);
-            self._deletionTable.remove(deadIndicies[i]);
-            self._idTable.remove(deadIndicies[i]);
-        }
+        self.Entities.MarkEntityDead(entityID);
     }
 }
 

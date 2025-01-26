@@ -1,5 +1,7 @@
+use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 use std::sync::Mutex;
+use glium::Frame;
 use uuid::Uuid;
 
 use crate::Engine::GameAPI::GameAPI;
@@ -33,6 +35,13 @@ impl AudioPlayer
     }
 }
 
+impl Debug for AudioPlayer {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "Audio Player")
+    }
+}
+
 impl TEntity for AudioPlayer
 {
     fn HasStartBeenCalled(&self) -> bool
@@ -45,17 +54,21 @@ impl TEntity for AudioPlayer
         self.Header.ID()
     }
 
-    fn start(&mut self, api: Arc<Mutex<GameAPI>>)
+    fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
     {
         api.lock().unwrap().Audio.PlayAudio(&mut self._sample);
     }
 
-    fn update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
 
     }
 
     fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
+    {
+    }
+
+    fn Render(&self, frame: &GameFrame, target: &mut Frame)
     {
     }
 }

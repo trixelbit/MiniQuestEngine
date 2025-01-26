@@ -1,4 +1,6 @@
+use std::fmt::{Debug, Formatter};
 use std::sync::{Mutex, Arc};
+use glium::Frame;
 use uuid::Uuid;
 use crate::Engine::Frame::GameFrame;
 use crate::Engine::Math::Float3;
@@ -39,18 +41,17 @@ impl EntityHeader
     }
 }
 
-
-pub trait TEntity
+pub trait TEntity : Debug
 {
     fn HasStartBeenCalled(&self) -> bool;
 
     fn ID(&self) -> Uuid;
 
-    fn start(
+    fn Start(
         &mut self, 
         api: Arc<Mutex<GameAPI>>);
 
-    fn update(
+    fn Update(
         &mut self, 
         frame: &GameFrame, 
         api: Arc<Mutex<GameAPI>>);
@@ -58,6 +59,13 @@ pub trait TEntity
     fn OnDestroy(
         &mut self, 
         api: Arc<Mutex<GameAPI>>);
+
+    fn Render(&self, frame: &GameFrame, target: &mut Frame);
+
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "Entity")
+    }
 }
 
 

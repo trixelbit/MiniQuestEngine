@@ -17,10 +17,9 @@ use crate::Engine::Frame::GameFrame;
 use crate::Engine::Frame::Input::Input;
 use crate::Engine::GameEntity::TEntity;
 use crate::Engine::Components::{self, *};
-use crate::Engine::Components::RenderComponents::{Renderer, Renderer2D};
 use crate::Engine::Math::*;
 use crate::Engine::GameAPI::GameAPI;
-use crate::Engine::SceneBuilder::SceneBuilder;
+use crate::Engine::SceneBuilder::SceneBuilderFunction;
 
 /// The Game Application that is running currently.
 pub struct Game    
@@ -32,7 +31,7 @@ pub struct Game
 impl Game
 {
     /// Constructs game and performs any tasks before actual application window opens.
-    pub fn New(sceneBuilderMethod: SceneBuilder) -> Self
+    pub fn New(sceneBuilderMethod: SceneBuilderFunction) -> Self
     {
         Self
         {
@@ -188,87 +187,20 @@ impl Game
 
         let timeLastFrame = dateTimeLastFrame.clone();
 
-        let list = &api.lock().unwrap().SceneManager.Entities.clone();
-        for entityMutex in list
-        {
-            let frame =
-                Rc::new(
-                    GameFrame::new(
-                        input.GetStateCopy(),
-                        Local::now() - timeStart,
-                        Local::now() - timeLastFrame,
-                        camera.read().unwrap().ViewMatrix(),
-                        camera.read().unwrap().PerspectiveMatrix()
-                    )
-                );
+        let frame =
+            Rc::new(
+                GameFrame::new(
+                    input.GetStateCopy(),
+                    Local::now() - timeStart,
+                    Local::now() - timeLastFrame,
+                    camera.read().unwrap().ViewMatrix(),
+                    camera.read().unwrap().PerspectiveMatrix()
+                )
+            );
 
-            let mut entity = entityMutex.borrow_mut();
-
-            // Update Collider Components First
-            let colliderOption =
-                entity.get_component::<Collider::Collider>(None);
-
-            match colliderOption
-            {
-                None => {}
-                Some(_) =>
-                    {
-                        colliderOption.unwrap().write().unwrap().update(&mut entity, &frame, api.clone());
-                    }
-            }
-
-            // Entity Start and Update
-            if !entity.HasStartBeenCalled()
-            {
-                entity.start(api.clone());
-            }
-
-            entity.update(&frame, api.clone());
-
-
-            // Render
-            let renderOption =
-                entity.get_component::<Renderer2D>(None);
-
-            match renderOption
-            {
-                None => {}
-                Some(_) =>
-                    {
-                        let now = SystemTime::now();
-                        renderOption
-                                .unwrap()
-                                .write()
-                                .unwrap()
-                                .render(&entity, &frame, &mut target);
-                        renderTime = renderTime + now.elapsed().unwrap().as_millis();
-                    }
-            }
-
-            // Render Debug
-            let colliderOption =
-                entity.get_component::<Collider::Collider>(None);
-
-            match colliderOption
-            {
-                None => {}
-                Some(_) =>
-                    {
-
-                        let now = SystemTime::now();
-                        colliderOption
-                                    .unwrap()
-                                    .write()
-                                    .unwrap()
-                                    .render(&entity, &frame, &mut target);
-                        renderTime = renderTime + now.elapsed().unwrap().as_millis();
-                    }
-            }
-
-
-            // Destroy dead objects
-            api.lock().unwrap().SceneManager.PruneDeadObject(api.clone());
-        }
+        &api.lock().unwrap().SceneManager.Entities.Update(&frame, api.clone());
+        api.lock().unwrap().SceneManager.PruneDeadObject(api.clone());
+        api.lock().unwrap().SceneManager.Entities.Render(&frame, &mut target);
 
 
         input.ResetPressedAndReleased();

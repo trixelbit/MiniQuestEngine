@@ -24,10 +24,12 @@ impl LightSource
 {
     pub fn start(&mut self, api: Arc<Mutex<GameAPI>>)
     {
+
     }
 
     pub fn update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
+
     }
 }
 
@@ -36,7 +38,6 @@ impl LightSource
 /// Draws a 2D sprite to screen.
 pub struct Renderer2D
 {
-
     pub VertexBuffer: VertexBuffer<Vertex>,
     pub Indices: NoIndices,
     pub Program: Program,
@@ -281,11 +282,8 @@ impl Renderer2D
         self.Program = program;
         self._fragmentShader = Some(loadedFragmentShader);
         self._vertexShader = Some(loadedVertexShader);
-
     }
 }
-
-
 
 pub struct Sprite
 {

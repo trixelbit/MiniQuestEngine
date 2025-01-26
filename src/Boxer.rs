@@ -1,7 +1,8 @@
+use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 use std::sync::Mutex;
 
-use glium::Display;
+use glium::{Display, Frame};
 use glium::glutin::surface::WindowSurface;
 use uuid::Uuid;
 use winit::keyboard::KeyCode::*;
@@ -157,7 +158,7 @@ impl Boxer
             }
         }
 
-        if(state == EPlayerState::punch1 || state == EPlayerState::punch2)
+        if state == EPlayerState::punch1 || state == EPlayerState::punch2
         {
 
             let index = Self::IndexFromState(state, direction);
@@ -188,9 +189,14 @@ impl Boxer
     {
 
     }
-
 }
 
+impl Debug for Boxer {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "Boxer {}", self.Header.Name)
+    }
+}
 
 impl TEntity for Boxer
 {
@@ -204,11 +210,11 @@ impl TEntity for Boxer
         self.Header.ID().clone()
     }
 
-    fn start(&mut self, api: Arc<Mutex<GameAPI>>)
+    fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
     {
     }
 
-    fn update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         let entity = &mut self.Header;
         let oldDirection = self._direction;
@@ -235,8 +241,6 @@ impl TEntity for Boxer
         {
             damping = 0.05;
         }
-
-
 
         let isGrounded = 
             api.clone().lock().unwrap().Collision.IsThereSolidCollisionAt(
@@ -387,15 +391,6 @@ impl TEntity for Boxer
             }
         }
 
-
-        /*
-        let isAttackDone = 
-            (self._state == EPlayerState::punch1 || 
-            self._state != EPlayerState::punch2) &&
-            self.
-                */
-
-
         if frame.Input.IsKeyPressed(KeyU) && !self._isAttacking
         {
             self._state = EPlayerState::punch1;
@@ -427,6 +422,11 @@ impl TEntity for Boxer
     fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
     {
 
+    }
+
+    fn Render(&self, frame: &GameFrame, target: &mut Frame)
+    {
+        self._renderer2d.render(&self.Header, frame, target);
     }
 }
 

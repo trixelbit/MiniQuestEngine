@@ -192,6 +192,6 @@ impl GCSBSceneBuilder
                 ETargetTrack::Music
             );
 
-        entities.AudioPlayers.push(audioSource);
+        entities.AudioSources.push(audioSource);
     }
 }

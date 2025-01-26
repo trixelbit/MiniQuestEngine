@@ -3,7 +3,7 @@ use crate::Engine::GameState::GameState;
 use crate::Engine::MetaInfo::MetaInfo;
 use crate::Engine::Audio::AudioModule;
 use crate::Engine::Collision::CollisionModule;
-use crate::Engine::SceneBuilder::SceneBuilder;
+use crate::Engine::SceneBuilder::SceneBuilderFunction;
 use crate::Engine::Shader::ShaderModule;
 
 /// # Description
@@ -23,7 +23,7 @@ pub struct GameAPI
 
 impl GameAPI
 {
-    pub fn Create(sceneBuilderMethod: SceneBuilder) -> Self
+    pub fn Create(sceneBuilderMethod: SceneBuilderFunction) -> Self
     {
         Self
         {
