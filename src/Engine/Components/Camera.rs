@@ -1,14 +1,17 @@
-use std::sync::{Mutex, Arc};
-use cgmath::{Matrix4, perspective, Vector3, ortho};
+use std::fmt::{Debug, Formatter};
+use std::sync::{Arc, Mutex};
+
+use cgmath::{Matrix4, ortho, perspective};
+use glium::Frame;
 use uuid::Uuid;
 use winit::event::MouseButton;
+
 use crate::Engine::Frame::GameFrame;
+use crate::Engine::GameAPI::GameAPI;
 use crate::Engine::GameEntity::{EntityHeader, TEntity};
 use crate::Engine::Math::Float3;
-use crate::Engine::GameAPI::GameAPI;
 
-
-pub enum EProjectionType 
+pub enum EProjectionType
 {
     Perspective,
     Orthographic
@@ -17,25 +20,27 @@ pub enum EProjectionType
 pub struct Camera
 {
     pub Header: EntityHeader,
-    pub EyePosition: Float3,
     pub FocalDirection: Float3,
     pub UpDirection : Float3,
     pub FieldOfView : f32,
-    pub Projection : EProjectionType
+    pub Projection : EProjectionType,
+
+    _editorController : EditorCameraController
 
 }
 
 impl Camera
 {
-    pub fn New(fov: f32) -> Self
+    pub fn New(fov: f32, position: Float3) -> Self
     {
         Self
         {
-            EyePosition: Float3::zero(),
+            Header: EntityHeader::Create("Camera", position),
             FocalDirection: Float3::new(0.0, 0.0, 1.0),
             UpDirection: Float3::up(),
             FieldOfView: fov,
-            Projection: EProjectionType::Perspective
+            Projection: EProjectionType::Perspective,
+            _editorController : EditorCameraController::New()
         }
     }
 
@@ -54,41 +59,27 @@ impl Camera
             EProjectionType::Perspective =>
                 {
                     perspective(cgmath::Deg(self.FieldOfView), 1.0, 0.1, 100.0)
-
                 }
         }
     }
 
     pub fn ViewMatrix(&self) -> Matrix4<f32>
     {
+        let x = self.Header.WorldPosition.x();
+        let y = self.Header.WorldPosition.y();
+        let z = self.Header.WorldPosition.z();
+
         return Matrix4::from([
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
             [0.0, 0.0, 1.0, 0.0],
-            [self.EyePosition.x(), -self.EyePosition.y(), -self.EyePosition.z(), 1.0]
+            [x, -y, -z, 1.0]
         ]);
-        return Matrix4::look_at_lh(
-            self.EyePosition.ToCGPoint(),
-            (self.EyePosition + self.FocalDirection).ToCGPoint(),
-            self.UpDirection.ToCGVector()
-        );
-
-        let a =
-        cgmath::Matrix4::look_at_lh(
-            self.EyePosition.ToCGPoint(),
-            self.FocalDirection.clone().add(self.EyePosition).ToCGPoint(),
-            self.UpDirection.ToCGVector()
-        );
-
-        let b=
-        perspective(cgmath::Deg(self.FieldOfView), 1.0, 0.1, 100.0);
-
-        return a * b
     }
 
     pub fn ScaleMatrix(&self) -> Matrix4<f32>
     {
-        let scale = self.EyePosition.z() / 100.0;
+        let scale = self.Header.WorldPosition.z() / 100.0;
         return Matrix4::from_scale(scale);
         return Matrix4::from([
             [scale, 1.0, 1.0, 1.0],
@@ -101,42 +92,55 @@ impl Camera
 
 }
 
+impl Debug for Camera {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "Camera")
+    }
+}
+
 impl TEntity for Camera
 {
-    fn HasStartBeenCalled(&self) -> bool {
-        todo!()
+    fn HasStartBeenCalled(&self) -> bool
+    {
+        self.Header.HasStartBeenCalled()
     }
 
     fn ID(&self) -> Uuid
     {
-        todo!()
+        self.Header.ID()
     }
 
     fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
     {
+
     }
 
-
-    fn Update(&mut self, entity: &mut EntityHeader, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
-        self.EyePosition = entity.world_position;
+        self._editorController.Update(&mut self.Header, frame, api);
     }
 
     fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
     {
-        todo!()
+    }
+
+    fn Render(&mut self, frame: &GameFrame, target: &mut Frame)
+    {
+
     }
 }
 
 
-pub struct CameraMouseController
+/// Camera controller module that is used in edit mode.
+pub struct EditorCameraController
 {
     _initialWorldPosition : Float3,
     _initialMousePosition: Float3,
     _delta: Float3
 }
 
-impl CameraMouseController
+impl EditorCameraController
 {
     pub fn New() -> Self
     {
@@ -149,8 +153,10 @@ impl CameraMouseController
     }
 
 
-    fn update(&mut self, entity: &mut TEntity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn Update(&mut self, entity: &mut EntityHeader, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
+        //TODO If in editor mode, allow controls
+
         let mousePosition = frame.Input.MousePosition();
         let vectorPosition = Float3::new(-mousePosition.0 as f32 / 300.0, mousePosition.1 as f32 / 300.0, 0.0);
 
@@ -158,22 +164,19 @@ impl CameraMouseController
         {
             // cache initial position
             self._initialMousePosition = vectorPosition;
-            self._initialWorldPosition = entity.world_position;
+            self._initialWorldPosition = entity.WorldPosition;
         }
 
         if frame.Input.IsMouseButtonDown(MouseButton::Middle)
         {
             // calculate delta position
             self._delta = vectorPosition - self._initialMousePosition;
-            entity.world_position = self._initialWorldPosition + self._delta;
+            entity.WorldPosition = self._initialWorldPosition + self._delta;
         }
 
         let scroll = frame.Input.MouseWheelLineDelta();
         let zAdd = -scroll.1 / 10.0;
-        entity.world_position = entity.world_position + Float3::new(0.0, 0.0, zAdd as f32);
-        
-        //println!("Scroll Value: x:{} y:{}", scroll.0, scroll.1);
-        //println!("Current EntityPosition: x{} y{} z{}", entity.world_position.x(), entity.world_position.y(), entity.world_position.z())
+        entity.WorldPosition = entity.WorldPosition + Float3::new(0.0, 0.0, zAdd as f32);
     }
 }
 

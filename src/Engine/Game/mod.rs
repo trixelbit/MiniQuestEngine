@@ -64,46 +64,10 @@ impl Game
         // Build starting scene.
         self.API.lock().unwrap().SceneManager.LoadScene("Level1", &display);
 
-        let camera = Rc::new(
-            RwLock::new(
-                Components::Camera::Camera::New(30.0),
-            )
-        );
-
-        let cameraEnt =
-            Rc::new(
-                RefCell::new(
-                    TEntity::Create(
-                        "Camera",
-                        Float3::new(0.0, 0.0, 1.0)
-                    )
-                )
-            );
-
-        let cameraController =
-            Rc::new(
-                RwLock::new(
-                    Components::Camera::CameraMouseController::New()));
-
-        cameraEnt.borrow_mut().add_component(camera.clone());
-        cameraEnt.borrow_mut().add_component(cameraController);
-
-        self.API.lock().unwrap().SceneManager.AddEntity(cameraEnt.clone());
-
 
         // Enter frame loop
         let mut input = Input::New();
         let mut dateTimeLastFrame = Local::now();
-
-        // TODO: This is bad because it does not respond to the creation and deletion of entities
-        // on runtime.
-        let entityList =  &self.API.lock().unwrap().SceneManager.Entities.clone();
-
-        for entityMutRef in entityList
-        {
-            let mut entity = entityMutRef.borrow_mut();
-            entity.start(self.API.clone());
-        }
 
         // TODO: Break this closure up into static functions
         event_loop.run( |event, window_target|
@@ -140,8 +104,7 @@ impl Game
                                 self.API.clone(),
                                 &mut input,
                                 timeStart,
-                                &mut dateTimeLastFrame,
-                                camera.clone()
+                                &mut dateTimeLastFrame
                             );
                         },
 
@@ -167,15 +130,16 @@ impl Game
 
 
 
+    /// General Engine Update cycle.
     pub fn Update(
         display: &Display<WindowSurface>,
         api: Arc<Mutex<GameAPI>>,
         input: &mut Input,
         timeStart: DateTime<Local>,
-        dateTimeLastFrame: &mut DateTime<Local>,
-        camera: Rc<RwLock<Camera::Camera>>
+        dateTimeLastFrame: &mut DateTime<Local>
     )
     {
+        println!("Update");
         let now = SystemTime::now();
         let mut renderTime: u128 = 0;
 
@@ -187,20 +151,24 @@ impl Game
 
         let timeLastFrame = dateTimeLastFrame.clone();
 
+        let viewMatrix = api.clone().lock().unwrap().SceneManager.Entities.Camera.ViewMatrix();
+        let perspective= api.clone().lock().unwrap().SceneManager.Entities.Camera.PerspectiveMatrix();
+
         let frame =
             Rc::new(
                 GameFrame::new(
                     input.GetStateCopy(),
                     Local::now() - timeStart,
                     Local::now() - timeLastFrame,
-                    camera.read().unwrap().ViewMatrix(),
-                    camera.read().unwrap().PerspectiveMatrix()
+                    viewMatrix,
+                    perspective
                 )
             );
 
-        &api.lock().unwrap().SceneManager.Entities.Update(&frame, api.clone());
-        api.lock().unwrap().SceneManager.PruneDeadObject(api.clone());
-        api.lock().unwrap().SceneManager.Entities.Render(&frame, &mut target);
+        let mut binding = api.clone();
+        let mut a = binding.lock().unwrap();
+        a.SceneManager.Entities.Update(&frame, api.clone(), &mut target);
+        a.SceneManager.Entities.PruneDeadEntities();
 
 
         input.ResetPressedAndReleased();

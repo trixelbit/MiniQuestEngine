@@ -160,9 +160,9 @@ impl Renderer2D
             ..Default::default()
         };
 
-        let x = entity.world_position.x();
-        let y = entity.world_position.y();
-        let z = entity.world_position.z();
+        let x = entity.WorldPosition.x();
+        let y = entity.WorldPosition.y();
+        let z = entity.WorldPosition.z();
 
 
         let display_width = dim.0 as f32;
@@ -174,9 +174,9 @@ impl Renderer2D
         let cell_count_y = self.Sprite.CellCounts.1 as f32;
 
         let scale = 
-        if(entity.world_position.z() < 0.0)
+        if(entity.WorldPosition.z() < 0.0)
         {
-            Float3::scale_value(entity.scale, -entity.world_position.z())
+            Float3::scale_value(entity.scale, -entity.WorldPosition.z())
         }
         else
         {

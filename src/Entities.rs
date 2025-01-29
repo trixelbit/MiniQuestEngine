@@ -4,14 +4,24 @@ use glium::Frame;
 use uuid::Uuid;
 use crate::Boxer::Boxer;
 use crate::Engine::Components::AudioSource::AudioPlayer;
+use crate::Engine::Components::Camera::Camera;
 use crate::Engine::Frame::GameFrame;
 use crate::Engine::GameAPI::GameAPI;
 use crate::Engine::GameEntity::TEntity;
+use crate::Engine::Math::Float3;
 use crate::Engine::Tile::Tile;
 
 
 #[derive(Debug)]
-pub enum EEntities
+pub enum EEntityType
+{
+    Boxer,
+    Tiles,
+    AudioPlayer
+}
+
+#[derive(Debug)]
+pub enum EEntity
 {
     Boxer(Boxer),
     Tiles(Tile),
@@ -21,6 +31,7 @@ pub enum EEntities
 /// Collection of all entities that can exist in application
 pub struct Entities
 {
+    pub Camera : Camera,
     pub Boxer: Vec<Boxer>,
     pub Tiles : Vec<Tile>,
     pub AudioSources: Vec<AudioPlayer>,
@@ -34,21 +45,60 @@ impl Entities
     {
         Self
         {
+            Camera: Camera::New(30.0, Float3::new(0.0, 1.0, 0.0)),
             Boxer: Vec::new(),
             Tiles: Vec::new(),
             AudioSources: Vec::new(),
             _deadEntities: Vec::new()
         }
     }
-
-    pub fn MarkEntityDead(&mut self, id: Uuid)
+    pub fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
     {
-        if self._deadEntities.contains(&id)
+        for x in self.Boxer.iter_mut()
+        {
+            x.Start(api.clone());
+        }
+
+        for x in self.Tiles.iter_mut()
+        {
+            x.Start(api.clone());
+        }
+
+        for x in self.AudioSources.iter_mut()
+        {
+            x.Start(api.clone());
+        }
+    }
+
+    pub fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>, target: &mut Frame)
+    {
+        for x in self.Boxer.iter_mut()
+        {
+            x.Update(frame, api.clone());
+            x.Render(frame, target);
+        }
+
+        for x in self.Tiles.iter_mut()
+        {
+            x.Update(frame, api.clone());
+            x.Render(frame, target);
+        }
+
+        for x in self.AudioSources.iter_mut()
+        {
+            x.Update(frame, api.clone());
+            x.Render(frame, target);
+        }
+    }
+
+    pub fn MarkEntityDead(&mut self, id: &Uuid)
+    {
+        if self._deadEntities.contains(id)
         {
             return;
         }
 
-        self._deadEntities.push(id);
+        self._deadEntities.push(id.clone());
     }
 
     pub fn PruneDeadEntities(&mut self)
@@ -105,6 +155,18 @@ impl Entities
             });
         deadIndicies.clear();
     }
+
+    /// Adds a new Entity to active scene.
+    pub fn AddEntity(&mut self, newEntity: EEntity)
+    {
+        match newEntity
+        {
+            EEntity::Boxer(e) => self.Boxer.push(e),
+            EEntity::Tiles(e) => self.Tiles.push(e),
+            EEntity::AudioPlayer(e) => self.AudioSources.push(e),
+            e => !panic!("Unsupported entity type {:?}", e)
+        }
+    }
 }
 
 impl Debug for Entities {
@@ -113,76 +175,6 @@ impl Debug for Entities {
         todo!()
     }
 }
-
-impl TEntity for Entities
-{
-    fn HasStartBeenCalled(&self) -> bool {
-        todo!()
-    }
-
-    fn ID(&self) -> Uuid {
-        todo!()
-    }
-
-    fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
-    {
-        for mut x in self.Boxer
-        {
-            x.Start(api.clone());
-        }
-
-        for mut x in self.Tiles
-        {
-            x.Start(api.clone());
-        }
-
-        for mut x in self.AudioSources
-        {
-            x.Start(api.clone());
-        }
-    }
-
-    fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
-    {
-        for mut x in self.Boxer
-        {
-            x.Update(frame, api.clone());
-        }
-
-        for mut x in self.Tiles
-        {
-            x.Update(frame, api.clone());
-        }
-
-        for mut x in self.AudioSources
-        {
-            x.Update(frame, api.clone());
-        }
-    }
-
-    fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
-    {
-    }
-
-    fn Render(&self, frame: &GameFrame, target: &mut Frame)
-    {
-        for x in self.Boxer
-        {
-            x.Render(frame, target);
-        }
-
-        for x in self.Tiles
-        {
-            x.Render(frame, target);
-        }
-
-        for x in self.AudioSources
-        {
-            x.Render(frame, target);
-        }
-    }
-}
-
 
 
 

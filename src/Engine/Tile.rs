@@ -70,7 +70,7 @@ impl TEntity for Tile
     {
     }
 
-    fn Render(&self, frame: &GameFrame, target: &mut Frame)
+    fn Render(&mut self, frame: &GameFrame, target: &mut Frame)
     {
         self._renderer.render(&self.Header, frame, target);
     }

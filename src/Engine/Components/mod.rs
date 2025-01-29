@@ -4,6 +4,4 @@ pub mod Collider;
 pub mod Camera;
 pub mod Bullet;
 mod RenderUtilities;
-mod ComponentTemplate;
-
 

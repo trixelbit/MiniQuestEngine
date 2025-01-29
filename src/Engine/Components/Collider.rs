@@ -70,12 +70,12 @@ impl Collider
         api: Arc<Mutex<GameAPI>>)
     {
         api.lock().unwrap().Collision.Add(entity.ID(), self._data);
-        api.lock().unwrap().Collision.UpdateOrigin(entity.ID(), entity.world_position);
+        api.lock().unwrap().Collision.UpdateOrigin(entity.ID(), entity.WorldPosition);
     }
 
     fn update(&mut self, entity: &EntityHeader, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
-        api.lock().unwrap().Collision.UpdateOrigin(entity.ID(), entity.world_position);
+        api.lock().unwrap().Collision.UpdateOrigin(entity.ID(), entity.WorldPosition);
     }
 
     fn OnDestroy(&mut self, entity: &EntityHeader, api: Arc<Mutex<GameAPI>>)
@@ -106,7 +106,7 @@ impl Collider
                 [entity.scale.x() * self._data.Size().x() / (1f32 * dim.0 as f32) , 0.0, 0.0, 0.0],
                 [0.0, entity.scale.y() * self._data.Size().y() / (1f32 * dim.1 as f32), 0.0, 0.0],
                 [0.0, 0.0, 1.0, 0.0],
-                [entity.world_position.x() / dim.0 as f32, entity.world_position.y() / dim.1 as f32, entity.world_position.z(), 1.0f32],
+                [entity.WorldPosition.x() / dim.0 as f32, entity.WorldPosition.y() / dim.1 as f32, entity.WorldPosition.z(), 1.0f32],
             ];
 
         let view_mat : [[f32;4];4] = frame.CameraView.into();

@@ -19,7 +19,7 @@ pub struct Scene
     // The alias name of the scene
     _name: String,
 
-    // Name of scene file.
+    // Name of scene file path.
     _fileName: String,
     _rawSceneContents: String,
     _sceneBuilder: SceneBuilderFunction
@@ -33,8 +33,8 @@ impl Scene
         self._name.clone()
     }
 
-    pub fn new(alias: &str, scenePath : &str,
-               sceneBuilder: SceneBuilderFunction
+    pub fn Create(alias: &str, scenePath : &str,
+                  sceneBuilder: SceneBuilderFunction
     ) -> Self
     {
         // TODO: Add better error messages.
@@ -51,6 +51,7 @@ impl Scene
         {
             _rawSceneContents: contents,
             _name: String::from(alias),
+            _fileName: String::from(scenePath),
             _sceneBuilder: sceneBuilder
         }
     }
@@ -62,7 +63,8 @@ impl Scene
             (
                 String::from(&self._name),
                 String::from(&self._rawSceneContents),
-                &display.clone())
+                &display.clone()
+            )
     }
 
     pub fn SaveScene(&self, entities: &Entities)

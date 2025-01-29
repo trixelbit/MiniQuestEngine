@@ -69,6 +69,7 @@ const WATER_SHOOT_SFX: &str = "Assets/Shoot.ogg";
 const GRAVITY : f32 = 0.5;
 const JUMP_STRENGTH: f32 = 35.0;
 
+
 pub struct Boxer
 {
     pub Header: EntityHeader,
@@ -216,7 +217,10 @@ impl TEntity for Boxer
 
     fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
-        let entity = &mut self.Header;
+        println!("BOXER OPEN");
+        let id = &self.Header.ID();
+        let entity= &mut self.Header;
+
         let oldDirection = self._direction;
         let oldState = self._state;
 
@@ -242,13 +246,15 @@ impl TEntity for Boxer
             damping = 0.05;
         }
 
-        let isGrounded = 
+
+        let isGrounded =
             api.clone().lock().unwrap().Collision.IsThereSolidCollisionAt(
-                self.Header.ID(),
-                entity.world_position
+                id,
+                entity.WorldPosition
                     + Float3::new(0.0, -0.1, 0.0)
             );
 
+        println!("X");
 
         // horizontal movement
         let targetVector = Float3::scale_value(inputVector, self._movementSpeed)
@@ -287,13 +293,14 @@ impl TEntity for Boxer
         }
 
         let positionDelta = Float3::scale_value(self._velocity, frame.DeltaTime_Seconds);
-        let futurePosition = entity.world_position + positionDelta;
+        let futurePosition = entity.WorldPosition + positionDelta;
 
 
         // Check for collision.
-        if !api.clone().lock().unwrap().Collision.IsThereSolidCollisionAt(entity.ID(), futurePosition)
+        if !api.clone().lock().unwrap().Collision.IsThereSolidCollisionAt(
+            &entity.ID(), futurePosition)
         { 
-            entity.world_position.add(Float3::scale_value(self._velocity, frame.DeltaTime_Seconds));
+            entity.WorldPosition.add(Float3::scale_value(self._velocity, frame.DeltaTime_Seconds));
         }
         else
         {
@@ -303,10 +310,10 @@ impl TEntity for Boxer
             // Check and see if we can apply sliding.
             let mut x_comp = Float3::new(positionDelta.x(), 0.0, 0.0);
             if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
-                entity.ID(),
-                entity.world_position + x_comp)
+                &entity.ID(),
+                entity.WorldPosition + x_comp)
             {
-                entity.world_position.add(x_comp);
+                entity.WorldPosition.add(x_comp);
             }
             else
             {
@@ -322,10 +329,10 @@ impl TEntity for Boxer
                     println!("X OVERRIDE{}", i);
 
                     if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
-                        entity.ID(),
-                        entity.world_position + Float3::new(i, 0.0, 0.0))
+                        &entity.ID(),
+                        entity.WorldPosition + Float3::new(i, 0.0, 0.0))
                     {
-                        entity.world_position.add(x_comp);
+                        entity.WorldPosition.add(x_comp);
                         break;
                     }
 
@@ -335,10 +342,10 @@ impl TEntity for Boxer
 
             let mut y_comp = Float3::new(0.0, positionDelta.y(), 0.0);
             if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
-                entity.ID(),
-                entity.world_position + y_comp)
+                &entity.ID(),
+                entity.WorldPosition + y_comp)
             { 
-                entity.world_position.add(y_comp);
+                entity.WorldPosition.add(y_comp);
             }
             else
             {
@@ -353,10 +360,10 @@ impl TEntity for Boxer
                     println!("Y OVERRIDE{}", i);
 
                     if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
-                        entity.ID(),
-                        entity.world_position + Float3::new(0.0, i, 0.0))
+                        &entity.ID(),
+                        entity.WorldPosition + Float3::new(0.0, i, 0.0))
                     {
-                        entity.world_position.add(y_comp);
+                        entity.WorldPosition.add(y_comp);
                         break;
                     }
                 }
@@ -409,14 +416,8 @@ impl TEntity for Boxer
             self.animation_update(self._state, self._direction);
         }
 
-
-        // Shoot water ball
-        if frame.Input.IsKeyPressed(Space)
-        {
-            self.CreateWaterBall(entity, api, self._lastInputVector.normalized());
-        }
-
         println!("{}", self._velocity);
+        println!("BOXER CLOSE");
     }
 
     fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
@@ -424,7 +425,7 @@ impl TEntity for Boxer
 
     }
 
-    fn Render(&self, frame: &GameFrame, target: &mut Frame)
+    fn Render(&mut self, frame: &GameFrame, target: &mut Frame)
     {
         self._renderer2d.render(&self.Header, frame, target);
     }

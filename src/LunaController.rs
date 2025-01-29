@@ -1,19 +1,20 @@
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 use std::sync::RwLock;
 use std::sync::Mutex;
 
 use cgmath::num_traits::ToPrimitive;
-use glium::Display;
+use glium::{Display, Frame};
 use glium::glutin::surface::WindowSurface;
+use uuid::Uuid;
 use winit::keyboard::KeyCode::*;
 use crate::Engine::Audio::sample::*;
-use crate::Engine::Components::Component;
 use crate::Engine::Components::Bullet::Bullet;
 use crate::Engine::Components::RenderComponents::{Renderer2D, Sprite};
 use crate::Engine::Frame::GameFrame;
-use crate::Engine::GameEntity::TEntity;
+use crate::Engine::GameEntity::{EntityHeader, TEntity};
 use crate::Engine::Math::{Float3, Ray};
 use crate::Engine::GameAPI::GameAPI;
 
@@ -52,6 +53,7 @@ const WATER_SHOOT_SFX: &str = "Assets/Shoot.ogg";
 
 pub struct LunaController
 {
+    pub Header: EntityHeader,
     pub _movementSpeed: f32,
     pub _velocity: Float3,
     pub _lastMovementVector: Float3,
@@ -62,86 +64,60 @@ pub struct LunaController
     _direction :  EDirection,
     _display: Display<WindowSurface>,
 
+    _renderer: Renderer2D,
+
     _waterSprite: Arc<Sprite>
 }
 
 impl LunaController
 {
-    pub fn new(movementSpeed: f32, display: &Display<WindowSurface>) -> Rc<RwLock<Self>>
+    pub fn new(position: Float3, movementSpeed: f32, display: &Display<WindowSurface>) -> Self
     {
-        Rc::new(
-            RwLock::new(
-                Self
-                {
-                    _movementSpeed: movementSpeed,
-                    _velocity: Float3::zero(),
-                    _lastMovementVector: Float3::zero(),
+        Self
+        {
+            Header: EntityHeader::Create("Luna", position),
 
-                    _spriteTable:
-                        [
-                            Sprite::new_simple(IDLE_DOWN, display),
-                            Sprite::new_simple(IDLE_UP, display),
-                            Sprite::new_simple(IDLE_LEFT, display),
-                            Sprite::new_simple(IDLE_RIGHT, display),
-                            Sprite::new(RUN_DOWN, display, 4,(2,2), RUN_SPEED),
-                            Sprite::new(RUN_UP, display, 4, (2,2), RUN_SPEED),
-                            Sprite::new(RUN_LEFT, display, 4, (2,2), RUN_SPEED),
-                            Sprite::new(RUN_RIGHT, display, 4, (2,2), RUN_SPEED)
-                        ],
+            _movementSpeed: movementSpeed,
+            _velocity: Float3::zero(),
+            _lastMovementVector: Float3::zero(),
 
-                    _state: EPlayerState::idle,
-                    _direction: EDirection::Up,
-                    _display: display.clone(),
-                    _waterSprite: Sprite::new_simple(WATER_BALL_SPRITE, display),
-                }
-            )
-        )
+            _spriteTable:
+                [
+                    Sprite::new_simple(IDLE_DOWN, display),
+                    Sprite::new_simple(IDLE_UP, display),
+                    Sprite::new_simple(IDLE_LEFT, display),
+                    Sprite::new_simple(IDLE_RIGHT, display),
+                    Sprite::new(RUN_DOWN, display, 4,(2,2), RUN_SPEED),
+                    Sprite::new(RUN_UP, display, 4, (2,2), RUN_SPEED),
+                    Sprite::new(RUN_LEFT, display, 4, (2,2), RUN_SPEED),
+                    Sprite::new(RUN_RIGHT, display, 4, (2,2), RUN_SPEED)
+                ],
+
+            _renderer : Renderer2D::New(display, Sprite::new_simple(IDLE_DOWN, display), true),
+
+            _state: EPlayerState::idle,
+            _direction: EDirection::Down,
+            _display: display.clone(),
+            _waterSprite: Sprite::new_simple(WATER_BALL_SPRITE, display),
+        }
     }
 
-    fn animation_update(&self, entity: &mut TEntity, state: EPlayerState, direction: EDirection)
+    fn AnimationUpdate(&mut self, state: EPlayerState, direction: EDirection)
     {
-        let componentOption = entity.get_component::<Renderer2D>(Some(self));
-
-        if componentOption.is_none()
-        {
-            return;
-        }
-
-        let renderer = componentOption.unwrap();
-
         let index = (state as usize  * 4) + direction as usize;
 
-        renderer.write().unwrap().set_new_sprite(self._spriteTable[index].clone());
+        self._renderer.set_new_sprite(self._spriteTable[index].clone());
     }
 
     /// Creates a water ball and fires it in the direction the player is facing.
-    pub fn CreateWaterBall(&mut self, entity: &TEntity, api: Arc<Mutex<GameAPI>>, direction: Float3)
+    pub fn CreateWaterBall(&mut self, api: Arc<Mutex<GameAPI>>, direction: Float3)
     {
         let waterEntity =
-            Rc::new(
-                RefCell::new(
-                    TEntity::Create("Water", entity.world_position)
-                ));
-
-        // update constructors to return Rc RwLock wrapped Components
-        waterEntity
-            .borrow_mut()
-            .add_component(
                 Bullet::Create(
+                    self.Header.WorldPosition,
                     direction,
                     10.0,//128.0,
-                    0.5
-                ));
-        
-        waterEntity
-            .borrow_mut()
-            .add_component(
-                        Renderer2D::New(
-                            &self._display, 
-                            self._waterSprite.clone(), 
-                            false
-                ));
-
+                    0.5);
 
         api.lock().unwrap().Audio.PlayAudio(
             &AudioSample::Create(
@@ -153,17 +129,32 @@ impl LunaController
             )
         );
 
-        api.lock().unwrap().SceneManager.AddEntity(waterEntity);
+        //api.lock().unwrap().SceneManager.AddEntity(waterEntity);
     }
 }
 
-impl Component for LunaController
+impl Debug for LunaController {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "Luna")
+    }
+}
+
+impl TEntity for LunaController
 {
-    fn start(&mut self, entity: &mut TEntity, api: Arc<Mutex<GameAPI>>)
+    fn HasStartBeenCalled(&self) -> bool {
+        todo!()
+    }
+
+    fn ID(&self) -> Uuid {
+        todo!()
+    }
+
+    fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
     {
     }
 
-    fn update(&mut self, entity: &mut TEntity, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
     {
         let leftVector = if frame.Input.IsKeyDown(KeyA) {-1.0f32} else {0.0};
         let rightVector = if frame.Input.IsKeyDown(KeyD) {1.0f32} else {0.0};
@@ -217,40 +208,50 @@ impl Component for LunaController
 
 
         let positionDelta = Float3::scale_value(self._velocity, frame.DeltaTime_Seconds);
-        let futurePosition = entity.world_position + positionDelta;
+        let futurePosition = self.Header.WorldPosition + positionDelta;
 
         // Check for collision.
-        if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(entity.ID(), futurePosition)
+        if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(&self.Header.ID(), futurePosition)
         { 
-            entity.world_position.add(Float3::scale_value(self._velocity, frame.DeltaTime_Seconds));
+            self.Header.WorldPosition.add(Float3::scale_value(self._velocity, frame.DeltaTime_Seconds));
         }
         else
         {
             // Check and see if we can apply sliding.
             let x_comp = Float3::new(positionDelta.x(), 0.0, 0.0);
+
             if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
-                entity.ID(),
-                entity.world_position + x_comp)
+                &self.Header.ID(),
+                self.Header.WorldPosition + x_comp)
             {
-                entity.world_position.add(x_comp);
+                self.Header.WorldPosition.add(x_comp);
             }
 
             let y_comp = Float3::new(0.0, positionDelta.y(), 0.0);
             if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
-                entity.ID(),
-                entity.world_position + y_comp)
+                &self.Header.ID(),
+                self.Header.WorldPosition + y_comp)
             { 
-                entity.world_position.add(y_comp);
+                self.Header.WorldPosition.add(y_comp);
             }
         }
 
 
-        self.animation_update(entity, self._state, self._direction);
+        self.AnimationUpdate(self._state, self._direction);
 
         // Shoot water ball
         if frame.Input.IsKeyPressed(Space)
         {
-            self.CreateWaterBall(entity, api, self._lastMovementVector.normalized());
+            self.CreateWaterBall(api, self._lastMovementVector.normalized());
         }
+    }
+
+    fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
+    {
+    }
+
+    fn Render(&mut self, frame: &GameFrame, target: &mut Frame)
+    {
+        todo!()
     }
 }

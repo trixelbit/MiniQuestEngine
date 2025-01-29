@@ -1,16 +1,14 @@
-use std::cell::RefCell;
-use std::rc::Rc;
 use glium::Display;
 use glium::glutin::surface::WindowSurface;
+
+use crate::Boxer;
 use crate::Engine::Audio::sample::{EAudioSpace, ETargetTrack};
 use crate::Engine::Collision::collider::{ECollisionTag, ECollisionType};
 use crate::Engine::Components::AudioSource::AudioPlayer;
-use crate::Engine::Components::{AudioSource, Collider};
-use crate::Engine::Components::RenderComponents::{Renderer2D, Sprite};
-use crate::Engine::GameEntity::TEntity;
+use crate::Engine::Components::Collider;
+use crate::Engine::Components::RenderComponents::Sprite;
 use crate::Engine::Math::Float3;
-use crate::Engine::SceneBuilder::{Scene, TSceneBuilder};
-use crate::{LunaController, Boxer};
+use crate::Engine::SceneBuilder::TSceneBuilder;
 use crate::Engine::Tile::Tile;
 use crate::Entities::Entities;
 
@@ -20,7 +18,10 @@ pub struct GCSBSceneBuilder
 
 impl TSceneBuilder for GCSBSceneBuilder
 {
-    fn LoadScene(name: String, rawScene: String, display: &Display<WindowSurface>)
+    fn LoadScene(
+        name: String,
+        rawScene: String,
+        display: &Display<WindowSurface>)
         -> Entities
     {
         println!("Loaded Scene: {}", name);
@@ -67,6 +68,7 @@ impl GCSBSceneBuilder
     ///     2 - position
     fn BuildPlayer(data: Vec<String>, entities: &mut Entities, display: &Display<WindowSurface>)
     {
+        println!("Player");
         let name = data[1].as_str();
         let position = Float3::FromString(data[2].as_str());
 
@@ -95,6 +97,7 @@ impl GCSBSceneBuilder
     ///     5 - tag
     fn BuildTile(data: Vec<String>, entities: &mut Entities,  display: &Display<WindowSurface>)
     {
+        println!("Tile");
         // 1 - name
         let name = data[1].as_str();
 
@@ -173,6 +176,7 @@ impl GCSBSceneBuilder
     ///
     fn BuildAudioSource(data: Vec<String>, entities: &mut Entities, display: &Display<WindowSurface>)
     {
+        println!("Audio");
         let name = data[1].as_str();
         let position = Float3::FromString(data[2].as_str());
 

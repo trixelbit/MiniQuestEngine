@@ -3,7 +3,7 @@ use glium::glutin::surface::WindowSurface;
 use uuid::Uuid;
 
 use crate::Engine::SceneBuilder::{Scene, SceneBuilderFunction};
-use crate::Entities::{EEntities, Entities};
+use crate::Entities::{EEntity, Entities};
 
 /// Contains the active scene state.
 /// And manages the loading and saving of scenes
@@ -51,7 +51,7 @@ impl SceneManager
     /// path - Path to scene file.
     pub fn AddScene(&mut self, alias: &str, path: &str)
     {
-        self._scenes.push(Scene::new(alias, path, self._sceneBuilder));
+        self._scenes.push(Scene::Create(alias, path, self._sceneBuilder));
     }
 
     /// Loads a scene
@@ -62,32 +62,9 @@ impl SceneManager
         let scene = sceneIter
             .find(|x| x.Name() == alias);
 
-        self.Entities.clear();
 
-        let list = &mut scene.unwrap().LoadScene(display);
-
-        for entity in list 
-        {
-            self.AddEntity(entity.clone());
-        }
-    }
-
-    /// Adds a new Entity to active scene.
-    pub fn AddEntity(&mut self, newEntity: EEntities)
-    {
-        match newEntity
-        {
-            EEntities::Boxer(e) => self.Entities.Boxer.push(e), 
-            EEntities::Tiles(e) => self.Entities.Tiles.push(e),
-            EEntities::AudioPlayer(e) => self.Entities.AudioSources.push(e),
-            e => !panic!("Unsupported entity type {:?}", e)
-        }
-    }
-
-    /// Marks an entity for deletion next update cycle.
-    pub fn DestroyEntity(&mut self, entityID: Uuid)
-    {
-        self.Entities.MarkEntityDead(entityID);
+        // TODO: this likely leaks, change signature to mutate single instance
+        self.Entities = scene.unwrap().LoadScene(display);
     }
 }
 

@@ -8,7 +8,7 @@ use crate::Engine::GameAPI::GameAPI;
 
 pub struct EntityHeader
 { 
-    pub world_position: Float3,
+    pub WorldPosition: Float3,
     pub scale: Float3,
     pub Name: String,
     _hasStartBeenCalled: bool,
@@ -22,7 +22,7 @@ impl EntityHeader
         EntityHeader
         {
             Name: String::from(name),
-            world_position: position,
+            WorldPosition: position,
             scale: Float3::one(),
     
             _id: Uuid::new_v4(),
@@ -35,6 +35,7 @@ impl EntityHeader
         self._hasStartBeenCalled
     }
 
+    /// Returns copy of current ID
     pub fn ID(&self) -> Uuid
     {
         self._id.clone()
@@ -60,7 +61,7 @@ pub trait TEntity : Debug
         &mut self, 
         api: Arc<Mutex<GameAPI>>);
 
-    fn Render(&self, frame: &GameFrame, target: &mut Frame);
+    fn Render(&mut self, frame: &GameFrame, target: &mut Frame);
 
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
     {
