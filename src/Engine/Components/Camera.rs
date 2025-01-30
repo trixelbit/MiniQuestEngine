@@ -5,6 +5,7 @@ use cgmath::{Matrix4, ortho, perspective};
 use glium::Frame;
 use uuid::Uuid;
 use winit::event::MouseButton;
+use crate::Engine::DEBUG_MODE;
 
 use crate::Engine::Frame::GameFrame;
 use crate::Engine::GameAPI::GameAPI;
@@ -65,15 +66,17 @@ impl Camera
 
     pub fn ViewMatrix(&self) -> Matrix4<f32>
     {
-        let x = self.Header.WorldPosition.x();
-        let y = self.Header.WorldPosition.y();
-        let z = self.Header.WorldPosition.z();
+        let viewMod = 1.0 / 32.0;
+        let viewScale = 1.0;
+        let x = self.Header.WorldPosition.x() * viewMod;
+        let y = self.Header.WorldPosition.y() * viewMod;
+        let z = self.Header.WorldPosition.z() * viewMod;
 
         return Matrix4::from([
-            [1.0, 0.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0, 0.0],
-            [0.0, 0.0, 1.0, 0.0],
-            [x, -y, -z, 1.0]
+            [1.0 * viewScale, 0.0, 0.0, 0.0],
+            [0.0, 1.0 * viewScale, 0.0, 0.0],
+            [0.0, 0.0, 1.0 * viewScale, 0.0],
+            [-x * viewMod, -y * viewMod, -z * viewMod, 1.0 * viewScale]
         ]);
     }
 
@@ -155,6 +158,11 @@ impl EditorCameraController
 
     unsafe fn Update(&mut self, entity: &mut EntityHeader, frame: &GameFrame, api: *mut GameAPI)
     {
+        if !DEBUG_MODE
+        {
+            return;
+        }
+
         //TODO If in editor mode, allow controls
 
         let mousePosition = frame.Input.MousePosition();

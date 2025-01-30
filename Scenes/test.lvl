@@ -55,15 +55,18 @@ Tile|Back| 0, 0, 0.005 |Assets/fg2.png|false|true
 
 
 Tile|Box| 64, -64, 0 |Assets/crate.png| true 
-Tile|Box| 32, -64, 0 |Assets/crate.png| true 
+Tile|Box| 32, -64, 0 |Assets/crate.png| true
 
 
 Tile|Box| -32, -64, 0 |Assets/crate.png|true
+Tile|Box| -48, -64, 0 |Assets/crate.png|true
 Tile|Box| -64, -64, 0 |Assets/crate.png| true
 Tile|Box| -98, -64, 0 |Assets/crate.png|true
 Tile|Box| -128, -64, 0 |Assets/crate.png|true
+
 Tile|Box| 0, -64, 0 |Assets/crate.png|true
 Tile|Box| 32, -64, 0 |Assets/crate.png|true
+Tile|Box| 48, -64, 0 |Assets/crate.png|true
 Tile|Box| 64, -64, 0 |Assets/crate.png|true
 Tile|Box| 98, -64, 0 |Assets/crate.png|true
 Tile|Box| 128, -64, 0 |Assets/crate.png|true

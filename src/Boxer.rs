@@ -218,17 +218,22 @@ impl TEntity for Boxer
 
     unsafe fn Update(&mut self, frame: &GameFrame, api: *mut GameAPI)
     {
-        /*
-        let cam_pos = (*api).SceneManager.Entities.Camera.Header.WorldPosition;
+        ///*
+        let cam_pos = (*api).SceneManager.Entities.Camera.Header.WorldPosition.clone();
+        let mut player_pos = self.Header.WorldPosition.clone();
+
+        println!("Player Pos: {}", player_pos);
+        println!("Cam Pos: {}", cam_pos);
+
          (*api).SceneManager.Entities.Camera.Header.WorldPosition =
              Float3::Lerp(
                  cam_pos,
-                 self.Header.WorldPosition
-                     .OverrideZ(5f32)
-                     .OverrideY(self.Header.WorldPosition.y() + 32f32),
+                 player_pos
+                     .OverrideY(self.Header.WorldPosition.y() + 0.0)
+                     .AddZ(256.0 * 4.0),
                  0.5f32 * frame.DeltaTime_Seconds
              );
-         */
+         //*/
 
         self._collider.Update(&self.Header, frame, api);
 

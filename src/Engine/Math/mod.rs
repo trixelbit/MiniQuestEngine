@@ -105,6 +105,36 @@ impl Float3
         self.clone()
     }
 
+    pub fn ScaleX(&mut self, value: f32) -> Self
+    {
+        self.position = [
+            self.position[0] * value,
+            self.position[1],
+            self.position[2]
+        ];
+
+        self.clone()
+    }
+    pub fn ScaleY(&mut self, value: f32) -> Self
+    {
+        self.position = [
+            self.position[0],
+            self.position[1] * value,
+            self.position[2]
+        ];
+        self.clone()
+    }
+
+    pub fn ScaleZ(&mut self, value: f32) -> Self
+    {
+        self.position = [
+            self.position[0],
+            self.position[1],
+            self.position[2] * value
+        ];
+        self.clone()
+    }
+
     pub fn OverrideX(&mut self, value: f32) -> Self
     {
         self.position = [
@@ -131,6 +161,37 @@ impl Float3
             self.position[0],
             self.position[1],
             value
+        ];
+        self.clone()
+
+    }
+
+    pub fn AddX(&mut self, value: f32) -> Self
+    {
+        self.position = [
+            self.position[0] + value,
+            self.position[1],
+            self.position[2]
+        ];
+        self.clone()
+    }
+
+    pub fn AddY(&mut self, value: f32) -> Self
+    {
+        self.position = [
+            self.position[0],
+            self.position[1] + value,
+            self.position[2]
+        ];
+        self.clone()
+    }
+
+    pub fn AddZ(&mut self, value: f32) -> Self
+    {
+        self.position = [
+            self.position[0],
+            self.position[1],
+            self.position[2] + value
         ];
         self.clone()
 
