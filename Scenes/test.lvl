@@ -6,37 +6,74 @@
 // environment
 
 // I
-Tile|1| 0, 0, 0 |Assets/grass.png
-Tile|2| 32, 0, 0 |Assets/grass.png
-Tile|3| 64, 0, 0 |Assets/grass.png
-
-Tile|4| 0, 0, 0 |Assets/grass.png
-Tile|5| 32, 32, 0 |Assets/grass.png
-Tile|6| 64, 64, 0 |Assets/grass.png
-
-Tile|7| 0, 0, 0 |Assets/grass.png
-Tile|8| 0, 32, 0 |Assets/grass.png
-Tile|9| 0, 64, 0 |Assets/grass.png
-
-// III
-Tile|10| 0, 0, 0 |Assets/grass.png
-Tile|11| -32, 0, 0 |Assets/grass.png
-Tile|12| -64, 0, 0 |Assets/grass.png
-
-Tile|13| 0, 0, 0 |Assets/grass.png
-Tile|14| -32, -32, 0 |Assets/grass.png
-Tile|15| -64, -64, 0 |Assets/grass.png
-
-Tile|16| 0, 0, 0 |Assets/grass.png
-Tile|17| 0, -32, 0 |Assets/grass.png
-Tile|18| 0, -64, 0 |Assets/grass.png
+//Tile|1| 0, 0, 0 |Assets/grass.png
+//Tile|2| 32, 0, 0 |Assets/grass.png
+//Tile|3| 64, 0, 0 |Assets/grass.png
+//
+//Tile|4| 0, 0, 0 |Assets/grass.png
+//Tile|5| 32, 32, 0 |Assets/grass.png
+//Tile|6| 64, 64, 0 |Assets/grass.png
+//
+//Tile|7| 0, 0, 0 |Assets/grass.png
+//Tile|8| 0, 32, 0 |Assets/grass.png
+//Tile|9| 0, 64, 0 |Assets/grass.png
+//
+//// III
+//Tile|10| 0, 0, 0 |Assets/grass.png
+//Tile|11| -32, 0, 0 |Assets/grass.png
+//Tile|12| -64, 0, 0 |Assets/grass.png
+//
+//Tile|13| 0, 0, 0 |Assets/grass.png
+//Tile|14| -32, -32, 0 |Assets/grass.png
+//Tile|15| -64, -64, 0 |Assets/grass.png
+//
+//Tile|16| 0, 0, 0 |Assets/grass.png
+//Tile|17| 0, -32, 0 |Assets/grass.png
+//Tile|18| 0, -64, 0 |Assets/grass.png
 
 // Entities
 Tile|Flask| 0, 0, 0 |Assets/Water.png
+Tile|Box| -128, 0, 0 |Assets/crate.png|true
 
-Player|Lola| 0, -0.5, 0
 
-Audio|Music| 0, 0, 0|Assets/song2.ogg| 0.5
+
+
+
+
+Tile|Back| 0, 0, -95 |Assets/bg1.png
+Tile|Back| 0, 0, -50 |Assets/bg2.png
+Tile|Back| 0, 0, -20 |Assets/bg3.png
+Tile|Back| 0, 0, -10 |Assets/bg4.png
+Tile|Back| 0, 0, -1 |Assets/bg5.png
+
+Tile|Back| 0, 0, 0 |Assets/fg1.png|false|true
+Tile|Back| 0, 0, 0.005 |Assets/fg2.png|false|true
+ 
+
+
+
+
+
+Tile|Box| 64, -64, 0 |Assets/crate.png| true 
+Tile|Box| 32, -64, 0 |Assets/crate.png| true
+
+
+Tile|Box| -32, -64, 0 |Assets/crate.png|true
+Tile|Box| -48, -64, 0 |Assets/crate.png|true
+Tile|Box| -64, -64, 0 |Assets/crate.png| true
+Tile|Box| -98, -64, 0 |Assets/crate.png|true
+Tile|Box| -128, -64, 0 |Assets/crate.png|true
+
+Tile|Box| 0, -64, 0 |Assets/crate.png|true
+Tile|Box| 32, -64, 0 |Assets/crate.png|true
+Tile|Box| 48, -64, 0 |Assets/crate.png|true
+Tile|Box| 64, -64, 0 |Assets/crate.png|true
+Tile|Box| 98, -64, 0 |Assets/crate.png|true
+Tile|Box| 128, -64, 0 |Assets/crate.png|true
+
+Player|Lola| 0, 0.5, 0.01 |true
+
+//Audio|Music| 0, 0, 0|Assets/song2.ogg| 0.1
 
 
 
