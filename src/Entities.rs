@@ -52,42 +52,60 @@ impl Entities
             _deadEntities: Vec::new()
         }
     }
-    pub fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
+    pub fn Start(api: &mut GameAPI)
     {
-        for x in self.Boxer.iter_mut()
+        unsafe
         {
-            x.Start(api.clone());
-        }
+            let a: *mut GameAPI  = api;
+            let mut ent = &mut api.SceneManager.Entities;
 
-        for x in self.Tiles.iter_mut()
-        {
-            x.Start(api.clone());
-        }
 
-        for x in self.AudioSources.iter_mut()
-        {
-            x.Start(api.clone());
+            for x in ent.Boxer.iter_mut()
+            {
+                x.Start(a);
+            }
+
+            for x in ent.Tiles.iter_mut()
+            {
+                x.Start(a);
+            }
+
+            for x in ent.AudioSources.iter_mut()
+            {
+                x.Start(a);
+            }
         }
     }
 
-    pub fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>, target: &mut Frame)
+    pub fn Update(frame: &GameFrame, api: &mut GameAPI, target: &mut Frame)
     {
-        for x in self.Boxer.iter_mut()
-        {
-            x.Update(frame, api.clone());
-            x.Render(frame, target);
-        }
 
-        for x in self.Tiles.iter_mut()
+        unsafe
         {
-            x.Update(frame, api.clone());
-            x.Render(frame, target);
-        }
+            let a: *mut GameAPI  = api;
+            let mut ent = &mut api.SceneManager.Entities;
 
-        for x in self.AudioSources.iter_mut()
-        {
-            x.Update(frame, api.clone());
-            x.Render(frame, target);
+            ent.Camera.Update(frame, a);
+            ent.Camera.Render(frame, target);
+
+
+            for x in ent.Tiles.iter_mut()
+            {
+                x.Update(frame, a);
+                x.Render(frame, target);
+            }
+
+            for x in ent.AudioSources.iter_mut()
+            {
+                x.Update(frame, a);
+                x.Render(frame, target);
+            }
+
+            for x in ent.Boxer.iter_mut()
+            {
+                x.Update(frame, a);
+                x.Render(frame, target);
+            }
         }
     }
 

@@ -111,17 +111,17 @@ impl TEntity for Camera
         self.Header.ID()
     }
 
-    fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
+    unsafe fn Start(&mut self, api: *mut GameAPI)
     {
 
     }
 
-    fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    unsafe fn Update(&mut self, frame: &GameFrame, api: *mut GameAPI)
     {
-        self._editorController.Update(&mut self.Header, frame, api);
+        self._editorController.Update(&mut self.Header, frame, api );
     }
 
-    fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
+    unsafe fn OnDestroy(&mut self, api: *mut GameAPI)
     {
     }
 
@@ -153,7 +153,7 @@ impl EditorCameraController
     }
 
 
-    fn Update(&mut self, entity: &mut EntityHeader, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    unsafe fn Update(&mut self, entity: &mut EntityHeader, frame: &GameFrame, api: *mut GameAPI)
     {
         //TODO If in editor mode, allow controls
 

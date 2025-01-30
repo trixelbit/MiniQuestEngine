@@ -39,7 +39,7 @@ impl CollisionModule
 
         if indexOption.is_none()
         {
-            println!("Warning: ID {} not found in collision system. ", id);
+           println!("Warning: ID {} not found in collision system. ", id);
             return false;
         }
 
@@ -74,7 +74,7 @@ impl CollisionModule
     /// Adds a collider to Collision Module.
     pub fn Add(&mut self, id: Uuid, collider: ColliderData)
     {
-        self._ids.push(id);
+        self._ids.push(id.clone());
         self._colliders.push(collider);
     }
 
@@ -108,12 +108,12 @@ impl CollisionModule
     {
         for i in 0..self._ids.len()
         {
-            if id.eq(&self._ids[i])
+            if (id).eq(&self._ids[i])
             {
                 return Some(i);
             }
         }
-    
+
         None
     }
 }

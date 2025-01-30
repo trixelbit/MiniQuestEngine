@@ -65,26 +65,28 @@ impl Collider
         }
     }
 
-    fn start(&mut self,
+    pub unsafe fn Start(
+        &mut self,
         entity: &EntityHeader,
-        api: Arc<Mutex<GameAPI>>)
+        api: *mut GameAPI)
     {
-        api.lock().unwrap().Collision.Add(entity.ID(), self._data);
-        api.lock().unwrap().Collision.UpdateOrigin(entity.ID(), entity.WorldPosition);
+
+        (*api).Collision.Add(entity.ID(), self._data);
+        (*api).Collision.UpdateOrigin(entity.ID(), entity.WorldPosition);
     }
 
-    fn update(&mut self, entity: &EntityHeader, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    pub unsafe fn Update(&mut self, entity: &EntityHeader, frame: &GameFrame, api: *mut GameAPI)
     {
-        api.lock().unwrap().Collision.UpdateOrigin(entity.ID(), entity.WorldPosition);
+        (*api).Collision.UpdateOrigin(entity.ID(), entity.WorldPosition);
     }
 
-    fn OnDestroy(&mut self, entity: &EntityHeader, api: Arc<Mutex<GameAPI>>)
+    pub unsafe fn OnDestroy(&mut self, entity: &EntityHeader, api: *mut GameAPI)
     {
-        api.lock().unwrap().Collision.Remove(entity.ID());
+        (*api).Collision.Remove(entity.ID());
     }
 
     /// Draws bounds of collider if debug mode enabled
-    fn render(&mut self, entity: &EntityHeader, frame: &GameFrame, target: &mut Frame)
+    pub fn render(&mut self, entity: &EntityHeader, frame: &GameFrame, target: &mut Frame)
     {
         if !DEBUG_MODE
         {

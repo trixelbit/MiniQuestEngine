@@ -125,7 +125,7 @@ impl Renderer2D
         self._isLit = isLit;
     }
 
-    pub fn render(&mut self, entity: &EntityHeader, frame: &GameFrame, target: &mut Frame)
+    pub fn Render(&mut self, entity: &EntityHeader, frame: &GameFrame, target: &mut Frame)
     {
         
         // calculate sprite index
@@ -246,7 +246,7 @@ impl Renderer2D
         ).unwrap();
     }
 
-    fn start(&mut self, entity: &EntityHeader, api: Arc<Mutex<GameAPI>>)
+    pub unsafe fn Start(&mut self, entity: &EntityHeader, api: *mut GameAPI)
     {
         let vertexBuffer = PlaneVertexBuffer(&self.Display);
 
@@ -254,15 +254,15 @@ impl Renderer2D
         let loadedFragmentShader: String = 
         match &self._fragmentShader
         {
-            Some(x) => api.lock().unwrap().Shader.GetShader(x.as_str()),
-            None => api.lock().unwrap().Shader.GetShader(DEFAULT_FRAGMENT)
+            Some(x) => (*api).Shader.GetShader(x.as_str()),
+            None => (*api).Shader.GetShader(DEFAULT_FRAGMENT)
         };
 
         let loadedVertexShader: String = 
         match &self._vertexShader
         {
-            Some(x) => api.lock().unwrap().Shader.GetShader(x.as_str()),
-            None => api.lock().unwrap().Shader.GetShader(DEFAULT_VERTEX)
+            Some(x) => (*api).Shader.GetShader(x.as_str()),
+            None => (*api).Shader.GetShader(DEFAULT_VERTEX)
         };
         
 

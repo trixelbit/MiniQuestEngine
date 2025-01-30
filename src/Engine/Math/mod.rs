@@ -123,6 +123,16 @@ impl Float3
             self.position[2]
         ];
         self.clone()
+    }
+
+    pub fn OverrideZ(&mut self, value: f32) -> Self
+    {
+        self.position = [
+            self.position[0],
+            self.position[1],
+            value
+        ];
+        self.clone()
 
     }
 

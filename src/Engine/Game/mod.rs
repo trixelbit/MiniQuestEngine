@@ -20,12 +20,12 @@ use crate::Engine::Components::{self, *};
 use crate::Engine::Math::*;
 use crate::Engine::GameAPI::GameAPI;
 use crate::Engine::SceneBuilder::SceneBuilderFunction;
+use crate::Entities::Entities;
 
 /// The Game Application that is running currently.
 pub struct Game    
 {
-    // TODO: Make this Arc Mutex so it can be shared across threads for async operations.
-    pub API: Arc<Mutex<GameAPI>>,
+    pub API: GameAPI,
 }
 
 impl Game
@@ -35,11 +35,8 @@ impl Game
     {
         Self
         {
-            API: 
-                Arc::new(
-                    Mutex::new(
-                        GameAPI::Create(sceneBuilderMethod)
-            ))
+            API:
+            GameAPI::Create(sceneBuilderMethod)
         }
     }
 
@@ -59,11 +56,15 @@ impl Game
                 .build(&event_loop);
 
         // Adds all levels that should be available for loading.
-        self.API.lock().unwrap().SceneManager.AddScene("Level1", "Scenes/test.lvl");
+        self.API.SceneManager.AddScene("Level1", "Scenes/test.lvl");
         
         // Build starting scene.
-        self.API.lock().unwrap().SceneManager.LoadScene("Level1", &display);
+        self.API.SceneManager.LoadScene("Level1", &display);
 
+        unsafe
+        {
+            Entities::Start(&mut self.API);
+        }
 
         // Enter frame loop
         let mut input = Input::New();
@@ -101,7 +102,7 @@ impl Game
                         {
                             Self::Update(
                                 &display,
-                                self.API.clone(),
+                                &mut self.API,
                                 &mut input,
                                 timeStart,
                                 &mut dateTimeLastFrame
@@ -133,7 +134,7 @@ impl Game
     /// General Engine Update cycle.
     pub fn Update(
         display: &Display<WindowSurface>,
-        api: Arc<Mutex<GameAPI>>,
+        api: &mut GameAPI,
         input: &mut Input,
         timeStart: DateTime<Local>,
         dateTimeLastFrame: &mut DateTime<Local>
@@ -147,12 +148,12 @@ impl Game
 
         target.clear_color_and_depth((0.1, 0.0, 0.2, 1.0), 1.0);
 
-        api.lock().unwrap().Audio.Update();
+        api.Audio.Update();
 
         let timeLastFrame = dateTimeLastFrame.clone();
 
-        let viewMatrix = api.clone().lock().unwrap().SceneManager.Entities.Camera.ViewMatrix();
-        let perspective= api.clone().lock().unwrap().SceneManager.Entities.Camera.PerspectiveMatrix();
+        let viewMatrix = api.SceneManager.Entities.Camera.ViewMatrix();
+        let perspective= api.SceneManager.Entities.Camera.PerspectiveMatrix();
 
         let frame =
             Rc::new(
@@ -165,10 +166,8 @@ impl Game
                 )
             );
 
-        let mut binding = api.clone();
-        let mut a = binding.lock().unwrap();
-        a.SceneManager.Entities.Update(&frame, api.clone(), &mut target);
-        a.SceneManager.Entities.PruneDeadEntities();
+        Entities::Update(&frame, api, &mut target);
+        //scene.Entities.PruneDeadEntities();
 
 
         input.ResetPressedAndReleased();

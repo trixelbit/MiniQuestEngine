@@ -58,20 +58,45 @@ impl TEntity for Tile
         self.Header.ID()
     }
 
-    fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
+    unsafe fn Start(&mut self, api: *mut GameAPI)
     {
+        self._renderer.Start(&self.Header, api);
+        match &mut self._collider
+        {
+            Some(T) =>
+                {
+                    T.Start(&self.Header, api);
+                },
+            _ => {}
+        }
     }
 
-    fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    unsafe fn Update(&mut self, frame: &GameFrame, api: *mut GameAPI)
     {
+        match &mut self._collider
+        {
+            Some(T) =>
+                {
+                    T.Update(&self.Header, frame, api);
+                },
+            _ => {}
+        }
     }
 
-    fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
+    unsafe fn OnDestroy(&mut self, api: *mut GameAPI)
     {
+        match &mut self._collider
+        {
+            Some(T) =>
+                {
+                    T.OnDestroy(&self.Header, api);
+                },
+            _ => {}
+        }
     }
 
     fn Render(&mut self, frame: &GameFrame, target: &mut Frame)
     {
-        self._renderer.render(&self.Header, frame, target);
+        self._renderer.Render(&self.Header, frame, target);
     }
 }

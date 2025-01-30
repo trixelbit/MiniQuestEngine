@@ -1,6 +1,5 @@
 use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
-use std::sync::Mutex;
 
 use glium::{Display, Frame};
 use glium::glutin::surface::WindowSurface;
@@ -211,13 +210,28 @@ impl TEntity for Boxer
         self.Header.ID().clone()
     }
 
-    fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
+    unsafe fn Start(&mut self, api: *mut GameAPI)
     {
+        self._collider.Start(&self.Header, api);
+        self._renderer2d.Start(&self.Header, api);
     }
 
-    fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    unsafe fn Update(&mut self, frame: &GameFrame, api: *mut GameAPI)
     {
-        println!("BOXER OPEN");
+        /*
+        let cam_pos = (*api).SceneManager.Entities.Camera.Header.WorldPosition;
+         (*api).SceneManager.Entities.Camera.Header.WorldPosition =
+             Float3::Lerp(
+                 cam_pos,
+                 self.Header.WorldPosition
+                     .OverrideZ(5f32)
+                     .OverrideY(self.Header.WorldPosition.y() + 32f32),
+                 0.5f32 * frame.DeltaTime_Seconds
+             );
+         */
+
+        self._collider.Update(&self.Header, frame, api);
+
         let id = &self.Header.ID();
         let entity= &mut self.Header;
 
@@ -246,15 +260,12 @@ impl TEntity for Boxer
             damping = 0.05;
         }
 
-
         let isGrounded =
-            api.clone().lock().unwrap().Collision.IsThereSolidCollisionAt(
+            (*api).Collision.IsThereSolidCollisionAt(
                 id,
                 entity.WorldPosition
                     + Float3::new(0.0, -0.1, 0.0)
             );
-
-        println!("X");
 
         // horizontal movement
         let targetVector = Float3::scale_value(inputVector, self._movementSpeed)
@@ -297,7 +308,7 @@ impl TEntity for Boxer
 
 
         // Check for collision.
-        if !api.clone().lock().unwrap().Collision.IsThereSolidCollisionAt(
+        if !(*api).Collision.IsThereSolidCollisionAt(
             &entity.ID(), futurePosition)
         { 
             entity.WorldPosition.add(Float3::scale_value(self._velocity, frame.DeltaTime_Seconds));
@@ -309,7 +320,7 @@ impl TEntity for Boxer
 
             // Check and see if we can apply sliding.
             let mut x_comp = Float3::new(positionDelta.x(), 0.0, 0.0);
-            if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
+            if !(*api).Collision.IsThereSolidCollisionAt(
                 &entity.ID(),
                 entity.WorldPosition + x_comp)
             {
@@ -328,7 +339,7 @@ impl TEntity for Boxer
 
                     println!("X OVERRIDE{}", i);
 
-                    if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
+                    if !(*api).Collision.IsThereSolidCollisionAt(
                         &entity.ID(),
                         entity.WorldPosition + Float3::new(i, 0.0, 0.0))
                     {
@@ -341,7 +352,7 @@ impl TEntity for Boxer
             }
 
             let mut y_comp = Float3::new(0.0, positionDelta.y(), 0.0);
-            if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
+            if !(*api).Collision.IsThereSolidCollisionAt(
                 &entity.ID(),
                 entity.WorldPosition + y_comp)
             { 
@@ -359,7 +370,7 @@ impl TEntity for Boxer
                     y_comp.OverrideY(i);
                     println!("Y OVERRIDE{}", i);
 
-                    if !api.lock().unwrap().Collision.IsThereSolidCollisionAt(
+                    if !(*api).Collision.IsThereSolidCollisionAt(
                         &entity.ID(),
                         entity.WorldPosition + Float3::new(0.0, i, 0.0))
                     {
@@ -418,16 +429,17 @@ impl TEntity for Boxer
 
         println!("{}", self._velocity);
         println!("BOXER CLOSE");
+
     }
 
-    fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
+    unsafe fn OnDestroy(&mut self, api: *mut GameAPI)
     {
-
+        self._collider.OnDestroy(&self.Header, api);
     }
 
     fn Render(&mut self, frame: &GameFrame, target: &mut Frame)
     {
-        self._renderer2d.render(&self.Header, frame, target);
+        self._renderer2d.Render(&self.Header, frame, target);
     }
 }
 

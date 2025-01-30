@@ -54,17 +54,17 @@ impl TEntity for AudioPlayer
         self.Header.ID()
     }
 
-    fn Start(&mut self, api: Arc<Mutex<GameAPI>>)
+    unsafe fn Start(&mut self, api: *mut GameAPI)
     {
-        api.lock().unwrap().Audio.PlayAudio(&mut self._sample);
+        (*api).Audio.PlayAudio(&mut self._sample);
     }
 
-    fn Update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
+    unsafe fn Update(&mut self, frame: &GameFrame, api: *mut GameAPI)
     {
 
     }
 
-    fn OnDestroy(&mut self, api: Arc<Mutex<GameAPI>>)
+    unsafe fn OnDestroy(&mut self, api: *mut GameAPI)
     {
     }
 

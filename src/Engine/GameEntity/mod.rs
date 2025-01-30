@@ -48,18 +48,18 @@ pub trait TEntity : Debug
 
     fn ID(&self) -> Uuid;
 
-    fn Start(
+    unsafe fn Start(
         &mut self, 
-        api: Arc<Mutex<GameAPI>>);
+        api: *mut GameAPI);
 
-    fn Update(
-        &mut self, 
-        frame: &GameFrame, 
-        api: Arc<Mutex<GameAPI>>);
+    unsafe fn Update(
+        &mut self,
+        frame: &GameFrame,
+        api: *mut GameAPI);
 
-    fn OnDestroy(
-        &mut self, 
-        api: Arc<Mutex<GameAPI>>);
+    unsafe fn OnDestroy(
+        &mut self,
+        api: *mut GameAPI);
 
     fn Render(&mut self, frame: &GameFrame, target: &mut Frame);
 
