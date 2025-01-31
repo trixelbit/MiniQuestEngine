@@ -14,8 +14,11 @@ pub mod Shader;
 
 pub mod Rendering;
 
-pub mod Editor;
 
 pub mod Tile;
+
+pub mod Editor;
+pub mod Player;
+
 
 const DEBUG_MODE: bool = false;

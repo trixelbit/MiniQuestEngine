@@ -1,7 +1,8 @@
 use std::fmt::{Debug, Formatter};
-use std::sync::{Arc, Mutex};
+
 use glium::Frame;
 use uuid::Uuid;
+
 use crate::Boxer::Boxer;
 use crate::Engine::Components::AudioSource::AudioPlayer;
 use crate::Engine::Components::Camera::Camera;
@@ -10,7 +11,6 @@ use crate::Engine::GameAPI::GameAPI;
 use crate::Engine::GameEntity::TEntity;
 use crate::Engine::Math::Float3;
 use crate::Engine::Tile::Tile;
-
 
 #[derive(Debug)]
 pub enum EEntityType
@@ -52,6 +52,15 @@ impl Entities
             _deadEntities: Vec::new()
         }
     }
+
+    pub fn CopyFrom(&mut self, copyFrom: &Entities)
+    {
+        self.Camera = copyFrom.Camera.clone();
+        self.Boxer = copyFrom.Boxer.clone();
+        self.Tiles = copyFrom.Tiles.clone();
+        self.AudioSources = copyFrom.AudioSources.clone();
+    }
+
     pub fn Start(api: &mut GameAPI)
     {
         unsafe
@@ -79,7 +88,6 @@ impl Entities
 
     pub fn Update(frame: &GameFrame, api: &mut GameAPI, target: &mut Frame)
     {
-
         unsafe
         {
             let a: *mut GameAPI  = api;
@@ -104,6 +112,32 @@ impl Entities
             for x in ent.Boxer.iter_mut()
             {
                 x.Update(frame, a);
+                x.Render(frame, target);
+            }
+        }
+    }
+
+    pub fn Render(api: &mut GameAPI, frame: &GameFrame, target: &mut Frame)
+    {
+        unsafe
+        {
+            let a: *mut GameAPI  = api;
+            let mut ent = &mut api.SceneManager.Entities;
+
+            ent.Camera.Render(frame, target);
+
+            for x in ent.Tiles.iter_mut()
+            {
+                x.Render(frame, target);
+            }
+
+            for x in ent.AudioSources.iter_mut()
+            {
+                x.Render(frame, target);
+            }
+
+            for x in ent.Boxer.iter_mut()
+            {
                 x.Render(frame, target);
             }
         }

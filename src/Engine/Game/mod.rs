@@ -1,44 +1,73 @@
 #![allow(nonstandard_style)]
 
-use std::sync::Arc;
-use std::sync::Mutex;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::RwLock;
-use std::time::SystemTime;
-use chrono::{DateTime, Local};
-use glium::{Display, Surface};
-use glium::glutin::surface::WindowSurface;
+use chrono::Local;
+use winit::event::{ElementState, MouseScrollDelta, TouchPhase};
 use winit::event::KeyEvent;
 use winit::event::MouseButton;
-use winit::event::{ElementState, MouseScrollDelta, TouchPhase};
 
-use crate::Engine::Frame::GameFrame;
+use crate::Engine::Components::*;
+use crate::Engine::Editor::CozyEditor;
 use crate::Engine::Frame::Input::Input;
-use crate::Engine::GameEntity::TEntity;
-use crate::Engine::Components::{self, *};
-use crate::Engine::Math::*;
 use crate::Engine::GameAPI::GameAPI;
+use crate::Engine::GameEntity::TEntity;
+use crate::Engine::Player::CozyPlayer;
 use crate::Engine::SceneBuilder::SceneBuilderFunction;
 use crate::Entities::Entities;
 
-/// The Game Application that is running currently.
-pub struct Game    
+pub enum EEngineMode
 {
-    pub API: GameAPI,
+    Play,
+    Editor
 }
 
-impl Game
+/// The Game Application that is running currently.
+pub struct CozyEngine
+{
+    pub API: GameAPI,
+
+    _editor: CozyEditor,
+
+    _player: CozyPlayer,
+
+    _mode: EEngineMode
+}
+
+impl CozyEngine
 {
     /// Constructs game and performs any tasks before actual application window opens.
     pub fn New(sceneBuilderMethod: SceneBuilderFunction) -> Self
     {
         Self
         {
-            API:
-            GameAPI::Create(sceneBuilderMethod)
+            API: GameAPI::Create(sceneBuilderMethod),
+            _editor: CozyEditor::Create(),
+            _player: CozyPlayer::Create(),
+            _mode: EEngineMode::Play
         }
     }
+
+    pub fn EnterPlayMode(&mut self)
+    {
+        // Reset GameAPI
+
+        self.API.SceneManager.Entities.CopyFrom(&mut self._editor.Entities);
+
+        self._mode = EEngineMode::Play;
+
+        self._player.Start();
+    }
+
+    pub fn EnterEditorMode(&mut self)
+    {
+        // Reset GameAPI
+
+        self.API.SceneManager.Entities.CopyFrom(&mut self._editor.Entities);
+
+        self._mode = EEngineMode::Editor;
+
+        self._player.Start();
+    }
+
 
     /// Begins the game loop.
     pub fn Run(&mut self)
@@ -99,15 +128,26 @@ impl Game
 
                     // We now need to render everything in response to a RedrawRequested event due to the animation
                     winit::event::WindowEvent::RedrawRequested =>
+                    {
+                        match self._mode
                         {
-                            Self::Update(
+                            EEngineMode::Play => self._player.Update(
                                 &display,
                                 &mut self.API,
                                 &mut input,
                                 timeStart,
                                 &mut dateTimeLastFrame
-                            );
-                        },
+                            ),
+
+                            EEngineMode::Editor => self._editor.Update(
+                                &display,
+                                &mut self.API,
+                                &mut input,
+                                timeStart,
+                                &mut dateTimeLastFrame
+                            )
+                        }
+                    },
 
                     // Because glium doesn't know about windows we need to resize the display
                     // when the window's size has changed.
@@ -129,69 +169,6 @@ impl Game
             .unwrap();
     }
 
-
-
-    /// General Engine Update cycle.
-    pub fn Update(
-        display: &Display<WindowSurface>,
-        api: &mut GameAPI,
-        input: &mut Input,
-        timeStart: DateTime<Local>,
-        dateTimeLastFrame: &mut DateTime<Local>
-    )
-    {
-        println!("Update");
-        let now = SystemTime::now();
-        let mut renderTime: u128 = 0;
-
-        let mut target = display.draw();
-
-        target.clear_color_and_depth((0.1, 0.0, 0.2, 1.0), 1.0);
-
-        api.Audio.Update();
-
-        let timeLastFrame = dateTimeLastFrame.clone();
-
-        let viewMatrix = api.SceneManager.Entities.Camera.ViewMatrix();
-        let perspective= api.SceneManager.Entities.Camera.PerspectiveMatrix();
-
-        let frame =
-            Rc::new(
-                GameFrame::new(
-                    input.GetStateCopy(),
-                    Local::now() - timeStart,
-                    Local::now() - timeLastFrame,
-                    viewMatrix,
-                    perspective
-                )
-            );
-
-        Entities::Update(&frame, api, &mut target);
-        //scene.Entities.PruneDeadEntities();
-
-
-        input.ResetPressedAndReleased();
-        input.SetMouseWheelPixelDelta((0.0, 0.0));
-        input.SetMouseWheelLineOffset((0.0, 0.0));
-
-        *dateTimeLastFrame = Local::now();
-
-        let rnow = SystemTime::now();
-        let _ = target.finish();
-        display.finish();
-        renderTime = renderTime + rnow.elapsed().unwrap().as_millis();
-
-        match now.elapsed()
-        {
-                Ok(elapsed) => 
-                    {
-                        println!("ms:{} fps:{}", elapsed.as_millis(), (1_000_000_000.0 / elapsed.as_nanos() as f32) as u32);
-                        println!("render:{}", renderTime);
-
-                    },
-                _ => {}
-        };
-    }
 
     pub fn KeyBoardInput(input: &mut Input, event: KeyEvent)
     {

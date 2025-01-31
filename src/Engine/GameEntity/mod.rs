@@ -1,5 +1,4 @@
 use std::fmt::{Debug, Formatter};
-use std::sync::{Mutex, Arc};
 use glium::Frame;
 use uuid::Uuid;
 use crate::Engine::Frame::GameFrame;
@@ -42,7 +41,7 @@ impl EntityHeader
     }
 }
 
-pub trait TEntity : Debug
+pub trait TEntity: Debug + Clone + Copy
 {
     fn HasStartBeenCalled(&self) -> bool;
 

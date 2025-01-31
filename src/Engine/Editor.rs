@@ -1,15 +1,23 @@
 mod EditorAssets;
 
-use glium::Frame;
+use chrono::{DateTime, Local};
+use glium::{Display, Frame};
+use glium::glutin::surface::WindowSurface;
 use uuid::Uuid;
 use crate::Engine::Components::Camera::Camera;
-use crate::Engine::Frame::GameFrame;
+use crate::Engine::Frame::Input::Input;
+use crate::Engine::GameAPI::GameAPI;
+use crate::Engine::Math::Float3;
 use crate::Entities::Entities;
 
 
 /// Module responsible for the modification of scene files.
-pub struct Editor
+pub struct CozyEditor
 {
+    /// Entities loaded from level file and modified in editor loop
+    pub Entities: Entities,
+
+
     _mode: EEditorMode,
 
     /// Used not only to display but center position is where objects are placed
@@ -18,15 +26,27 @@ pub struct Editor
     /// Objects that are selected
     _selectedIDs: Vec<Uuid>,
 
-    /// Entities loaded from level file and modified in editor loop
-    _entities: Entities
+
+
+    // Insert Mode Data
+    _isSelectingAsset : bool,
+    _assetCoord: Float3,
+
+
+
 }
 
-impl Editor
+impl CozyEditor
 {
+    pub fn Create() -> Self
+    {
+        Self
+        {
+
+        }
+    }
+
     // TODO: Create Method
-
-
     pub fn LoadLevel(&mut self)
     {
 
@@ -43,7 +63,13 @@ impl Editor
 
     }
 
-    pub fn Update(&mut self, frame: &GameFrame, target: &mut Frame)
+    pub fn Update(
+        display: &Display<WindowSurface>,
+        api: &mut GameAPI,
+        input: &mut Input,
+        timeStart: DateTime<Local>,
+        dateTimeLastFrame: &mut DateTime<Local>
+    )
     {
 
     }

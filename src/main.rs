@@ -14,7 +14,7 @@ use crate::Engine::SceneBuilder::TSceneBuilder;
 
 fn main()
 {
-    let mut game = Game::Game::New(
+    let mut game = Game::CozyEngine::New(
         GrapplerSceneBuilder::GCSBSceneBuilder::LoadScene);
     game.Run();
 }
