@@ -1,3 +1,4 @@
+use crate::Engine::Editor::TNewLevelClone;
 use crate::Engine::GameEntity::{TEntity, EntityHeader};
 use crate::Engine::Frame::GameFrame;
 use crate::Engine::GameAPI::GameAPI;
@@ -31,6 +32,33 @@ pub struct Collider
     _program: Program,
     _vertexBuffer: VertexBuffer<Vertex>,
     _debugSprite: Arc<Sprite>
+}
+
+impl TNewLevelClone for Option<Collider>
+{
+    #[inline]
+    fn LevelClone(&self) -> Self
+    {
+        match self
+        {
+            Some(x) => Some(x.LevelClone()),
+            None => None
+         }
+    }
+}
+
+impl TNewLevelClone for Collider
+{
+    fn LevelClone(&self) -> Self
+    {
+        Collider::Create(
+            self._display.clone(),
+            self._data.Origin(),
+            self._data.Size(),
+            self._data.Type(),
+            self._data.Tag()
+        )
+    }
 }
 
 impl Collider
@@ -168,6 +196,7 @@ impl Collider
             &draw).unwrap();
     }
 }
+
 
 
 

@@ -89,6 +89,14 @@ pub struct Boxer
     _isAttacking: bool,
 }
 
+impl Clone for Boxer
+{
+    fn clone(&self) -> Self
+    {
+        Self::Create(self._movementSpeed, &self._display, self.Header.WorldPosition)
+    }
+}
+
 impl Boxer
 {
     pub fn Create(movementSpeed: f32, display: &Display<WindowSurface>, position: Float3) -> Self

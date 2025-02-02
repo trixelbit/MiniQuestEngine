@@ -13,6 +13,7 @@ pub struct ColliderData
     _collisionType: ECollisionType,
 }
 
+
 impl ColliderData
 {
     pub fn Create(
@@ -32,6 +33,13 @@ impl ColliderData
         }
     }
 
+    /// The center point of the bounding box.
+    pub fn Origin(&self) -> Float3
+    {
+        self._origin
+    }
+
+    /// The size of the bounding box.
     pub fn Size(&self) -> Float3
     {
         self._size
@@ -77,11 +85,13 @@ impl ColliderData
         )
     }
 
+    /// Changes origin of the bounding box.
     pub fn UpdateOrigin(&mut self, newPosition: Float3)
     {
         self._origin = newPosition;
     }
 
+    /// Updates the size of the boudning box.
     pub fn UpdateSize(&mut self, newSize: Float3)
     {
         self._size = newSize;
@@ -109,6 +119,7 @@ impl ColliderData
     }
 }
 
+/// Tag information tied to collider.
 #[derive(Copy, Clone)]
 pub enum ECollisionTag
 {

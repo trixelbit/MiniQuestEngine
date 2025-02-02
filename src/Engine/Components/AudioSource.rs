@@ -1,6 +1,4 @@
 use std::fmt::{Debug, Formatter};
-use std::sync::Arc;
-use std::sync::Mutex;
 use glium::Frame;
 use uuid::Uuid;
 
@@ -31,6 +29,18 @@ impl AudioPlayer
         {
             _sample: AudioSample::Create(path, volume, loops, space, soundType),
             Header: EntityHeader::Create(name, position)
+        }
+    }
+}
+
+impl Clone for AudioPlayer
+{
+    fn clone(&self) -> Self
+    {
+        Self
+        {
+            _sample: self._sample.clone(),
+            Header: self.Header.clone()
         }
     }
 }

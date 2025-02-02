@@ -5,11 +5,9 @@ use winit::event::{ElementState, MouseScrollDelta, TouchPhase};
 use winit::event::KeyEvent;
 use winit::event::MouseButton;
 
-use crate::Engine::Components::*;
 use crate::Engine::Editor::CozyEditor;
 use crate::Engine::Frame::Input::Input;
 use crate::Engine::GameAPI::GameAPI;
-use crate::Engine::GameEntity::TEntity;
 use crate::Engine::Player::CozyPlayer;
 use crate::Engine::SceneBuilder::SceneBuilderFunction;
 use crate::Entities::Entities;

@@ -1,5 +1,4 @@
 use std::fmt::{Debug, Formatter};
-use std::sync::{Arc, Mutex};
 
 use cgmath::{Matrix4, ortho, perspective};
 use glium::Frame;
@@ -12,12 +11,16 @@ use crate::Engine::GameAPI::GameAPI;
 use crate::Engine::GameEntity::{EntityHeader, TEntity};
 use crate::Engine::Math::Float3;
 
+#[derive(Clone, Copy)]
 pub enum EProjectionType
 {
     Perspective,
     Orthographic
 }
 
+// This is a generalized camera.
+// Aside from general editor control, any reposition of camera should be done by 
+// a game specific controller.
 pub struct Camera
 {
     pub Header: EntityHeader,
@@ -28,6 +31,23 @@ pub struct Camera
 
     _editorController : EditorCameraController
 
+}
+
+impl Clone for Camera
+{
+    fn clone(&self) -> Self
+    {
+        Self
+        {
+            Header: self.Header.clone(),
+            FocalDirection: self.FocalDirection,
+            UpDirection: self.UpDirection,
+            FieldOfView: self.FieldOfView,
+            Projection: self.Projection.clone(),
+            _editorController: self._editorController.clone()
+    
+        }
+    }
 }
 
 impl Camera
@@ -95,7 +115,9 @@ impl Camera
 
 }
 
-impl Debug for Camera {
+
+impl Debug for Camera 
+{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result
     {
         write!(f, "Camera")
@@ -136,6 +158,7 @@ impl TEntity for Camera
 
 
 /// Camera controller module that is used in edit mode.
+#[derive(Clone, Copy)]
 pub struct EditorCameraController
 {
     _initialWorldPosition : Float3,

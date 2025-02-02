@@ -41,7 +41,27 @@ impl EntityHeader
     }
 }
 
-pub trait TEntity: Debug + Clone + Copy
+impl Clone for EntityHeader
+{
+    fn clone(&self) -> Self
+    {
+        EntityHeader
+        {
+            Name: self.Name.clone(),
+            WorldPosition: self.WorldPosition.clone(),
+            scale : self.scale,
+
+            _id: self.ID(),
+
+            // false since this is copied during entity cloning, 
+            // and should have start called once during its lifetime.
+            _hasStartBeenCalled : false
+        }
+    }
+}
+
+
+pub trait TEntity: Debug + Clone
 {
     fn HasStartBeenCalled(&self) -> bool;
 
@@ -66,6 +86,8 @@ pub trait TEntity: Debug + Clone + Copy
     {
         write!(f, "Entity")
     }
+
+
 }
 
 

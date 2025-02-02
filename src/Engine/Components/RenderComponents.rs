@@ -8,6 +8,7 @@ use glium::texture::RawImage2d;
 use glium::uniforms::{MagnifySamplerFilter, MinifySamplerFilter};
 
 use crate::Engine::Components::RenderUtilities::{ImageBufferFromPath, Indicies, PlaneVertexBuffer, Vertex};
+use crate::Engine::Editor::TNewLevelClone;
 use crate::Engine::Frame::GameFrame;
 use crate::Engine::GameAPI::GameAPI;
 use crate::Engine::GameEntity::EntityHeader;
@@ -36,6 +37,7 @@ impl LightSource
 
 
 /// Draws a 2D sprite to screen.
+///
 pub struct Renderer2D
 {
     pub VertexBuffer: VertexBuffer<Vertex>,
@@ -282,6 +284,13 @@ impl Renderer2D
         self.Program = program;
         self._fragmentShader = Some(loadedFragmentShader);
         self._vertexShader = Some(loadedVertexShader);
+    }
+}
+impl TNewLevelClone for Renderer2D
+{
+    fn LevelClone(&self) -> Self
+    {
+        Renderer2D::New(&self.Display, self.Sprite.clone(), self._isLit)
     }
 }
 

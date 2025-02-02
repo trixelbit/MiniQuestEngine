@@ -1,5 +1,5 @@
 use std::fmt::{Debug, Formatter};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use glium::{Display, Frame};
 use glium::glutin::surface::WindowSurface;
@@ -11,6 +11,8 @@ use crate::Engine::Frame::GameFrame;
 use crate::Engine::GameAPI::GameAPI;
 use crate::Engine::GameEntity::{EntityHeader, TEntity};
 use crate::Engine::Math::Float3;
+
+use crate::Engine::Editor::TNewLevelClone;
 
 pub struct Tile
 {
@@ -45,6 +47,20 @@ impl Debug for Tile {
         write!(f, "Tile")
     }
 }
+
+impl Clone for Tile
+{
+    fn clone(&self) -> Self
+    {
+        Tile
+        {
+            Header: self.Header.clone(),
+            _collider: self._collider.LevelClone(),
+            _renderer: self._renderer.LevelClone()
+        }
+    }
+}
+
 
 impl TEntity for Tile
 {
