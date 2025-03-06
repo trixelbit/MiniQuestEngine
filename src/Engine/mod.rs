@@ -13,6 +13,7 @@ pub mod Collision;
 pub mod Shader;
 
 pub mod Rendering;
+pub mod Textures;
 
 
 pub mod Tile;

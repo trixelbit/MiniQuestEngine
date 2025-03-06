@@ -11,6 +11,8 @@ pub struct GameFrame
     pub TimeSinceGameStart: TimeDelta,
     pub DeltaTime: TimeDelta,
     pub DeltaTime_Seconds: f32,
+
+    // honestly should be moved out
     pub CameraView: Matrix4<f32>,
     pub CameraPerspective: Matrix4<f32>,
 }

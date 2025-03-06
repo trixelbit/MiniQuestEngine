@@ -1,4 +1,5 @@
 use std::fmt::{Debug, Formatter};
+use std::time::SystemTime;
 
 use glium::Frame;
 use uuid::Uuid;
@@ -67,8 +68,7 @@ impl Entities
         {
             let a: *mut GameAPI  = api;
             let mut ent = &mut api.SceneManager.Entities;
-
-
+            
             for x in ent.Boxer.iter_mut()
             {
                 x.Start(a);
@@ -93,8 +93,17 @@ impl Entities
             let a: *mut GameAPI  = api;
             let mut ent = &mut api.SceneManager.Entities;
 
+            let mut timer = SystemTime::now();
+            let mut renderTime: u128 = 0;
+
+            println!("Entity Update Table");
+
+
             ent.Camera.Update(frame, a);
             ent.Camera.Render(frame, target);
+            renderTime = renderTime + timer.elapsed().unwrap().as_millis();
+            println!("Canera: {}ms", renderTime);
+            timer = SystemTime::now();
 
 
             for x in ent.Tiles.iter_mut()
@@ -102,18 +111,27 @@ impl Entities
                 x.Update(frame, a);
                 x.Render(frame, target);
             }
+            renderTime = renderTime + timer.elapsed().unwrap().as_millis();
+            println!("Tiles: {}ms", renderTime);
+            timer = SystemTime::now();
 
             for x in ent.AudioSources.iter_mut()
             {
                 x.Update(frame, a);
                 x.Render(frame, target);
             }
+            renderTime = renderTime + timer.elapsed().unwrap().as_millis();
+            println!("Audio: {}ms", renderTime);
+            timer = SystemTime::now();
 
             for x in ent.Boxer.iter_mut()
             {
                 x.Update(frame, a);
                 x.Render(frame, target);
             }
+            renderTime = renderTime + timer.elapsed().unwrap().as_millis();
+            println!("Bozer: {}ms\n", renderTime);
+            timer = SystemTime::now();
         }
     }
 

@@ -226,12 +226,10 @@ impl TEntity for Boxer
 
     unsafe fn Update(&mut self, frame: &GameFrame, api: *mut GameAPI)
     {
-        ///*
+
+        // Camera behavior
         let cam_pos = (*api).SceneManager.Entities.Camera.Header.WorldPosition.clone();
         let mut player_pos = self.Header.WorldPosition.clone();
-
-        println!("Player Pos: {}", player_pos);
-        println!("Cam Pos: {}", cam_pos);
 
          (*api).SceneManager.Entities.Camera.Header.WorldPosition =
              Float3::Lerp(
@@ -241,7 +239,6 @@ impl TEntity for Boxer
                      .AddZ(256.0 * 4.0),
                  0.5f32 * frame.DeltaTime_Seconds
              );
-         //*/
 
         self._collider.Update(&self.Header, frame, api);
 
@@ -344,8 +341,7 @@ impl TEntity for Boxer
                 let mut i = positionDelta.x();
                 let sign = i / f32::abs(i);
 
-                while(
-                    f32::abs(i) > tolerance )
+                while f32::abs(i) > tolerance 
                 {
                     i = i - (sign * step);
                     x_comp.OverrideX(i);
@@ -376,8 +372,7 @@ impl TEntity for Boxer
                 let mut i = positionDelta.y();
                 let sign = i / f32::abs(i);
 
-                while(
-                    f32::abs(i) > tolerance)
+                while f32::abs(i) > tolerance
                 {
                     i = i - (sign * step);
                     y_comp.OverrideY(i);
@@ -395,13 +390,13 @@ impl TEntity for Boxer
         }
 
 
-        if(isGrounded)
+        if isGrounded
         {
-            if(self._velocity.x().abs() > 15.0)
+            if self._velocity.x().abs() > 15.0
             {
                 self._state = EPlayerState::run;
             }
-            else if(self._velocity.x().abs() > 3.0)
+            else if self._velocity.x().abs() > 3.0
             {
                 self._state = EPlayerState::trot;
             }
@@ -412,7 +407,7 @@ impl TEntity for Boxer
         }
         else
         {
-            if(self._velocity.y() > 0.0)
+            if self._velocity.y() > 0.0
             {
                 self._state = EPlayerState::jump;
             }
@@ -439,10 +434,6 @@ impl TEntity for Boxer
         {
             self.animation_update(self._state, self._direction);
         }
-
-        println!("{}", self._velocity);
-        println!("BOXER CLOSE");
-
     }
 
     unsafe fn OnDestroy(&mut self, api: *mut GameAPI)

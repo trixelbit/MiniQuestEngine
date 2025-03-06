@@ -15,26 +15,6 @@ use crate::Engine::GameEntity::EntityHeader;
 use crate::Engine::Math::Float3;
 use crate::Engine::Shader::{DEFAULT_FRAGMENT, DEFAULT_VERTEX};
 
-pub struct LightSource
-{
-    pub Color : Float3,
-    pub Intensity: f32
-}
-
-impl LightSource
-{
-    pub fn start(&mut self, api: Arc<Mutex<GameAPI>>)
-    {
-
-    }
-
-    pub fn update(&mut self, frame: &GameFrame, api: Arc<Mutex<GameAPI>>)
-    {
-
-    }
-}
-
-
 
 /// Draws a 2D sprite to screen.
 ///
@@ -89,6 +69,7 @@ impl Renderer2D
         }
     }
 
+    /// Plays a sprite anaimation once
     pub fn SetSprite1Loop(&mut self, newSprite: Arc<Sprite>)
     {
         self._playTime = Instant::now();
@@ -98,6 +79,9 @@ impl Renderer2D
         self._completed = false;
     }
 
+    /// Changes the current sprite that is playing.
+    ///
+    /// This will play the animation from the start.
     pub fn set_new_sprite(&mut self, newSprite: Arc<Sprite>)
     {
         self._playTime = Instant::now();
@@ -294,6 +278,10 @@ impl TNewLevelClone for Renderer2D
     }
 }
 
+
+
+// Asscoiates meta information to a texture.
+// TODO: Prevent unneeded texture dupolications and instead use shared data.
 pub struct Sprite
 {
     /// Based texture contains sprite sheet

@@ -1,9 +1,17 @@
 #![allow(nonstandard_style)]
 
+use core::fmt;
+use std::time::SystemTime;
+use std::rc::Rc;
+
 use chrono::Local;
 use winit::event::{ElementState, MouseScrollDelta, TouchPhase};
 use winit::event::KeyEvent;
 use winit::event::MouseButton;
+
+use glium::{debug, Display, Surface};
+use glium::glutin::surface::WindowSurface;
+use winit::event_loop::EventLoop;
 
 use crate::Engine::Editor::CozyEditor;
 use crate::Engine::Frame::Input::Input;
@@ -12,10 +20,24 @@ use crate::Engine::Player::CozyPlayer;
 use crate::Engine::SceneBuilder::SceneBuilderFunction;
 use crate::Entities::Entities;
 
+use super::Frame::GameFrame;
+
 pub enum EEngineMode
 {
     Play,
     Editor
+}
+
+impl fmt::Display for EEngineMode
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+    {
+        match self
+        {
+            EEngineMode::Play => write!(f, "Play"),
+            EEngineMode::Editor => write!(f, "Editor")
+        }
+    }
 }
 
 /// The Game Application that is running currently.
@@ -27,27 +49,40 @@ pub struct CozyEngine
 
     _player: CozyPlayer,
 
-    _mode: EEngineMode
+    _mode: EEngineMode,
+
+
+    _display: Display<WindowSurface>,
+
+    _window: winit::window::Window,
 }
 
 impl CozyEngine
 {
+    
     /// Constructs game and performs any tasks before actual application window opens.
-    pub fn New(sceneBuilderMethod: SceneBuilderFunction) -> Self
+    pub fn New(
+        sceneBuilderMethod: SceneBuilderFunction,
+        display: Display<WindowSurface>,
+        window: winit::window::Window
+
+    ) -> Self
     {
         Self
         {
             API: GameAPI::Create(sceneBuilderMethod),
-            _editor: CozyEditor::Create(),
-            _player: CozyPlayer::Create(),
-            _mode: EEngineMode::Play
+            _editor: CozyEditor::Create(&display),
+            _player: CozyPlayer::Create(display.clone()),
+            _mode: EEngineMode::Play,
+
+            _display: display,
+            _window: window
         }
     }
 
     pub fn EnterPlayMode(&mut self)
     {
         // Reset GameAPI
-
         self.API.SceneManager.Entities.CopyFrom(&mut self._editor.Entities);
 
         self._mode = EEngineMode::Play;
@@ -68,38 +103,26 @@ impl CozyEngine
 
 
     /// Begins the game loop.
-    pub fn Run(&mut self)
+    pub fn Run(&mut self, eventLoop: EventLoop<()>)
     {
         let timeStart = Local::now();
-
-        let event_loop = winit::event_loop::EventLoopBuilder::new()
-            .build()
-            .expect("event loop building");
-
-        let (window, display) =
-            glium::backend::glutin::SimpleWindowBuilder::new()
-                .with_title("Mini Quest Engine Test")
-                .with_inner_size(800, 600)
-                .build(&event_loop);
 
         // Adds all levels that should be available for loading.
         self.API.SceneManager.AddScene("Level1", "Scenes/test.lvl");
         
         // Build starting scene.
-        self.API.SceneManager.LoadScene("Level1", &display);
+        self.API.SceneManager.LoadScene("Level1", &self._display);
 
-        unsafe
-        {
-            Entities::Start(&mut self.API);
-        }
+        Entities::Start(&mut self.API);
 
         // Enter frame loop
         let mut input = Input::New();
         let mut dateTimeLastFrame = Local::now();
 
         // TODO: Break this closure up into static functions
-        event_loop.run( |event, window_target|
+        eventLoop.run( |event, window_target|
         {
+
             match event
             {
                 winit::event::Event::WindowEvent { event, .. } => match event
@@ -127,39 +150,87 @@ impl CozyEngine
                     // We now need to render everything in response to a RedrawRequested event due to the animation
                     winit::event::WindowEvent::RedrawRequested =>
                     {
-                        match self._mode
-                        {
-                            EEngineMode::Play => self._player.Update(
-                                &display,
-                                &mut self.API,
-                                &mut input,
-                                timeStart,
-                                &mut dateTimeLastFrame
-                            ),
+                        let now = SystemTime::now();
+                        let mut renderTime: u128 = 0;
+                        let mut target = self._display.draw();
 
-                            EEngineMode::Editor => self._editor.Update(
-                                &display,
-                                &mut self.API,
-                                &mut input,
-                                timeStart,
-                                &mut dateTimeLastFrame
-                            )
-                        }
+                        target.clear_color_and_depth((0.1, 0.0, 0.2, 1.0), 1.0);
+
+                        self.API.Audio.Update();
+
+                        let timeLastFrame = dateTimeLastFrame.clone();
+                        let viewMatrix = self.API.SceneManager.Entities.Camera.ViewMatrix();
+                        let perspective= self.API.SceneManager.Entities.Camera.PerspectiveMatrix();
+
+                        // Maybe just avoid allocating new frame and instead just update values. 
+                        let frame : Rc<GameFrame> =
+                            Rc::new(
+                                GameFrame::new(
+                                    input.GetStateCopy(),
+                                    Local::now() - timeStart,
+                                    Local::now() - timeLastFrame,
+                                    viewMatrix,
+                                    perspective
+                                )
+                            );
+
+                            // runtime mode update
+                            match self._mode
+                            {
+                                EEngineMode::Play => 
+                                    self._player.Update(
+                                        &mut self.API,
+                                        frame.clone(),
+                                        &mut target
+                                ),
+
+                                EEngineMode::Editor => 
+                                    self._editor.Update(
+                                        &mut self.API,
+                                        &mut input,
+                                        timeStart,
+                                        &mut dateTimeLastFrame
+                                )
+                            }
+
+                        input.ResetPressedAndReleased();
+                        input.SetMouseWheelPixelDelta((0.0, 0.0));
+                        input.SetMouseWheelLineOffset((0.0, 0.0));
+
+                        dateTimeLastFrame = Local::now();
+
+                        let rnow = SystemTime::now();
+                        let _ = target.finish();
+                        self._display.finish();
+                        renderTime = renderTime + rnow.elapsed().unwrap().as_millis();
+
+                        match now.elapsed()
+                        {
+                            Ok(elapsed) =>
+                                {
+                                    println!("Mode: {}", self._mode);
+                                    println!("Logic: {}ms fps:{}", elapsed.as_millis(), (1_000_000_000.0 / elapsed.as_nanos() as f32) as u32);
+                                    println!("render: {}ms\n\n", renderTime);
+
+                                },
+                            _ => {}
+                        };
                     },
 
                     // Because glium doesn't know about windows we need to resize the display
                     // when the window's size has changed.
                     winit::event::WindowEvent::Resized(window_size) =>
-                        {
-                            display.resize(window_size.into());
-                        },
+                    {
+                        self._display.resize(window_size.into());
+                    },
 
                     _ => (),
                 },
                 // By requesting a redraw in response to a AboutToWait event we get continuous rendering.
                 // For applications that only change due to user Input you could remove this handler.
-                winit::event::Event::AboutToWait => {
-                    window.request_redraw();
+                winit::event::Event::AboutToWait => 
+                {
+                    self._window.request_redraw();
                 },
                 _ => (),
             }
@@ -231,5 +302,7 @@ impl CozyEngine
         };
     }
 }
+
+
 
 

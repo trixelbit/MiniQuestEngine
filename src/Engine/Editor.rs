@@ -51,8 +51,22 @@ pub struct CozyEditor
     // All sprites assets
     _spriteAssets: Vec<Asset>,
 
+
     // Insert Mode Data
-    _isSelectingAsset : bool,
+        // Are we selecting asset
+        _insertMode : EInsertModeState,
+        // current selected asset in UI
+        _assetCoord: Float3,
+
+
+}
+
+enum EInsertModeState
+{
+    Inserting,
+    Tiles,
+    Special,
+    Audio,
 }
 
 impl CozyEditor
@@ -67,7 +81,8 @@ impl CozyEditor
             _camera: Camera::New(32.0, Float3::zero()),
             _selectedIDs: Vec::new(),
             _spriteAssets: Vec::new(),
-            _isSelectingAsset: false,
+            _insertMode: EInsertModeState::Inserting,
+            _assetCoord: Float3::zero(),
         };
 
         // load and populate all assets in directory
@@ -121,35 +136,39 @@ impl CozyEditor
 
     pub fn Update(
         &mut self,
-        display: &Display<WindowSurface>,
-        api: &mut GameAPI,
+        api: *mut GameAPI,
         input: &mut Input,
         timeStart: DateTime<Local>,
         dateTimeLastFrame: &mut DateTime<Local>
     )
     {
-        match self._mode
+        let mode = &self._mode.clone();
+        
+        match mode
         {
             EEditorMode::Command =>
-                {
+            {
 
-                }
+            }
+
             EEditorMode::Insert =>
-                {
-                    // Tiles => select any png
-                    // Entities = Boxer, AudioSources, Camera
+            {
+                // Tiles => select any png
+                // Entities = Boxer, AudioSources, Camera
 
-                    // Display assets pallet
-                    //
-                }
+                // Display assets pallet
+                self.InsertUpdate(&self._display.clone(), api, input);
+            }
+
             EEditorMode::Selection =>
-                {
+            {
 
-                }
+            }
+
             EEditorMode::Transform =>
-                {
+            {
 
-                }
+            }
         }
     }
 
@@ -165,11 +184,6 @@ impl CozyEditor
                 }
             EEditorMode::Insert =>
                 {
-                    // Tiles => select any png
-                    // Entities = Boxer, AudioSources, Camera
-
-                    // Display assets pallet
-                    //
                 }
             EEditorMode::Selection =>
                 {
@@ -187,12 +201,18 @@ impl CozyEditor
 
     }
 
-    fn InsertUpdate(&mut self)
+    fn InsertUpdate(
+        &mut self,
+        display: &Display<WindowSurface>,
+        api: *mut GameAPI,
+        input: &mut Input
+    )
     {
 
     }
 }
 
+#[derive(Clone, Copy)]
 enum EEditorMode
 {
     /// Allows moving the camera/cursor
@@ -207,3 +227,7 @@ enum EEditorMode
     /// Manipulates the position of an entity.
     Transform
 }
+
+
+
+

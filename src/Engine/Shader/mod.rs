@@ -3,9 +3,9 @@ use std::fs;
 
 // Directory Delimiter is OS dependent.
 // Need to make this delimiter OS independent
-pub const DEFAULT_FRAGMENT: &str = "Shaders\\F_UnlitSprite.shader";
+pub const DEFAULT_FRAGMENT: &str = "Shaders/F_UnlitSprite.shader";
 
-pub const DEFAULT_VERTEX: &str = "Shaders\\V_Standard.shader";
+pub const DEFAULT_VERTEX: &str = "Shaders/V_Standard.shader";
 
 /// Loads all shaders stored in the Shader folder and allows query for them.
 /// Avoids the needs for loading files on runtime.
